@@ -938,7 +938,7 @@ init();
 
 // ════════════════════════════════════════════
 // 实时价格刷新功能
-async async function decryptApiResponse(buffer) {
+async function decryptApiResponse(buffer) {
   try {
     const encNameLen = new DataView(buffer).getUint8(0);
     const encName = new TextDecoder().decode(buffer.slice(1, 1 + encNameLen));
