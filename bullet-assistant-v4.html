@@ -1,0 +1,1040 @@
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// 数据
+// ═══════════════════════════════════════════════════════════
+const TIMING_BULLETS=[{id:"37120500003",n:"5.45*39mm BS ST+",g:5,pen:5,p:6097,trend:"stable",bt:"综合 00:00-02:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39.png"},
+{id:"37110500002",n:"7.62*39mm AP SUB",g:5,pen:5,p:5777,trend:"stable",bt:"综合 00:00-02:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x39.png"},
+{id:"37170500001",n:"7.62x51mm M62",g:5,pen:5,p:5667,trend:"stable",bt:"综合 08:00-10:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x51mm.png"},
+{id:"37150500001",n:"6.8x51mm Hybrid",g:5,pen:5,p:5169,trend:"stable",bt:"综合 10:30-12:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/6.8x51.png"},
+{id:"37160500001",n:"12.7x55mm PS12B",g:5,pen:5,p:5143,trend:"stable",bt:"综合 07:00-09:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12.7x55.png"},
+{id:"37180500001",n:"7.62x54R BT",g:5,pen:5,p:4894,trend:"rising",bt:"综合 07:00-09:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x54mm.png"},
+{id:"37110500001",n:"7.62x39mm AP",g:5,pen:5,p:4821,trend:"stable",bt:"综合 08:00-10:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x39.png"},
+{id:"37270500001",n:"碳纤维穿甲箭矢",g:5,pen:5,p:4779,trend:"falling",bt:"综合 08:30-10:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/37270500001.png"},
+{id:"37140500001",n:"9x39mm BP",g:5,pen:5,p:4679,trend:"stable",bt:"综合 09:30-11:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x39.png"},
+{id:"37230500001",n:".50 AE AP",g:5,pen:5,p:4568,trend:"falling",bt:"综合 08:00-10:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/50-AE.png"},
+{id:"37290500001",n:"45-70 Govt FTX",g:5,pen:5,p:4535,trend:"falling",bt:"综合 08:00-10:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/37290500001.png"},
+{id:"37280500001",n:".300BLK",g:5,pen:5,p:4293,trend:"falling",bt:"综合 07:30-09:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/300BLK.png"},
+{id:"37120500001",n:"5.45x39mm BS",g:5,pen:5,p:4144,trend:"stable",bt:"综合 08:00-10:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39.png"},
+{id:"37130500001",n:"5.8x42mm DVC12",g:5,pen:5,p:4095,trend:"stable",bt:"综合 08:00-10:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.8x42.png"},
+{id:"37210500001",n:"5.7x28mm SS190",g:5,pen:5,p:4052,trend:"stable",bt:"综合 08:00-10:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.7x28.png"},
+{id:"37100500001",n:"5.56x45mm M995",g:5,pen:5,p:3952,trend:"stable",bt:"综合 08:00-10:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"},
+{id:"37260500001",n:"4.6x30mm AP SX",g:5,pen:5,p:3887,trend:"stable",bt:"综合 07:30-09:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/4.6x30.png"},
+{id:"37270500002",n:"碳纤维散射箭矢",g:5,pen:5,p:3241,trend:"stable",bt:"综合 00:00-02:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/37270500002.png"},
+{id:"37160400002",n:"12.7x55mm PD12双头弹",g:4,pen:4,p:2667,trend:"stable",bt:"综合 06:00-08:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12.7x55.png"},
+{id:"37280400002",n:".300BLK BCP SUB",g:4,pen:4,p:1906,trend:"stable",bt:"综合 00:00-02:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/300BLK.png"},
+{id:"37160400001",n:"12.7x55mm PS12",g:4,pen:4,p:1772,trend:"rising",bt:"综合 05:30-07:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12.7x55.png"},
+{id:"37180400001",n:"7.62x54R LPS",g:4,pen:4,p:1730,trend:"stable",bt:"综合 06:00-08:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x54mm.png"},
+{id:"37140400001",n:"9x39mm SP6",g:4,pen:4,p:1721,trend:"stable",bt:"综合 04:30-06:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x39.png"},
+{id:"37150400001",n:"6.8x51mm FMJ",g:4,pen:4,p:1709,trend:"falling",bt:"综合 04:30-06:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/6.8x51.png"},
+{id:"37270400001",n:"碳纤维刺骨箭矢",g:4,pen:4,p:1644,trend:"rising",bt:"综合 05:30-07:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/37270400001.png"},
+{id:"37250400003",n:"12 Gauge 龙息弹",g:4,pen:0,p:1640,trend:"stable",bt:"综合 06:30-08:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},
+{id:"37120400003",n:"5.45*39mm BT ST",g:4,pen:4,p:1632,trend:"stable",bt:"综合 01:30-03:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39.png"},
+{id:"37100400002",n:"5.56*45mm M855A1 APC+",g:4,pen:4,p:1625,trend:"stable",bt:"综合 02:00-04:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"},
+{id:"37280400001",n:".300BLK",g:4,pen:4,p:1617,trend:"stable",bt:"综合 02:30-04:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/300BLK.png"},
+{id:"37210400001",n:"5.7x28mm SS193",g:4,pen:4,p:1593,trend:"stable",bt:"综合 02:30-04:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.7x28.png"},
+{id:"37110400002",n:"7.62*39mm BP SUB",g:4,pen:4,p:1586,trend:"stable",bt:"综合 00:00-02:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x39.png"},
+{id:"37230400001",n:".50 AE FMJ",g:4,pen:4,p:1505,trend:"falling",bt:"综合 08:00-10:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/50-AE.png"},
+{id:"37130400001",n:"5.8x42mm DBP10",g:4,pen:4,p:1428,trend:"stable",bt:"综合 04:30-06:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.8x42.png"},
+{id:"37190400001",n:".45 ACP AP",g:4,pen:4,p:1365,trend:"falling",bt:"综合 04:30-06:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/45-ACP.png"},
+{id:"37170400001",n:"7.62x51mm M80",g:4,pen:4,p:1258,trend:"stable",bt:"综合 04:30-06:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x51mm.png"},
+{id:"37290400001",n:"45-70 Govt FMJ",g:4,pen:4,p:1213,trend:"falling",bt:"综合 07:30-09:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/37290400001.png"},
+{id:"37110400001",n:"7.62x39mm BP",g:4,pen:4,p:1191,trend:"stable",bt:"综合 04:30-06:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x39.png"},
+{id:"37120400001",n:"5.45x39mm BT",g:4,pen:4,p:1166,trend:"stable",bt:"综合 03:30-05:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39.png"},
+{id:"37100400001",n:"5.56x45mm M855A1",g:4,pen:4,p:1101,trend:"stable",bt:"综合 02:30-04:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"},
+{id:"37260400001",n:"4.6x30mm FMJ SX",g:4,pen:4,p:1095,trend:"stable",bt:"综合 03:00-05:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/4.6x30.png"},
+{id:"37200400001",n:"9x19mm PBP",g:4,pen:4,p:1036,trend:"stable",bt:"综合 04:00-06:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x19.png"},
+{id:"37270300001",n:"玻纤柳叶箭矢",g:3,pen:3,p:709,trend:"stable",bt:"综合 00:30-02:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/37270300001.png"},
+{id:"37160300001",n:"12.7x55mm PS12A",g:3,pen:3,p:694,trend:"stable",bt:"综合 03:30-05:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12.7x55.png"},
+{id:"37190000001",n:".45 ACP RIP",g:3,pen:0,p:650,trend:"stable",bt:"综合 02:30-04:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/45-ACP.png"},
+{id:"37200000001",n:"9x19mm RIP",g:3,pen:0,p:578,trend:"stable",bt:"综合 01:00-03:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x19.png"},
+{id:"37220400001",n:".357 Magnum FMJ",g:4,pen:4,p:545,trend:"stable",bt:"综合 22:00-24:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/.357.png"},
+{id:"37190300001",n:".45 ACP FMJ",g:3,pen:3,p:521,trend:"stable",bt:"综合 04:00-06:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/45-ACP.png"},
+{id:"37250300002",n:"12 Gauge独头 FTX",g:3,pen:3,p:519,trend:"stable",bt:"综合 04:00-06:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},
+{id:"37280300002",n:".300BLK V SUB",g:3,pen:3,p:519,trend:"stable",bt:"综合 00:00-02:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/300BLK.png"},
+{id:"37170300001",n:"7.62x51mm BPZ",g:3,pen:3,p:508,trend:"rising",bt:"综合 04:00-06:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x51mm.png"},
+{id:"37140300001",n:"9x39mm SP5",g:3,pen:3,p:504,trend:"stable",bt:"综合 04:00-06:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x39.png"},
+{id:"37220300001",n:".357 Magnum JHP",g:3,pen:3,p:499,trend:"falling",bt:"综合 03:30-05:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/.357.png"},
+{id:"37110300001",n:"7.62x39mm PS",g:3,pen:3,p:491,trend:"stable",bt:"综合 03:30-05:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x39.png"},
+{id:"37180300001",n:"7.62x54R T46M",g:3,pen:3,p:482,trend:"falling",bt:"综合 04:30-06:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x54mm.png"},
+{id:"37250400002",n:"12 Gauge独头 AP-20",g:4,pen:4,p:471,trend:"stable",bt:"综合 06:00-08:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},
+{id:"37210000001",n:"5.7x28mm R37.F",g:3,pen:0,p:467,trend:"stable",bt:"综合 02:00-04:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.7x28.png"},
+{id:"37230300001",n:".50 AE JHP",g:3,pen:3,p:464,trend:"falling",bt:"综合 04:00-06:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/50-AE.png"},
+{id:"37120300001",n:"5.45x39mm PS",g:3,pen:3,p:444,trend:"stable",bt:"综合 04:00-06:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39.png"},
+{id:"37280300001",n:".300BLK",g:3,pen:3,p:437,trend:"stable",bt:"综合 04:00-06:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/300BLK.png"},
+{id:"37290300001",n:"45-70 Govt RN",g:3,pen:0,p:434,trend:"rising",bt:"综合 04:30-06:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/37290300001.png"},
+{id:"37130300001",n:"5.8x42mm DVP88",g:3,pen:3,p:403,trend:"falling",bt:"综合 04:00-06:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.8x42.png"},
+{id:"37250300001",n:"12 Gauge 箭形弹",g:3,pen:3,p:403,trend:"rising",bt:"综合 04:00-06:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},
+{id:"37210300001",n:"5.7x28mm L191",g:3,pen:3,p:390,trend:"falling",bt:"综合 04:30-06:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.7x28.png"},
+{id:"37260300001",n:"4.6x30mm Subsonic SX",g:3,pen:3,p:387,trend:"stable",bt:"综合 04:30-06:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/4.6x30.png"},
+{id:"37200300001",n:"9x19mm AP6.3",g:3,pen:3,p:366,trend:"stable",bt:"综合 04:00-06:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x19.png"},
+{id:"37100300002",n:"5.56*45mm M855 APC",g:3,pen:3,p:352,trend:"rising",bt:"综合 01:00-03:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"},
+{id:"37250000001",n:"12 Gauge 8.5毫米鹿弹",g:3,pen:0,p:343,trend:"stable",bt:"综合 02:30-04:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},
+{id:"37100300001",n:"5.56x45mm M855",g:3,pen:3,p:331,trend:"stable",bt:"综合 02:30-04:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"},
+{id:"37220000001",n:".357 Magnum 9号霰射\"鼠弹\"",g:3,pen:0,p:208,trend:"rising",bt:"综合 03:30-05:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/.357.png"},
+{id:"37230200001",n:".50 AE HP",g:2,pen:2,p:164,trend:"stable",bt:"综合 18:30-20:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/50-AE.png"},
+{id:"37220200001",n:".357 Magnum HP",g:2,pen:2,p:162,trend:"stable",bt:"综合 08:30-10:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/.357.png"},
+{id:"37250000002",n:"12 Gauge独头 RIP",g:2,pen:0,p:133,trend:"stable",bt:"综合 00:00-02:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},
+{id:"37170200001",n:"7.62x51mm UN",g:2,pen:2,p:114,trend:"stable",bt:"综合 04:30-06:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x51mm.png"},
+{id:"37190200001",n:".45 ACP JHP",g:2,pen:2,p:111,trend:"stable",bt:"综合 01:30-03:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/45-ACP.png"},
+{id:"37110200001",n:"7.62x39mm T45M",g:2,pen:2,p:111,trend:"stable",bt:"综合 00:00-02:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x39.png"},
+{id:"37120200001",n:"5.45x39mm T",g:2,pen:2,p:100,trend:"stable",bt:"综合 00:00-02:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39.png"},
+{id:"37210200001",n:"5.7x28mm SS197SR",g:2,pen:2,p:97,trend:"stable",bt:"综合 04:00-06:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.7x28.png"},
+{id:"37130200001",n:"5.8x42mm DBP87",g:2,pen:2,p:94,trend:"stable",bt:"综合 04:30-06:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.8x42.png"},
+{id:"37200200001",n:"9x19mm Pst",g:2,pen:2,p:85,trend:"rising",bt:"综合 04:00-06:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x19.png"},
+{id:"37100200001",n:"5.56x45mm FMJ",g:2,pen:2,p:79,trend:"stable",bt:"综合 07:30-09:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"},
+{id:"37250200002",n:"12 Gauge独头 GT",g:2,pen:2,p:65,trend:"stable",bt:"综合 00:00-02:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},
+{id:"37110100001",n:"7.62x39mm LP",g:1,pen:1,p:43,trend:"stable",bt:"综合 03:30-05:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x39.png"},
+{id:"37190100001",n:".45 ACP HS",g:1,pen:1,p:43,trend:"stable",bt:"综合 12:30-14:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/45-ACP.png"},
+{id:"37120100001",n:"5.45x39mm PRS",g:1,pen:1,p:40,trend:"stable",bt:"综合 06:00-08:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39.png"},
+{id:"37210100001",n:"5.7x28mm SS198LF",g:1,pen:1,p:38,trend:"stable",bt:"综合 05:30-07:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.7x28.png"},
+{id:"37100100001",n:"5.56x45mm RRLP",g:1,pen:1,p:35,trend:"stable",bt:"综合 09:00-11:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"},
+{id:"37200100001",n:"9x19mm PSO",g:1,pen:1,p:32,trend:"stable",bt:"综合 00:00-02:00",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x19.png"},
+{id:"37250100001",n:"12 Gauge 7毫米鹿弹",g:1,pen:1,p:23,trend:"stable",bt:"综合 02:30-04:30",pi:"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"}];
+
+// 等级颜色映射
+const GRADE_COLORS = {5:'gold',4:'purple',3:'blue',2:'green',1:'gray'};
+const GRADE_NAMES = {5:'五级',4:'四级',3:'三级',2:'二级',1:'一级'};
+const GRADE_BG = {5:'var(--gold-bg)',4:'var(--purple-bg)',3:'var(--blue-bg)',2:'var(--green2-bg)',1:'var(--gray-bg)'};
+const GRADE_CLR = {5:'var(--gold)',4:'var(--purple)',3:'var(--blue)',2:'var(--green2)',1:'var(--gray)'};
+const FEE_RATES = {1:0.10,2:0.10,3:0.13,4:0.17,5:0.20};
+
+// 时机筛选状态
+let timingFilter = {grade:0,trend:'all',search:''};
+let selectedTiming = null;
+let selectedCalc = null;
+
+// 白夜模式
+let isDark = true;
+let notifOn = false;
+
+// ═══════════════════════════════════════════════════════════
+// 初始化
+// ═══════════════════════════════════════════════════════════
+function init() {
+  renderTimingList();
+  renderCalcList();
+  initTheme();
+  updateStatus(false);
+}
+setTimeout(init, 50);
+
+// ═══════════════════════════════════════════════════════════
+// 标签切换
+// ═══════════════════════════════════════════════════════════
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════════
+// 白夜模式
+// ═══════════════════════════════════════════════════════════
+function initTheme() {
+  isDark = localStorage.getItem('theme') !== 'light';
+  applyTheme();
+}
+function toggleTheme() {
+  isDark = !isDark;
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  applyTheme();
+}
+function applyTheme() {
+  if (isDark) {
+    document.documentElement.classList.remove('light');
+    document.getElementById('themeBtn').textContent = '🌙';
+  } else {
+    document.documentElement.classList.add('light');
+    document.getElementById('themeBtn').textContent = '☀️';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// 状态更新
+// ═══════════════════════════════════════════════════════════
+function updateStatus(live) {
+  const dot = document.getElementById('statusDot');
+  const txt = document.getElementById('statusText');
+  if (live) {
+    dot.className = 'status-dot live';
+    txt.textContent = '实时数据 ✓';
+  } else {
+    dot.className = 'status-dot stale';
+    txt.textContent = '使用缓存数据';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// 刷新价格（占位，后续接API）
+// ═══════════════════════════════════════════════════════════
+function refreshPrices() {
+  const btn = document.querySelector('.refresh-btn');
+  btn.classList.add('spinning');
+  setTimeout(() => {
+    btn.classList.remove('spinning');
+    updateStatus(false);
+  }, 800);
+}
+
+// ═══════════════════════════════════════════════════════════
+// 时机 - 筛选
+// ═══════════════════════════════════════════════════════════
+function filterGrade(g, btn) {
+  timingFilter.grade = g;
+  if (btn) {
+    btn.parentElement.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  renderTimingList();
+}
+function filterTrend(t, btn) {
+  timingFilter.trend = t;
+  if (btn) {
+    btn.parentElement.querySelectorAll('.filter-tag').forEach(tg => tg.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  renderTimingList();
+}
+function filterBullets() {
+  timingFilter.search = document.getElementById('searchInput').value.toLowerCase();
+  renderTimingList();
+}
+
+// ═══════════════════════════════════════════════════════════
+// 时机 - 列表渲染
+// ═══════════════════════════════════════════════════════════
+function renderTimingList() {
+  let list = TIMING_BULLETS;
+  if (timingFilter.grade) list = list.filter(b => b.g === timingFilter.grade);
+  if (timingFilter.trend === 'up') list = list.filter(b => b.trend === 'rising');
+  if (timingFilter.trend === 'down') list = list.filter(b => b.trend === 'falling');
+  if (timingFilter.trend === 'stable') list = list.filter(b => b.trend === 'stable');
+  if (timingFilter.search) list = list.filter(b => b.n.toLowerCase().includes(timingFilter.search));
+
+  const trendMap = {rising:'up',falling:'down',stable:'stable'};
+  const trendLabel = {rising:'📈涨',falling:'📉跌',stable:'📊稳'};
+
+  document.getElementById('blList').innerHTML = list.map((b,i) => {
+    const c = GRADE_CLR[b.g] || 'var(--gray)';
+    const bg = GRADE_BG[b.g] || 'var(--gray-bg)';
+    const gn = GRADE_NAMES[b.g] || (b.g+'级');
+    const t = trendMap[b.trend] || '';
+    const tl = trendLabel[b.trend] || '';
+    return `<div class="bl-item" onclick="selectTiming(` + i + `)" style="--gc:` + c + `">
+      <img class="bl-img" src="` + b.pi + `" onerror="this.hidden=true">
+      <div class="bl-info">
+        <div class="bl-name">` + b.n + `</div>
+        <div class="bl-meta">
+          <span style="font-size:10px;padding:1px 5px;border-radius:3px;background:` + bg + `;color:` + c + `">` + gn + `</span>
+          ` + (t ? '<span class="bl-trend ' + t + '">' + tl + '</span>' : '') + `
+        </div>
+      </div>
+      <div class="bl-price">` + (b.p > 0 ? '🪙' + b.p.toLocaleString() : '???') + `</div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+// 时机 - 选择子弹
+// ═══════════════════════════════════════════════════════════
+function selectTiming(idx) {
+  let list = TIMING_BULLETS;
+  if (timingFilter.grade) list = list.filter(b => b.g === timingFilter.grade);
+  if (timingFilter.trend === 'up') list = list.filter(b => b.trend === 'rising');
+  if (timingFilter.trend === 'down') list = list.filter(b => b.trend === 'falling');
+  if (timingFilter.trend === 'stable') list = list.filter(b => b.trend === 'stable');
+  if (timingFilter.search) list = list.filter(b => b.n.toLowerCase().includes(timingFilter.search));
+  
+  selectedTiming = list[idx];
+  if (!selectedTiming) return;
+  
+  // Highlight
+  document.querySelectorAll('#blList .bl-item').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('#blList .bl-item')[idx]?.classList.add('active');
+
+  // Show detail
+  document.getElementById('detailEmpty').style.display = 'none';
+  document.getElementById('detailPanel').style.display = '';
+
+  const b = selectedTiming;
+  const c = GRADE_CLR[b.g] || 'var(--gray)';
+  const gn = GRADE_NAMES[b.g] || (b.g+'级');
+  const trendEmoji = b.trend === 'rising' ? '📈 上涨' : b.trend === 'falling' ? '📉 下跌' : '📊 平稳';
+  const trendClr = b.trend === 'rising' ? 'var(--green)' : b.trend === 'falling' ? 'var(--red)' : 'var(--text2)';
+  const bt = b.bt || '未知';
+
+  document.getElementById('dhPic').src = b.pi;
+  document.getElementById('dhName').textContent = b.n;
+  document.getElementById('dhGrade').textContent = gn;
+  document.getElementById('dhGrade').style.background = GRADE_BG[b.g];
+  document.getElementById('dhGrade').style.color = c;
+  document.getElementById('dhPrice').textContent = b.p > 0 ? '🪙' + b.p.toLocaleString() : '-';
+  document.getElementById('dhTrend').textContent = trendEmoji;
+  document.getElementById('dhTrend').style.color = trendClr;
+  document.getElementById('dhBestTime').textContent = '🕐 ' + bt;
+  document.getElementById('bestTimeSlot').textContent = bt;
+
+  // Stat grid
+  document.getElementById('statGrid').innerHTML = `
+    <div class="stat-card"><div class="sv">${b.p > 0 ? '🪙'+b.p.toLocaleString() : '-'}</div><div class="sl">实时价格</div></div>
+    <div class="stat-card"><div class="sv" style="color:` + c + `">` + gn + `</div><div class="sl">品级</div></div>
+    <div class="stat-card"><div class="sv">` + (b.pen > 0 ? b.pen : '?') + `</div><div class="sl">穿透等级</div></div>
+    <div class="stat-card"><div class="sv" style="color:` + trendClr + `">` + trendEmoji + `</div><div class="sl">趋势</div></div>
+  `;
+
+  // Suggestion
+  const sugArea = document.getElementById('suggestionArea');
+  if (b.trend === 'rising') {
+    sugArea.innerHTML = '<div class="suggestion-box caution">⚠️ 当前处于上涨通道，追高有风险。建议等待回调到支撑位再买入。</div>';
+  } else if (b.trend === 'falling') {
+    sugArea.innerHTML = '<div class="suggestion-box" style="border-left-color:var(--green);background:rgba(34,197,94,0.08)">✅ 当前处于下跌通道，可在低位分批建仓。建议关注最佳购买时段。</div>';
+  } else {
+    sugArea.innerHTML = '<div class="suggestion-box" style="border-left-color:var(--accent)">📌 价格平稳，可正常交易。注意观察是否有突破信号。</div>';
+  }
+
+  // Props
+  document.getElementById('propsGrid').innerHTML = `
+    <div class="prop-chip"><div class="pc-val">` + gn + `</div><div class="pc-label">品级</div></div>
+    <div class="prop-chip"><div class="pc-val">` + (b.pen > 0 ? b.pen : '?') + `</div><div class="pc-label">穿透等级</div></div>
+    <div class="prop-chip"><div class="pc-val">` + (b.p > 0 ? b.p.toLocaleString() : '-') + `</div><div class="pc-label">参考价格</div></div>
+  `;
+
+  drawChart(b);
+}
+
+// ═══════════════════════════════════════════════════════════
+// Canvas 价格走势图
+// ═══════════════════════════════════════════════════════════
+function drawChart(bullet) {
+  const canvas = document.getElementById('priceChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = 200 * dpr;
+  canvas.style.width = rect.width + 'px';
+  canvas.style.height = '200px';
+  ctx.scale(dpr, dpr);
+
+  const w = rect.width - 20;
+  const h = 190;
+  const pad = {top:20,right:10,bottom:30,left:50};
+
+  // Generate mock data
+  const base = bullet.p || 1000;
+  const days = 30;
+  const points = [];
+  let val = base * 1.1;
+  for (let i = 0; i < days; i++) {
+    val += (Math.random() - 0.52) * base * 0.04;
+    val = Math.max(val, base * 0.85);
+    val = Math.max(val, 1);
+    points.push(val);
+  }
+
+  const max = Math.max(...points) * 1.05;
+  const min = Math.min(...points) * 0.95;
+  const range = max - min || 1;
+
+  const xScale = (w - pad.left - pad.right) / (days - 1);
+  const yScale = (h - pad.top - pad.bottom) / range;
+
+  // Grid
+  ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.06)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 5; i++) {
+    const y = pad.top + (h - pad.top - pad.bottom) * i / 4;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(w - pad.right, y);
+    ctx.stroke();
+  }
+
+  // Y axis labels
+  ctx.fillStyle = isDark ? '#8b949e' : '#999';
+  ctx.font = '10px sans-serif';
+  ctx.textAlign = 'right';
+  for (let i = 0; i < 5; i++) {
+    const val = max - range * i / 4;
+    const y = pad.top + (h - pad.top - pad.bottom) * i / 4;
+    ctx.fillText(Math.round(val).toLocaleString(), pad.left - 6, y + 3);
+  }
+
+  // Line + fill
+  const grad = ctx.createLinearGradient(0, pad.top, 0, h - pad.bottom);
+  grad.addColorStop(0, isDark ? 'rgba(59,130,246,0.2)' : 'rgba(37,99,235,0.12)');
+  grad.addColorStop(1, 'rgba(0,0,0,0)');
+
+  ctx.beginPath();
+  points.forEach((v, i) => {
+    const x = pad.left + i * xScale;
+    const y = pad.top + (max - v) * yScale;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  const lastX = pad.left + (days - 1) * xScale;
+  const lastY = pad.top + (max - points[days - 1]) * yScale;
+  ctx.lineTo(lastX, h - pad.bottom);
+  ctx.lineTo(pad.left, h - pad.bottom);
+  ctx.closePath();
+
+  // Use a simple gradient style
+  ctx.fillStyle = isDark ? 'rgba(59,130,246,0.08)' : 'rgba(37,99,235,0.06)';
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  points.forEach((v, i) => {
+    const x = pad.left + i * xScale;
+    const y = pad.top + (max - v) * yScale;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  ctx.strokeStyle = isDark ? '#3b82f6' : '#2563eb';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Dot at end
+  ctx.beginPath();
+  ctx.arc(lastX, lastY, 4, 0, Math.PI * 2);
+  ctx.fillStyle = isDark ? '#60a5fa' : '#2563eb';
+  ctx.fill();
+
+  // Current price label
+  ctx.fillStyle = isDark ? '#e6edf3' : '#1a1a2e';
+  ctx.font = 'bold 11px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('🪙' + Math.round(points[days - 1]).toLocaleString(), lastX + 8, lastY + 4);
+}
+
+// ═══════════════════════════════════════════════════════════
+// 计算器 - 列表
+// ═══════════════════════════════════════════════════════════
+function renderCalcList() {
+  let list = TIMING_BULLETS;
+  const search = (document.getElementById('calcSearch')?.value || '').toLowerCase();
+  if (search) list = list.filter(b => b.n.toLowerCase().includes(search));
+
+  document.getElementById('calcBulletList').innerHTML = list.map(b => {
+    const c = GRADE_CLR[b.g] || 'var(--gray)';
+    return `<div class="bl-item" onclick="selectCalcBullet('` + b.id + `')" style="--gc:` + c + `">
+      <img class="bl-img" src="` + b.pi + `" onerror="this.hidden=true">
+      <div class="bl-info">
+        <div class="bl-name">` + b.n + `</div>
+        <div class="bl-meta">
+          <span style="font-size:10px;padding:1px 5px;border-radius:3px;background:` + (GRADE_BG[b.g]||'') + `;color:` + c + `">` + (GRADE_NAMES[b.g]||b.g+'级') + `</span>
+        </div>
+      </div>
+      <div class="bl-price">` + (b.p > 0 ? '🪙' + b.p.toLocaleString() : '???') + `</div>
+    </div>`;
+  }).join('');
+}
+
+function filterCalcList() {
+  renderCalcList();
+}
+
+function selectCalcBullet(id) {
+  selectedCalc = TIMING_BULLETS.find(b => b.id === id);
+  if (!selectedCalc) return;
+
+  document.querySelectorAll('#calcBulletList .bl-item').forEach(el => el.classList.remove('active'));
+  // Highlight would need index tracking, simplified
+
+  document.getElementById('calcEmpty').style.display = 'none';
+  document.getElementById('calcPanel').style.display = '';
+
+  const b = selectedCalc;
+  const gn = GRADE_NAMES[b.g] || (b.g+'级');
+  const c = GRADE_CLR[b.g] || 'var(--gray)';
+  const feeRate = FEE_RATES[b.g] || 0.17;
+
+  document.getElementById('calcBulletName').textContent = b.n + ' · 收益测算';
+  document.getElementById('calcBulletImg').src = b.pi;
+  document.getElementById('calcBulletGrade').textContent = gn;
+  document.getElementById('calcBulletGrade').style.background = GRADE_BG[b.g];
+  document.getElementById('calcBulletGrade').style.color = c;
+  document.getElementById('calcRefPrice').textContent = b.p > 0 ? '🪙' + b.p.toLocaleString() : '-';
+  document.getElementById('feeRate').textContent = Math.round(feeRate * 100) + '%';
+
+  if (b.p > 0) {
+    document.getElementById('buyPrice').value = b.p;
+    document.getElementById('sellPrice').value = '';
+    document.getElementById('buyQty').value = 1;
+    document.getElementById('sellQty').value = 1;
+    calc();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// 收益计算
+// ═══════════════════════════════════════════════════════════
+function calc() {
+  const buyPrice = parseFloat(document.getElementById('buyPrice').value) || 0;
+  const buyQty = parseInt(document.getElementById('buyQty').value) || 0;
+  const sellPrice = parseFloat(document.getElementById('sellPrice').value) || 0;
+  const sellQty = parseInt(document.getElementById('sellQty').value) || 0;
+  const grade = selectedCalc ? selectedCalc.g : 3;
+  const feeRate = FEE_RATES[grade] || 0.17;
+
+  if (!buyPrice || !buyQty) {
+    document.getElementById('resultBlock').innerHTML = '<div style="font-size:12px;color:var(--text2);text-align:center;padding:20px">输入价格后计算</div>';
+    return;
+  }
+
+  const buyTotal = buyPrice * buyQty;
+  const buyFee = Math.floor(buyTotal * feeRate);
+  const buyCost = buyTotal + buyFee;
+
+  const breakEven = buyPrice / (1 - feeRate);
+
+  if (!sellPrice || !sellQty) {
+    document.getElementById('resultBlock').innerHTML = `
+      <div class="result-row"><span>买入总额</span><span class="rr-val">🪙${buyTotal.toLocaleString()}</span></div>
+      <div class="result-row"><span>买入手续费 (${Math.round(feeRate*100)}%)</span><span class="rr-val" style="color:var(--red)">🪙${buyFee.toLocaleString()}</span></div>
+      <div class="result-row"><span>实际成本</span><span class="rr-val">🪙${buyCost.toLocaleString()}</span></div>
+      <div class="result-row"><span>保本单价</span><span class="rr-val" style="color:var(--accent2)">🪙${Math.ceil(breakEven).toLocaleString()}</span></div>
+    `;
+  } else {
+    const sellTotal = sellPrice * Math.min(sellQty, buyQty);
+    const sellFee = Math.floor(sellTotal * feeRate);
+    const sellRevenue = sellTotal - sellFee;
+    const matchedCost = buyPrice * Math.min(sellQty, buyQty) + Math.floor(buyPrice * Math.min(sellQty, buyQty) * feeRate);
+    const profit = sellRevenue - matchedCost;
+    const profitRate = matchedCost > 0 ? (profit / matchedCost * 100).toFixed(1) : 0;
+
+    document.getElementById('resultBlock').innerHTML = `
+      <div class="result-row"><span>买入总额</span><span class="rr-val">🪙${buyTotal.toLocaleString()}</span></div>
+      <div class="result-row"><span>买入手续费</span><span class="rr-val" style="color:var(--red)">🪙${buyFee.toLocaleString()}</span></div>
+      <div class="result-row"><span>卖出收入</span><span class="rr-val">🪙${sellTotal.toLocaleString()}</span></div>
+      <div class="result-row"><span>卖出手续费</span><span class="rr-val" style="color:var(--red)">🪙${sellFee.toLocaleString()}</span></div>
+      <div class="result-row"><span>保本单价</span><span class="rr-val" style="color:var(--accent2)">🪙${Math.ceil(breakEven).toLocaleString()}</span></div>
+      <div class="result-row" style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border)">
+        <span style="font-weight:700">💰 净利润</span>
+        <span class="rr-val rr-profit ${profit >= 0 ? 'rr-positive' : 'rr-negative'}">
+          🪙${profit.toLocaleString()} (${profitRate}%)
+        </span>
+      </div>
+    `;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// 通知
+// ═══════════════════════════════════════════════════════════
+function toggleNotif() {
+  notifOn = !notifOn;
+  const btn = document.getElementById('notifToggle');
+  if (notifOn) {
+    btn.classList.add('on');
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  } else {
+    btn.classList.remove('on');
+  }
+}
+</script>
+E html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>三角洲行动 - 子弹交易助手</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --card: #1c2333;
+  --border: #2d3548;
+  --text: #e6edf3;
+  --text2: #8b949e;
+  --accent: #3b82f6;
+  --accent2: #60a5fa;
+  --green: #22c55e;
+  --red: #ef4444;
+  --gold: #f59e0b;
+  --gold-bg: rgba(245,158,11,0.12);
+  --purple: #a855f7;
+  --purple-bg: rgba(168,85,247,0.12);
+  --blue: #3b82f6;
+  --blue-bg: rgba(59,130,246,0.12);
+  --green2: #10b981;
+  --green2-bg: rgba(16,185,129,0.12);
+  --gray: #9ca3af;
+  --gray-bg: rgba(156,163,175,0.12);
+  --shadow: 0 4px 24px rgba(0,0,0,0.3);
+  --radius: 12px;
+}
+html, body { height:100%; overflow-x:hidden; }
+body { font-family:'Segoe UI','Microsoft YaHei',system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+body::before { content:''; position:fixed; inset:0; background: radial-gradient(ellipse 60% 40% at 10% 5%, rgba(59,130,246,0.07) 0%, transparent 60%), radial-gradient(ellipse 50% 35% at 90% 95%, rgba(139,92,246,0.05) 0%, transparent 60%); pointer-events:none; z-index:0; }
+.app { position:relative; z-index:1; max-width:900px; margin:0 auto; padding:12px 10px 60px; }
+
+/* Header */
+.header { text-align:center; margin-bottom:12px; }
+.header-badge { display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg,#0f2540,#14203a); border:1px solid rgba(59,130,246,0.3); border-radius:18px; padding:4px 14px; font-size:10px; color:var(--blue2); letter-spacing:2px; margin-bottom:8px; }
+.header h1 { font-size:18px; font-weight:900; background:linear-gradient(135deg,#93c5fd,#c4b5fd); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:2px; }
+.header p { color:var(--muted); font-size:10px; }
+.header-bar { display:flex; justify-content:center; gap:6px; flex-wrap:wrap; margin-top:8px; }
+.chip { display:inline-flex; align-items:center; gap:4px; background:var(--card); border:1px solid var(--border); border-radius:7px; padding:3px 9px; font-size:10px; color:var(--muted); }
+.chip strong { color:var(--yellow); }
+.chip.red strong { color:var(--red); }
+.chip.green strong { color:var(--green); }
+
+/* Info bar */
+.info-bar { display:flex; align-items:center; justify-content:space-between; background:rgba(59,130,246,0.06); border:1px solid rgba(59,130,246,0.12); border-radius:7px; padding:6px 12px; margin-bottom:10px; font-size:10px; color:var(--muted); flex-wrap:wrap; gap:6px; }
+.info-bar .left { display:flex; align-items:center; gap:6px; }
+.info-bar .right { display:flex; align-items:center; gap:8px; }
+.import-btn { background:rgba(139,92,246,0.15); border:1px solid rgba(139,92,246,0.3); border-radius:5px; color:var(--purple); padding:3px 8px; font-size:10px; cursor:pointer; }
+.import-btn:hover { background:rgba(139,92,246,0.25); }
+.data-time { color:var(--muted); }
+
+/* Notification toggle */
+.notif-toggle { display:flex; align-items:center; gap:6px; cursor:pointer; font-size:10px; color:var(--muted); }
+.notif-toggle .toggle-switch { width:28px; height:16px; border-radius:8px; background:var(--border); position:relative; transition:background 0.2s; }
+.notif-toggle .toggle-switch::after { content:''; position:absolute; width:12px; height:12px; border-radius:50%; background:var(--muted); top:2px; left:2px; transition:all 0.2s; }
+.notif-toggle.on .toggle-switch { background:var(--green); }
+.notif-toggle.on .toggle-switch::after { left:14px; background:#fff; }
+.notif-toggle.on { color:var(--green); }
+
+/* Main grid */
+.main-grid { display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:8px; }
+@media (max-width:700px) { .main-grid { grid-template-columns:1fr; } }
+.card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px; }
+.card-title { font-size:9px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+.card-title::after { content:''; flex:1; height:1px; background:var(--border); }
+.dot { width:4px; height:4px; border-radius:50%; background:var(--blue); box-shadow:0 0 5px var(--blue); }
+.dot.g { background:var(--green); box-shadow:0 0 5px var(--green); }
+.dot.r { background:var(--red); box-shadow:0 0 5px var(--red); }
+
+/* Bullet selector */
+.search-row { display:flex; gap:5px; margin-bottom:6px; }
+.search-input { flex:1; background:#070e18; border:1px solid var(--border); border-radius:6px; color:var(--text); font-size:12px; padding:6px 8px; outline:none; }
+.search-input:focus { border-color:var(--blue); }
+.caliber-row { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:6px; max-height:60px; overflow-y:auto; }
+.cal-btn { padding:3px 8px; border-radius:14px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:10px; cursor:pointer; }
+.cal-btn:hover { border-color:var(--blue); color:var(--blue2); }
+.cal-btn.active { border-color:var(--blue); background:rgba(59,130,246,0.12); color:var(--blue2); }
+.bullet-dropdown { position:relative; }
+.bullet-trigger { width:100%; background:#070e18; border:1px solid var(--border); border-radius:8px; padding:8px 12px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none; }
+.bullet-trigger:hover { border-color:var(--blue); }
+.bullet-trigger.open { border-color:var(--blue); border-bottom-left-radius:0; border-bottom-right-radius:0; }
+.trigger-left { display:flex; align-items:center; gap:8px; }
+.trigger-name { font-size:13px; font-weight:600; }
+.trigger-right { display:flex; align-items:center; gap:6px; }
+.trigger-grade { font-size:9px; padding:2px 6px; border-radius:3px; font-weight:700; }
+.trigger-price { font-size:12px; color:var(--yellow); font-family:'Courier New',monospace; font-weight:600; }
+.chevron { font-size:9px; color:var(--muted); transition:transform 0.2s; }
+.bullet-trigger.open .chevron { transform:rotate(180deg); }
+.bullet-list-wrap { display:none; background:#070e18; border:1px solid var(--blue); border-top:none; border-radius:0 0 8px 8px; max-height:220px; overflow-y:auto; }
+.bullet-list-wrap.open { display:block; }
+.bl-item { display:flex; align-items:center; justify-content:space-between; padding:6px 12px; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.03); }
+.bl-item:hover { background:rgba(59,130,246,0.1); }
+.bl-left { display:flex; align-items:center; gap:6px; }
+.bl-name { font-size:12px; font-weight:500; }
+.bl-grade { font-size:8px; padding:1px 4px; border-radius:2px; font-weight:700; }
+.g7, .g6 { background:rgba(107,114,128,0.2); color:#9ca3af; }
+.g5 { background:rgba(239,68,68,0.25); color:#fca5a5; }
+.g4 { background:rgba(249,115,22,0.25); color:#fdba74; }
+.g3 { background:rgba(59,130,246,0.25); color:#93c5fd; }
+.g2 { background:rgba(16,185,129,0.25); color:#6ee7b7; }
+.g1 { background:rgba(107,114,128,0.2); color:#9ca3af; }
+.bl-price { font-size:11px; color:var(--yellow); font-family:'Courier New',monospace; }
+.bl-change { font-size:9px; margin-left:3px; }
+.bl-change.up { color:var(--green); }
+.bl-change.dn { color:var(--red); }
+.selected-info { display:flex; gap:5px; flex-wrap:wrap; margin-top:8px; }
+.selected-info .chip { font-size:9px; padding:2px 7px; }
+
+/* Price chart mini */
+.price-chart { background:var(--card2); border:1px solid var(--border); border-radius:10px; padding:10px; margin-bottom:8px; }
+.chart-title { font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; display:flex; align-items:center; justify-content:space-between; }
+.chart-bars { display:flex; align-items:flex-end; gap:5px; height:36px; }
+.chart-bw { flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; }
+.chart-val { font-size:8px; font-weight:600; font-family:'Courier New',monospace; }
+.chart-bar { width:100%; border-radius:2px 2px 0 0; min-height:2px; transition:height 0.4s; }
+.chart-lbl { font-size:7px; color:var(--muted); }
+
+/* Watch list */
+.watch-card { background:linear-gradient(135deg,rgba(139,92,246,0.08),rgba(59,130,246,0.04)); border:1px solid rgba(139,92,246,0.2); }
+.watch-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.watch-add-btn { background:rgba(139,92,246,0.15); border:1px solid rgba(139,92,246,0.3); border-radius:6px; color:var(--purple); padding:4px 10px; font-size:10px; cursor:pointer; }
+.watch-add-btn:hover { background:rgba(139,92,246,0.25); }
+.watch-list { display:flex; flex-direction:column; gap:5px; max-height:180px; overflow-y:auto; }
+.watch-empty { text-align:center; color:var(--muted); font-size:10px; padding:12px; }
+.watch-item { background:rgba(0,0,0,0.25); border-radius:8px; padding:8px 10px; position:relative; }
+.watch-item.alert-buy { border-left:3px solid var(--green); }
+.watch-item.alert-sell { border-left:3px solid var(--yellow); }
+.watch-item-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
+.watch-item-name { font-size:11px; font-weight:600; }
+.watch-item-grade { font-size:8px; padding:1px 4px; border-radius:2px; margin-left:4px; }
+.watch-item-current { font-size:10px; color:var(--muted); }
+.watch-item-current span { color:var(--yellow); font-weight:600; font-family:'Courier New',monospace; }
+.watch-item-targets { display:flex; gap:8px; font-size:9px; }
+.watch-target { display:flex; align-items:center; gap:3px; }
+.watch-target.buy { color:var(--green); }
+.watch-target.sell { color:var(--yellow); }
+.watch-item-close { position:absolute; top:4px; right:6px; font-size:12px; color:var(--muted); cursor:pointer; line-height:1; }
+.watch-item-close:hover { color:var(--red); }
+
+/* Calculator */
+.input-group { margin-bottom:8px; }
+.input-label { display:block; font-size:9px; color:var(--muted); margin-bottom:2px; letter-spacing:0.5px; }
+.input-row { display:flex; align-items:center; background:#070e18; border:1px solid var(--border); border-radius:6px; overflow:hidden; }
+.input-row:focus-within { border-color:var(--blue); }
+.input-row input { flex:1; background:transparent; border:none; outline:none; color:var(--text); font-size:13px; padding:7px 9px; font-family:'Courier New',monospace; }
+.input-row .unit { padding:0 8px; font-size:10px; color:var(--muted); border-left:1px solid var(--border); display:flex; align-items:center; height:100%; }
+.qcalc { margin-top:2px; padding:4px 6px; background:rgba(59,130,246,0.04); border-radius:5px; font-size:9px; color:var(--muted); display:flex; justify-content:space-between; }
+.qcalc span { color:var(--blue2); font-weight:600; font-family:'Courier New',monospace; }
+
+/* Stats */
+.stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-top:8px; }
+.stat-box { background:#070e18; border:1px solid var(--border); border-radius:7px; padding:8px; }
+.stat-lbl { font-size:8px; color:var(--muted); margin-bottom:2px; text-transform:uppercase; letter-spacing:0.5px; }
+.stat-val { font-size:14px; font-weight:700; font-family:'Courier New',monospace; }
+.stat-val.g { color:#34d399; }
+.stat-val.r { color:#f87171; }
+.stat-val.y { color:#fbbf24; }
+.stat-val.b { color:var(--blue2); }
+.stat-sub { font-size:8px; color:var(--muted); margin-top:1px; }
+
+/* Fee table */
+.fee-table { width:100%; border-collapse:collapse; font-size:10px; margin-top:6px; }
+.fee-table th, .fee-table td { padding:4px 6px; text-align:left; border-bottom:1px solid var(--border); }
+.fee-table th { color:var(--muted); font-weight:600; }
+.fee-table td { font-family:'Courier New',monospace; }
+.fee-table td.r { color:var(--red); }
+
+/* History */
+.history-card { margin-top:8px; }
+.history-list { max-height:120px; overflow-y:auto; }
+.history-item { display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid var(--border); font-size:10px; }
+.history-item:last-child { border-bottom:none; }
+.history-left { display:flex; flex-direction:column; gap:2px; }
+.history-name { font-weight:600; color:var(--text); }
+.history-time { color:var(--muted); font-size:9px; }
+.history-right { text-align:right; }
+.history-profit { font-family:'Courier New',monospace; font-weight:600; }
+.history-profit.g { color:var(--green); }
+.history-profit.r { color:var(--red); }
+
+/* Import Modal */
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:1000; align-items:center; justify-content:center; padding:20px; }
+.modal-overlay.open { display:flex; }
+.modal { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; max-width:400px; width:100%; max-height:80vh; overflow-y:auto; }
+.modal-title { font-size:14px; font-weight:700; margin-bottom:12px; color:var(--text); }
+.modal textarea { width:100%; height:150px; background:#070e18; border:1px solid var(--border); border-radius:6px; color:var(--text); font-size:11px; font-family:monospace; padding:8px; resize:vertical; }
+.modal-actions { display:flex; gap:8px; margin-top:12px; }
+.modal-btn { flex:1; padding:8px 12px; border-radius:6px; font-size:12px; cursor:pointer; border:none; }
+.modal-btn.primary { background:var(--blue); color:#fff; }
+.modal-btn.secondary { background:var(--border); color:var(--text); }
+.modal-hint { font-size:9px; color:var(--muted); margin-top:8px; line-height:1.4; }
+.modal-hint code { background:rgba(59,130,246,0.1); padding:1px 4px; border-radius:3px; font-family:monospace; }
+
+/* Toast */
+.toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--card); border:1px solid var(--border); border-radius:8px; padding:10px 16px; font-size:12px; z-index:1001; opacity:0; transition:opacity 0.3s; pointer-events:none; }
+.toast.show { opacity:1; }
+.toast.success { border-color:var(--green); }
+.toast.error { border-color:var(--red); }
+
+/* ===== 白夜模式 ===== */
+:root.light {
+  --bg: #f0f2f5;
+  --surface: #ffffff;
+  --card: #ffffff;
+  --border: #e8e8e8;
+  --text: #1a1a2e;
+  --text2: #555;
+  --accent: #2563eb;
+  --accent2: #3b82f6;
+  --green: #16a34a;
+  --red: #dc2626;
+  --gold: #b45309;
+  --gold-bg: rgba(245,158,11,0.08);
+  --purple: #7c3aed;
+  --purple-bg: rgba(139,92,246,0.08);
+  --blue: #2563eb;
+  --blue-bg: rgba(37,99,235,0.08);
+  --green2: #059669;
+  --green2-bg: rgba(16,185,129,0.08);
+  --gray: #6b7280;
+  --gray-bg: rgba(107,114,128,0.08);
+  --shadow: 0 2px 12px rgba(0,0,0,0.06);
+  --radius: 12px;
+}
+:root.light .tab-btn { color: var(--text2); }
+:root.light .tab-btn:hover { background: #f0f2f5; }
+:root.light .bg-card { background: #fff; border: 1px solid #e8e8e8; }
+:root.light .bl-item:hover { background: #f8f9fa; }
+:root.light .bl-item.active { background: #eff6ff; border-left-color: var(--accent); }
+:root.light .search-input { background: #f0f2f5; color: var(--text); border-color: #e0e0e0; }
+:root.light .search-input::placeholder { color: #999; }
+:root.light .filter-tag { background: #f0f2f5; color: #555; }
+:root.light .filter-tag:hover, :root.light .filter-tag.active { background: #e0e7ff; color: var(--accent); }
+:root.light .calc-card { background: #fff; border: 1px solid #e8e8e8; }
+:root.light .calc-input { background: #f8f9fa; border-color: #e0e0e0; color: var(--text); }
+:root.light .result-row { border-bottom-color: #f0f0f0; }
+:root.light .header-bar { background: #fff; border-bottom: 1px solid #eee; }
+:root.light .theme-toggle:hover { background: #f0f2f5; }
+:root.light .refresh-btn:hover { background: #f0f2f5; }
+:root.light .status-dot.live { box-shadow: 0 0 6px rgba(34,197,94,0.6); }
+:root.light .stat-card { background: #f8f9fa; }
+:root.light .suggestion-box { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+:root.light .suggestion-box.caution { background: #fef3c7; border-color: #fde68a; color: #92400e; }
+:root.light .suggestion-box.avoid { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+:root.light .chart-container { background: #fafafa; border-color: #eee; }
+:root.light .cal-btn { background: #f0f2f5; color: #555; }
+:root.light .cal-btn.active { background: #2563eb; color: #fff; }
+
+
+/* ===== 标签导航 ===== */
+.tab-nav { display:flex; gap:4px; padding:4px; background:var(--surface); border-radius:10px; margin-bottom:16px; }
+.tab-btn { padding:10px 20px; border:none; border-radius:8px; background:transparent; color:var(--text2); font-size:14px; font-weight:600; cursor:pointer; transition:all 0.2s; font-family:inherit; }
+.tab-btn:hover { background:rgba(255,255,255,0.04); }
+.tab-btn.active { background:var(--accent); color:#fff; }
+
+/* ===== 左右双栏 ===== */
+.split-layout { display:grid; grid-template-columns:380px 1fr; gap:16px; min-height:500px; }
+.left-panel { display:flex; flex-direction:column; gap:10px; }
+.right-panel { display:flex; flex-direction:column; gap:12px; }
+
+/* ===== 子弹卡片列表 ===== */
+.bl-list { display:flex; flex-direction:column; gap:4px; overflow-y:auto; max-height:480px; }
+.bl-list::-webkit-scrollbar { width:6px; }
+.bl-list::-webkit-scrollbar-track { background:transparent; }
+.bl-list::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+
+.bl-item { display:flex; align-items:center; gap:10px; padding:8px 12px; border-radius:8px; cursor:pointer; transition:all 0.15s; border-left:3px solid transparent; }
+.bl-item:hover { background:rgba(255,255,255,0.03); }
+.bl-item.active { background:rgba(59,130,246,0.1); border-left-color:var(--accent); }
+.bl-item .bl-img { width:32px; height:32px; border-radius:4px; object-fit:cover; flex-shrink:0; }
+.bl-item .bl-info { flex:1; min-width:0; }
+.bl-item .bl-name { font-size:13px; font-weight:600; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.bl-item .bl-meta { display:flex; gap:6px; align-items:center; margin-top:2px; }
+.bl-item .bl-price { font-size:13px; font-weight:700; color:var(--accent2); flex-shrink:0; }
+.bl-item .bl-trend { font-size:12px; padding:1px 6px; border-radius:4px; }
+.bl-item .bl-trend.up { color:#22c55e; background:rgba(34,197,94,0.1); }
+.bl-item .bl-trend.down { color:#ef4444; background:rgba(239,68,68,0.1); }
+.bl-item .bl-trend.stable { color:#9ca3af; background:rgba(156,163,175,0.1); }
+
+/* ===== 搜索 + 筛选 ===== */
+.search-input { width:100%; padding:10px 14px 10px 36px; background:var(--surface); border:1px solid var(--border); border-radius:10px; color:var(--text); font-size:13px; outline:none; transition:border 0.2s; box-sizing:border-box; }
+.search-input:focus { border-color:var(--accent); }
+.search-wrap { position:relative; }
+.search-icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text2); font-size:14px; pointer-events:none; }
+.filter-tags { display:flex; gap:6px; flex-wrap:wrap; }
+.filter-tag { padding:5px 12px; border-radius:6px; font-size:12px; cursor:pointer; border:none; background:rgba(255,255,255,0.04); color:var(--text2); transition:all 0.15s; font-family:inherit; }
+.filter-tag:hover { background:rgba(59,130,246,0.12); color:var(--accent2); }
+.filter-tag.active { background:var(--accent); color:#fff; }
+
+/* ===== 右侧详情面板 ===== */
+.detail-hero { display:flex; align-items:center; gap:16px; padding:16px; background:var(--surface); border-radius:12px; }
+.detail-hero img { width:64px; height:64px; border-radius:8px; object-fit:cover; }
+.detail-hero .dh-name { font-size:20px; font-weight:700; color:var(--text); }
+.detail-hero .dh-grade { display:inline-block; padding:3px 10px; border-radius:4px; font-size:12px; font-weight:700; margin-top:4px; }
+.detail-hero .dh-price { font-size:28px; font-weight:800; color:var(--accent2); }
+.detail-hero .dh-trend { font-size:14px; margin-top:2px; }
+
+.stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+.stat-card { padding:12px; background:var(--surface); border-radius:10px; text-align:center; }
+.stat-card .sv { font-size:18px; font-weight:700; color:var(--text); }
+.stat-card .sl { font-size:11px; color:var(--text2); }
+
+.chart-container { background:var(--surface); border-radius:12px; padding:16px; position:relative; }
+.chart-container canvas { width:100%; height:200px; display:block; }
+
+.best-times { display:flex; gap:8px; flex-wrap:wrap; }
+.time-slot { padding:6px 14px; background:var(--surface); border-radius:8px; font-size:13px; }
+.time-slot .ts-label { color:var(--text2); font-size:11px; }
+.time-slot .ts-time { color:var(--accent2); font-weight:700; }
+
+.suggestion-box { padding:12px 16px; border-radius:10px; border-left:4px solid var(--green); font-size:14px; line-height:1.5; }
+.suggestion-box.caution { border-left-color:#f59e0b; }
+.suggestion-box.avoid { border-left-color:var(--red); }
+
+.props-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+.prop-chip { padding:10px; background:var(--surface); border-radius:8px; text-align:center; }
+.prop-chip .pc-val { font-size:16px; font-weight:700; color:var(--text); }
+.prop-chip .pc-label { font-size:11px; color:var(--text2); }
+
+/* ===== Header ===== */
+.header-bar { display:flex; align-items:center; justify-content:space-between; padding:12px 20px; background:var(--surface); border-radius:12px 12px 0 0; border-bottom:1px solid var(--border); margin:-20px -20px 16px -20px; }
+.header-left { display:flex; align-items:center; gap:10px; }
+.header-logo { font-size:20px; }
+.header-title { font-size:15px; font-weight:700; color:var(--text); }
+.status-dot { width:8px; height:8px; border-radius:50%; background:var(--text2); }
+.status-dot.live { background:#22c55e; box-shadow:0 0 8px rgba(34,197,94,0.4); }
+.status-dot.stale { background:#f59e0b; }
+.status-text { font-size:11px; color:var(--text2); }
+.header-actions { display:flex; gap:6px; align-items:center; }
+.theme-toggle, .refresh-btn { width:36px; height:36px; border-radius:8px; border:none; background:transparent; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; transition:all 0.15s; }
+.theme-toggle:hover, .refresh-btn:hover { background:rgba(255,255,255,0.06); }
+.refresh-btn.spinning { animation:spin 0.8s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* ===== 计算器卡片 ===== */
+.calc-card { background:var(--surface); border-radius:12px; padding:20px; }
+.calc-card h3 { margin:0 0 12px; font-size:16px; color:var(--text); }
+.calc-row { display:flex; gap:10px; margin-bottom:10px; align-items:center; }
+.calc-row .clabel { width:60px; font-size:13px; color:var(--text2); flex-shrink:0; }
+.calc-input { flex:1; padding:8px 12px; background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:14px; outline:none; transition:border 0.2s; box-sizing:border-box; }
+.calc-input:focus { border-color:var(--accent); }
+.calc-input.small { width:80px; flex:none; text-align:center; }
+.result-block { margin-top:16px; padding:14px; background:var(--bg); border-radius:10px; }
+.result-row { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.04); font-size:13px; }
+.result-row:last-child { border-bottom:none; }
+.result-row .rr-val { font-weight:700; color:var(--text); }
+.result-row .rr-profit { font-size:18px; }
+.result-row .rr-positive { color:var(--green); }
+.result-row .rr-negative { color:var(--red); }
+
+/* ===== Notifications toggle ===== */
+.notif-row { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text2); margin-top:8px; }
+.notif-toggle { width:40px; height:22px; border-radius:11px; background:var(--border); cursor:pointer; position:relative; transition:all 0.2s; border:none; }
+.notif-toggle.on { background:var(--green); }
+.notif-toggle::after { content:''; position:absolute; top:3px; left:3px; width:16px; height:16px; border-radius:50%; background:#fff; transition:all 0.2s; }
+.notif-toggle.on::after { left:21px; }
+
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+
+</style>
+</head>
+<body>
+<div class="header-bar">
+  <div class="header-left">
+    <span class="header-logo">🎯</span>
+    <span class="header-title">三角洲行动 · 子弹交易助手</span>
+    <span class="status-dot" id="statusDot" title="数据状态"></span>
+    <span class="status-text" id="statusText">使用缓存数据</span>
+  </div>
+  <div class="header-actions">
+    <button class="refresh-btn" onclick="refreshPrices()" title="刷新数据">🔄</button>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn" title="切换模式">🌙</button>
+  </div>
+</div>
+
+<!-- 标签导航 -->
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('timing',this)">📊 子弹时机</button>
+  <button class="tab-btn" onclick="switchTab('calc',this)">🧮 收益计算</button>
+</div>
+
+<!-- ═══ 时机标签页 ═══ -->
+<div class="tab-content active" id="tab-timing">
+  <div class="split-layout">
+    <!-- 左侧：子弹列表 -->
+    <div class="left-panel">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="search-input" type="text" id="searchInput" placeholder="搜索子弹名称..." oninput="filterBullets()">
+      </div>
+      <div class="filter-tags">
+        <button class="filter-tag active" onclick="filterGrade(0,this)">全部</button>
+        <button class="filter-tag" onclick="filterGrade(5,this)" style="color:#f59e0b">五级</button>
+        <button class="filter-tag" onclick="filterGrade(4,this)" style="color:#a855f7">四级</button>
+        <button class="filter-tag" onclick="filterGrade(3,this)" style="color:#3b82f6">三级</button>
+        <button class="filter-tag" onclick="filterGrade(2,this)" style="color:#10b981">二级</button>
+        <button class="filter-tag" onclick="filterGrade(1,this)" style="color:#9ca3af">一级</button>
+      </div>
+      <div class="filter-tags" style="margin-top:2px">
+        <button class="filter-tag active" onclick="filterTrend('all',this)">全部趋势</button>
+        <button class="filter-tag" onclick="filterTrend('up',this)">📈 上涨</button>
+        <button class="filter-tag" onclick="filterTrend('down',this)">📉 下跌</button>
+        <button class="filter-tag" onclick="filterTrend('stable',this)">📊 平稳</button>
+      </div>
+      <div class="bl-list" id="blList"></div>
+    </div>
+    <!-- 右侧：详情 -->
+    <div class="right-panel">
+      <div id="detailEmpty" style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text2);font-size:15px;min-height:400px;">
+        👈 选择子弹查看详情
+      </div>
+      <div id="detailPanel" style="display:none;">
+        <div class="detail-hero">
+          <img id="dhPic" src="" alt="">
+          <div style="flex:1">
+            <div class="dh-name" id="dhName"></div>
+            <span class="dh-grade" id="dhGrade"></span>
+            <div class="dh-trend" id="dhTrend"></div>
+            <div style="margin-top:6px"><span class="dh-price" id="dhPrice"></span></div>
+            <div style="font-size:11px;color:var(--text2)" id="dhBestTime"></div>
+          </div>
+        </div>
+        <div class="chart-container">
+          <div style="font-size:12px;color:var(--text2);margin-bottom:8px">📈 近期价格走势</div>
+          <canvas id="priceChart"></canvas>
+        </div>
+        <div class="stat-grid" id="statGrid"></div>
+        <div id="suggestionArea"></div>
+        <div class="best-times">
+          <div class="time-slot">
+            <div class="ts-label">最佳购买时段</div>
+            <div class="ts-time" id="bestTimeSlot">-</div>
+          </div>
+        </div>
+        <div class="props-grid" id="propsGrid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 计算器标签页 ═══ -->
+<div class="tab-content" id="tab-calc">
+  <div class="split-layout">
+    <div class="left-panel">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="search-input" type="text" id="calcSearch" placeholder="搜索子弹..." oninput="filterCalcList()">
+      </div>
+      <div class="bl-list" id="calcBulletList"></div>
+    </div>
+    <div class="right-panel" id="calcRight">
+      <div id="calcEmpty" style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text2);font-size:15px;min-height:400px;">
+        👈 选择子弹开始计算
+      </div>
+      <div id="calcPanel" style="display:none;">
+        <div class="calc-card">
+          <h3 id="calcBulletName">-</h3>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+            <img id="calcBulletImg" src="" style="width:48px;height:48px;border-radius:6px;object-fit:cover">
+            <div>
+              <span id="calcBulletGrade" style="padding:2px 8px;border-radius:4px;font-size:12px;font-weight:700"></span>
+              <span style="font-size:12px;color:var(--text2);margin-left:8px">参考价: <strong id="calcRefPrice">-</strong></span>
+            </div>
+          </div>
+          <div class="calc-row">
+            <span class="clabel">买入价</span>
+            <input class="calc-input" type="number" id="buyPrice" placeholder="单价" oninput="calc()">
+            <input class="calc-input small" type="number" id="buyQty" placeholder="数量" oninput="calc()" value="1">
+          </div>
+          <div class="calc-row">
+            <span class="clabel">卖出价</span>
+            <input class="calc-input" type="number" id="sellPrice" placeholder="单价" oninput="calc()">
+            <input class="calc-input small" type="number" id="sellQty" placeholder="数量" oninput="calc()" value="1">
+          </div>
+          <div class="notif-row">
+            <button class="notif-toggle" id="notifToggle" onclick="toggleNotif()" title="切换通知"></button>
+            <span>Web通知提醒</span>
+            <span style="margin-left:auto;font-size:11px;color:var(--text2)">手续费: <strong id="feeRate">17%</strong></span>
+          </div>
+          <div class="result-block" id="resultBlock">
+            <div style="font-size:12px;color:var(--text2);text-align:center;padding:20px">输入价格后计算</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+
+
+</body>
+</html>
