@@ -2,1011 +2,550 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>三角洲行动 - 子弹交易助手</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>子弹交易助手 - 三角洲行动</title>
+<script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
 <style>
-* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-:root {
-  --bg: #060c18; --card: #0f1923; --card2: #111827;
-  --border: #1e2d40; --text: #dde6ef; --muted: #5a6d7e;
-  --green: #10b981; --red: #ef4444; --yellow: #f59e0b;
-  --blue: #3b82f6; --blue2: #60a5fa; --purple: #8b5cf6;
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--surface:#161b22;--card:#21262d;--border:#30363d;
+  --text:#c9d1d9;--text2:#8b949e;--accent:#58a6ff;
+  --g5:#ffd700;--g4:#c0a060;--g3:#a0a0a0;--g2:#6a9bd1;--g1:#9d6cd9;
+  --rising:#f85149;--falling:#3fb950;--stable:#8b949e;
 }
-html, body { height:100%; overflow-x:hidden; }
-body { font-family:'Segoe UI','Microsoft YaHei',system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
-body::before { content:''; position:fixed; inset:0; background: radial-gradient(ellipse 60% 40% at 10% 5%, rgba(59,130,246,0.07) 0%, transparent 60%), radial-gradient(ellipse 50% 35% at 90% 95%, rgba(139,92,246,0.05) 0%, transparent 60%); pointer-events:none; z-index:0; }
-.app { position:relative; z-index:1; max-width:900px; margin:0 auto; padding:12px 10px 60px; }
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+.topbar h1{font-size:18px;color:var(--accent);flex:1}
+.status{padding:4px 10px;border-radius:12px;font-size:12px;background:var(--card)}
+.status.loading{background:#1f6feb33;color:#58a6ff}
+.status.ok{background:#23863633;color:#3fb950}
+.status.error{background:#da363333;color:#f85149}
+.tabs{display:flex;gap:2px;padding:8px 20px;background:var(--surface);border-bottom:1px solid var(--border)}
+.tab{padding:8px 20px;border:none;background:transparent;color:var(--text2);cursor:pointer;font-size:14px;border-radius:6px 6px 0 0;transition:all .2s}
+.tab:hover{background:var(--card);color:var(--text)}
+.tab.active{background:var(--card);color:var(--accent);font-weight:600}
+.tab-panel{display:none;padding:16px 20px}
+.tab-panel.active{display:block}
+.loading-center{text-align:center;padding:60px;color:var(--text2)}
+.loading-center .spinner{display:inline-block;width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error-box{background:#da363322;border:1px solid #da363355;border-radius:8px;padding:20px;text-align:center;color:#f85149}
+.filters{margin-bottom:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.filters label{color:var(--text2);font-size:13px}
+.filter-btn{padding:4px 12px;border:1px solid var(--border);background:var(--card);color:var(--text2);cursor:pointer;border-radius:16px;font-size:12px;transition:all .15s}
+.filter-btn:hover{border-color:var(--accent);color:var(--text)}
+.filter-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.refresh-btn{padding:4px 12px;border:1px solid var(--border);background:var(--card);color:var(--accent);cursor:pointer;border-radius:6px;font-size:12px;margin-left:auto}
+.refresh-btn:hover{background:var(--accent);color:#fff}
+.bullet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.bullet-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+.bullet-card:hover{border-color:var(--accent);transform:translateY(-1px)}
+.bullet-card.selected{border-color:var(--accent);background:#161b22}
+.bullet-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%}
+.bullet-card.g5::before{background:var(--g5)}
+.bullet-card.g4::before{background:var(--g4)}
+.bullet-card.g3::before{background:var(--g3)}
+.bullet-card.g2::before{background:var(--g2)}
+.bullet-card.g1::before{background:var(--g1)}
+.card-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.card-pic{width:40px;height:40px;border-radius:6px;background:var(--bg);object-fit:contain}
+.card-pic.error{opacity:.3}
+.card-info{flex:1;min-width:0}
+.card-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-meta{display:flex;align-items:center;gap:6px;margin-top:2px}
+.grade-badge{padding:1px 6px;border-radius:10px;font-size:10px;font-weight:700}
+.g5-badge{background:#ffd70022;color:#ffd700}
+.g4-badge{background:#c0a06022;color:#c0a060}
+.g3-badge{background:#a0a022;color:#a0a0a0}
+.g2-badge{background:#6a9bd122;color:#6a9bd1}
+.g1-badge{background:#9d6cd922;color:#9d6cd9}
+.pen-badge{background:var(--bg);color:var(--text2);padding:1px 5px;border-radius:4px;font-size:10px}
+.card-price{font-size:20px;font-weight:700;color:var(--accent);text-align:right}
+.card-price small{font-size:12px;color:var(--text2);font-weight:400}
+.trend-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:10px;font-size:11px;margin-top:4px}
+.trend-up{background:#f8514922;color:#f85149}
+.trend-down{background:#3fb95022;color:#3fb950}
+.trend-stable{background:#8b949e22;color:#8b949e}
+.best-time{font-size:12px;color:var(--text2);margin-top:4px;display:flex;align-items:center;gap:4px}
+.best-time::before{content:'🕐';font-size:11px}
 
-/* Header */
-.header { text-align:center; margin-bottom:12px; }
-.header-badge { display:inline-flex; align-items:center; gap:6px; background:linear-gradient(135deg,#0f2540,#14203a); border:1px solid rgba(59,130,246,0.3); border-radius:18px; padding:4px 14px; font-size:10px; color:var(--blue2); letter-spacing:2px; margin-bottom:8px; }
-.header h1 { font-size:18px; font-weight:900; background:linear-gradient(135deg,#93c5fd,#c4b5fd); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:2px; }
-.header p { color:var(--muted); font-size:10px; }
-.header-bar { display:flex; justify-content:center; gap:6px; flex-wrap:wrap; margin-top:8px; }
-.chip { display:inline-flex; align-items:center; gap:4px; background:var(--card); border:1px solid var(--border); border-radius:7px; padding:3px 9px; font-size:10px; color:var(--muted); }
-.chip strong { color:var(--yellow); }
-.chip.red strong { color:var(--red); }
-.chip.green strong { color:var(--green); }
-
-/* Info bar */
-.info-bar { display:flex; align-items:center; justify-content:space-between; background:rgba(59,130,246,0.06); border:1px solid rgba(59,130,246,0.12); border-radius:7px; padding:6px 12px; margin-bottom:10px; font-size:10px; color:var(--muted); flex-wrap:wrap; gap:6px; }
-.info-bar .left { display:flex; align-items:center; gap:6px; }
-.info-bar .right { display:flex; align-items:center; gap:8px; }
-.import-btn { background:rgba(139,92,246,0.15); border:1px solid rgba(139,92,246,0.3); border-radius:5px; color:var(--purple); padding:3px 8px; font-size:10px; cursor:pointer; }
-.import-btn:hover { background:rgba(139,92,246,0.25); }
-.data-time { color:var(--muted); }
-
-/* Notification toggle */
-.notif-toggle { display:flex; align-items:center; gap:6px; cursor:pointer; font-size:10px; color:var(--muted); }
-.notif-toggle .toggle-switch { width:28px; height:16px; border-radius:8px; background:var(--border); position:relative; transition:background 0.2s; }
-.notif-toggle .toggle-switch::after { content:''; position:absolute; width:12px; height:12px; border-radius:50%; background:var(--muted); top:2px; left:2px; transition:all 0.2s; }
-.notif-toggle.on .toggle-switch { background:var(--green); }
-.notif-toggle.on .toggle-switch::after { left:14px; background:#fff; }
-.notif-toggle.on { color:var(--green); }
-
-/* Main grid */
-.main-grid { display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:8px; }
-@media (max-width:700px) { .main-grid { grid-template-columns:1fr; } }
-.card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px; }
-.card-title { font-size:9px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
-.card-title::after { content:''; flex:1; height:1px; background:var(--border); }
-.dot { width:4px; height:4px; border-radius:50%; background:var(--blue); box-shadow:0 0 5px var(--blue); }
-.dot.g { background:var(--green); box-shadow:0 0 5px var(--green); }
-.dot.r { background:var(--red); box-shadow:0 0 5px var(--red); }
-
-/* Bullet selector */
-.search-row { display:flex; gap:5px; margin-bottom:6px; }
-.search-input { flex:1; background:#070e18; border:1px solid var(--border); border-radius:6px; color:var(--text); font-size:12px; padding:6px 8px; outline:none; }
-.search-input:focus { border-color:var(--blue); }
-.caliber-row { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:6px; max-height:60px; overflow-y:auto; }
-.cal-btn { padding:3px 8px; border-radius:14px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:10px; cursor:pointer; }
-.cal-btn:hover { border-color:var(--blue); color:var(--blue2); }
-.cal-btn.active { border-color:var(--blue); background:rgba(59,130,246,0.12); color:var(--blue2); }
-.bullet-dropdown { position:relative; }
-.bullet-trigger { width:100%; background:#070e18; border:1px solid var(--border); border-radius:8px; padding:8px 12px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none; }
-.bullet-trigger:hover { border-color:var(--blue); }
-.bullet-trigger.open { border-color:var(--blue); border-bottom-left-radius:0; border-bottom-right-radius:0; }
-.trigger-left { display:flex; align-items:center; gap:8px; }
-.trigger-name { font-size:13px; font-weight:600; }
-.trigger-right { display:flex; align-items:center; gap:6px; }
-.trigger-grade { font-size:9px; padding:2px 6px; border-radius:3px; font-weight:700; }
-.trigger-price { font-size:12px; color:var(--yellow); font-family:'Courier New',monospace; font-weight:600; }
-.chevron { font-size:9px; color:var(--muted); transition:transform 0.2s; }
-.bullet-trigger.open .chevron { transform:rotate(180deg); }
-.bullet-list-wrap { display:none; background:#070e18; border:1px solid var(--blue); border-top:none; border-radius:0 0 8px 8px; max-height:220px; overflow-y:auto; }
-.bullet-list-wrap.open { display:block; }
-.bl-item { display:flex; align-items:center; justify-content:space-between; padding:6px 12px; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.03); }
-.bl-item:hover { background:rgba(59,130,246,0.1); }
-.bl-left { display:flex; align-items:center; gap:6px; }
-.bl-name { font-size:12px; font-weight:500; }
-.bl-grade { font-size:8px; padding:1px 4px; border-radius:2px; font-weight:700; }
-.g7, .g6 { background:rgba(107,114,128,0.2); color:#9ca3af; }
-.g5 { background:rgba(239,68,68,0.25); color:#fca5a5; }
-.g4 { background:rgba(249,115,22,0.25); color:#fdba74; }
-.g3 { background:rgba(59,130,246,0.25); color:#93c5fd; }
-.g2 { background:rgba(16,185,129,0.25); color:#6ee7b7; }
-.g1 { background:rgba(107,114,128,0.2); color:#9ca3af; }
-.bl-price { font-size:11px; color:var(--yellow); font-family:'Courier New',monospace; }
-.bl-change { font-size:9px; margin-left:3px; }
-.bl-change.up { color:var(--green); }
-.bl-change.dn { color:var(--red); }
-.selected-info { display:flex; gap:5px; flex-wrap:wrap; margin-top:8px; }
-.selected-info .chip { font-size:9px; padding:2px 7px; }
-
-/* Price chart mini */
-.price-chart { background:var(--card2); border:1px solid var(--border); border-radius:10px; padding:10px; margin-bottom:8px; }
-.chart-title { font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; display:flex; align-items:center; justify-content:space-between; }
-.chart-bars { display:flex; align-items:flex-end; gap:5px; height:36px; }
-.chart-bw { flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; }
-.chart-val { font-size:8px; font-weight:600; font-family:'Courier New',monospace; }
-.chart-bar { width:100%; border-radius:2px 2px 0 0; min-height:2px; transition:height 0.4s; }
-.chart-lbl { font-size:7px; color:var(--muted); }
-
-/* Watch list */
-.watch-card { background:linear-gradient(135deg,rgba(139,92,246,0.08),rgba(59,130,246,0.04)); border:1px solid rgba(139,92,246,0.2); }
-.watch-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
-.watch-add-btn { background:rgba(139,92,246,0.15); border:1px solid rgba(139,92,246,0.3); border-radius:6px; color:var(--purple); padding:4px 10px; font-size:10px; cursor:pointer; }
-.watch-add-btn:hover { background:rgba(139,92,246,0.25); }
-.watch-list { display:flex; flex-direction:column; gap:5px; max-height:180px; overflow-y:auto; }
-.watch-empty { text-align:center; color:var(--muted); font-size:10px; padding:12px; }
-.watch-item { background:rgba(0,0,0,0.25); border-radius:8px; padding:8px 10px; position:relative; }
-.watch-item.alert-buy { border-left:3px solid var(--green); }
-.watch-item.alert-sell { border-left:3px solid var(--yellow); }
-.watch-item-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
-.watch-item-name { font-size:11px; font-weight:600; }
-.watch-item-grade { font-size:8px; padding:1px 4px; border-radius:2px; margin-left:4px; }
-.watch-item-current { font-size:10px; color:var(--muted); }
-.watch-item-current span { color:var(--yellow); font-weight:600; font-family:'Courier New',monospace; }
-.watch-item-targets { display:flex; gap:8px; font-size:9px; }
-.watch-target { display:flex; align-items:center; gap:3px; }
-.watch-target.buy { color:var(--green); }
-.watch-target.sell { color:var(--yellow); }
-.watch-item-close { position:absolute; top:4px; right:6px; font-size:12px; color:var(--muted); cursor:pointer; line-height:1; }
-.watch-item-close:hover { color:var(--red); }
+/* Detail panel */
+.detail-panel{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-top:16px;overflow:hidden}
+.detail-hero{background:linear-gradient(135deg,#1a2332 0%,#0d1117 100%);padding:20px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border)}
+.detail-pic{width:64px;height:64px;border-radius:8px;background:var(--bg);object-fit:contain}
+.detail-info{flex:1}
+.detail-name{font-size:20px;font-weight:700;margin-bottom:6px}
+.detail-badges{display:flex;gap:8px;flex-wrap:wrap}
+.detail-price{font-size:28px;font-weight:700;color:var(--accent)}
+.detail-price small{font-size:14px;color:var(--text2)}
+.detail-body{padding:16px 20px}
+.detail-section{margin-bottom:16px}
+.detail-section h3{font-size:13px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;border-bottom:1px solid var(--border);padding-bottom:4px}
+.time-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+.time-slot{background:var(--bg);padding:8px 12px;border-radius:6px;text-align:center}
+.time-slot .time{font-size:16px;font-weight:600;color:var(--accent)}
+.time-slot .label{font-size:11px;color:var(--text2);margin-top:2px}
+.prop-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.prop-item{background:var(--bg);padding:8px 12px;border-radius:6px}
+.prop-label{font-size:11px;color:var(--text2)}
+.prop-value{font-size:14px;font-weight:600;margin-top:2px}
 
 /* Calculator */
-.input-group { margin-bottom:8px; }
-.input-label { display:block; font-size:9px; color:var(--muted); margin-bottom:2px; letter-spacing:0.5px; }
-.input-row { display:flex; align-items:center; background:#070e18; border:1px solid var(--border); border-radius:6px; overflow:hidden; }
-.input-row:focus-within { border-color:var(--blue); }
-.input-row input { flex:1; background:transparent; border:none; outline:none; color:var(--text); font-size:13px; padding:7px 9px; font-family:'Courier New',monospace; }
-.input-row .unit { padding:0 8px; font-size:10px; color:var(--muted); border-left:1px solid var(--border); display:flex; align-items:center; height:100%; }
-.qcalc { margin-top:2px; padding:4px 6px; background:rgba(59,130,246,0.04); border-radius:5px; font-size:9px; color:var(--muted); display:flex; justify-content:space-between; }
-.qcalc span { color:var(--blue2); font-weight:600; font-family:'Courier New',monospace; }
-
-/* Stats */
-.stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-top:8px; }
-.stat-box { background:#070e18; border:1px solid var(--border); border-radius:7px; padding:8px; }
-.stat-lbl { font-size:8px; color:var(--muted); margin-bottom:2px; text-transform:uppercase; letter-spacing:0.5px; }
-.stat-val { font-size:14px; font-weight:700; font-family:'Courier New',monospace; }
-.stat-val.g { color:#34d399; }
-.stat-val.r { color:#f87171; }
-.stat-val.y { color:#fbbf24; }
-.stat-val.b { color:var(--blue2); }
-.stat-sub { font-size:8px; color:var(--muted); margin-top:1px; }
-
-/* Fee table */
-.fee-table { width:100%; border-collapse:collapse; font-size:10px; margin-top:6px; }
-.fee-table th, .fee-table td { padding:4px 6px; text-align:left; border-bottom:1px solid var(--border); }
-.fee-table th { color:var(--muted); font-weight:600; }
-.fee-table td { font-family:'Courier New',monospace; }
-.fee-table td.r { color:var(--red); }
-
-/* History */
-.history-card { margin-top:8px; }
-.history-list { max-height:120px; overflow-y:auto; }
-.history-item { display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid var(--border); font-size:10px; }
-.history-item:last-child { border-bottom:none; }
-.history-left { display:flex; flex-direction:column; gap:2px; }
-.history-name { font-weight:600; color:var(--text); }
-.history-time { color:var(--muted); font-size:9px; }
-.history-right { text-align:right; }
-.history-profit { font-family:'Courier New',monospace; font-weight:600; }
-.history-profit.g { color:var(--green); }
-.history-profit.r { color:var(--red); }
-
-/* Import Modal */
-.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:1000; align-items:center; justify-content:center; padding:20px; }
-.modal-overlay.open { display:flex; }
-.modal { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; max-width:400px; width:100%; max-height:80vh; overflow-y:auto; }
-.modal-title { font-size:14px; font-weight:700; margin-bottom:12px; color:var(--text); }
-.modal textarea { width:100%; height:150px; background:#070e18; border:1px solid var(--border); border-radius:6px; color:var(--text); font-size:11px; font-family:monospace; padding:8px; resize:vertical; }
-.modal-actions { display:flex; gap:8px; margin-top:12px; }
-.modal-btn { flex:1; padding:8px 12px; border-radius:6px; font-size:12px; cursor:pointer; border:none; }
-.modal-btn.primary { background:var(--blue); color:#fff; }
-.modal-btn.secondary { background:var(--border); color:var(--text); }
-.modal-hint { font-size:9px; color:var(--muted); margin-top:8px; line-height:1.4; }
-.modal-hint code { background:rgba(59,130,246,0.1); padding:1px 4px; border-radius:3px; font-family:monospace; }
-
-/* Toast */
-.toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--card); border:1px solid var(--border); border-radius:8px; padding:10px 16px; font-size:12px; z-index:1001; opacity:0; transition:opacity 0.3s; pointer-events:none; }
-.toast.show { opacity:1; }
-.toast.success { border-color:var(--green); }
-.toast.error { border-color:var(--red); }
+.calc-form{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;max-width:600px}
+.calc-row{display:flex;gap:12px;margin-bottom:12px;align-items:center;flex-wrap:wrap}
+.calc-row label{min-width:60px;color:var(--text2);font-size:13px}
+.calc-input{flex:1;min-width:120px;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px}
+.calc-input:focus{outline:none;border-color:var(--accent)}
+.calc-btn{padding:8px 20px;background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600}
+.calc-btn:hover{opacity:.9}
+.calc-btn:active{transform:.98}
+.bullet-select{position:relative;flex:1;min-width:200px}
+.select-trigger{padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:space-between;min-height:40px}
+.select-trigger:hover{border-color:var(--accent)}
+.select-dropdown{position:absolute;top:100%;left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:6px;margin-top:4px;max-height:300px;overflow-y:auto;z-index:200;display:none;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.select-dropdown.open{display:block}
+.select-dropdown .so{padding:6px 12px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:8px;transition:background .1s}
+.select-dropdown .so:hover{background:var(--card)}
+.select-dropdown .so .sname{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.select-dropdown .so .sprice{color:var(--accent);font-size:12px}
+.calc-result{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:16px;margin-top:16px}
+.calc-result h3{font-size:14px;color:var(--text2);margin-bottom:12px}
+.result-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.result-item{background:var(--card);padding:10px 12px;border-radius:6px;text-align:center}
+.result-label{font-size:11px;color:var(--text2)}
+.result-value{font-size:18px;font-weight:700;margin-top:4px}
+.result-value.positive{color:#3fb950}
+.result-value.negative{color:#f85149}
+.fee-note{font-size:11px;color:var(--text2);margin-top:8px;text-align:right}
 </style>
-<script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
 </head>
 <body>
-<div class="app">
-  <!-- Header -->
-  <div class="header">
-    <div class="header-badge">🎯 三角洲行动</div>
-    <h1>子弹交易助手</h1>
-    <p>内置数据 · 完全独立 · 无需网络</p>
-    <div class="header-bar">
-      <div class="chip">子弹: <strong id="bulletCount">94</strong></div>
-      <div class="chip">更新: <strong id="updateTime">-</strong></div><div class="chip"><button id="refreshBtn" onclick="refreshPrices()" style="background:#3b82f6;border:none;color:#fff;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:12px;">🔄 刷新价格</button></div><span id="refreshStatus" style="font-size:12px;color:#22c55e;margin-left:6px;"></span>
-    </div>
+<div class="topbar">
+  <h1>🔫 子弹交易助手</h1>
+  <span class="status loading" id="status">加载中...</span>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab(this,'timing')">📊 子弹时机</button>
+  <button class="tab" onclick="switchTab(this,'calc')">🧮 收益计算</button>
+</div>
+
+<!-- TIMING TAB -->
+<div class="tab-panel active" id="panel-timing">
+  <div class="filters">
+    <label>等级:</label>
+    <button class="filter-btn active" data-grade="all" onclick="filterGrade(this)">全部</button>
+    <button class="filter-btn" data-grade="5" onclick="filterGrade(this)">🌟 G5</button>
+    <button class="filter-btn" data-grade="4" onclick="filterGrade(this)">G4</button>
+    <button class="filter-btn" data-grade="3" onclick="filterGrade(this)">G3</button>
+    <button class="filter-btn" data-grade="2" onclick="filterGrade(this)">G2</button>
+    <button class="filter-btn" data-grade="1" onclick="filterGrade(this)">G1</button>
+    <button class="filter-btn" data-trend="rising" onclick="filterTrend(this)">📈 涨价</button>
+    <button class="filter-btn" data-trend="falling" onclick="filterTrend(this)">📉 跌价</button>
+    <button class="filter-btn" data-trend="stable" onclick="filterTrend(this)">➖ 稳定</button>
+    <button class="refresh-btn" onclick="refreshPrices()">🔄 刷新</button>
   </div>
+  <div id="timing-list"></div>
+  <div id="timing-detail" class="detail-panel" style="display:none"></div>
+</div>
 
-  <!-- Info bar -->
-  <div class="info-bar">
-    <div class="left">
-      <span>📱 手机端可用</span>
-    </div>
-    <div class="right">
-      <div class="notif-toggle" id="notifToggle" onclick="toggleNotif()">
-        <span>通知</span>
-        <div class="toggle-switch"></div>
-      </div>
-      <button class="import-btn" onclick="openImportModal()">📥 导入数据</button>
-    </div>
-  </div>
-
-  <!-- Main grid -->
-  <div class="main-grid">
-    <!-- Bullet selector -->
-    <div class="card">
-      <div class="card-title"><span class="dot"></span> 选择子弹</div>
-      <div class="search-row">
-        <input type="text" class="search-input" id="searchInput" placeholder="搜索子弹名称..." oninput="filterBullets()">
-      </div>
-      <div class="caliber-row" id="caliberRow"></div>
-      <div class="bullet-dropdown">
-        <div class="bullet-trigger" id="bulletTrigger" onclick="toggleDropdown(); event.stopPropagation();">
-          <div class="trigger-left">
-            <span class="trigger-name" id="triggerName">点击选择子弹</span>
-          </div>
-          <div class="trigger-right">
-            <span class="trigger-grade" id="triggerGrade"></span>
-            <span class="trigger-price" id="triggerPrice"></span>
-            <span class="chevron">▼</span>
-          </div>
+<!-- CALC TAB -->
+<div class="tab-panel" id="panel-calc">
+  <div class="calc-form">
+    <div class="calc-row">
+      <label>子弹:</label>
+      <div class="bullet-select">
+        <div class="select-trigger" id="calcTrigger" onclick="toggleCalcDropdown()">
+          <span id="calcTriggerText">请选择子弹...</span>
+          <span>▼</span>
         </div>
-        <div class="bullet-list-wrap" id="bulletListWrap" onclick="event.stopPropagation();">
-          <!-- Bullet list items -->
-        </div>
-      </div>
-      <div class="selected-info" id="selectedInfo"></div>
-    </div>
-
-    <!-- Watch list -->
-    <div class="card watch-card">
-      <div class="watch-header">
-        <div class="card-title"><span class="dot g"></span> 价格监控</div>
-        <button class="watch-add-btn" id="watchAddBtn" onclick="addToWatch()" style="display:none;">+ 添加监控</button>
-      </div>
-      <div class="watch-list" id="watchList">
-        <div class="watch-empty">选择子弹后添加监控<br>价格达到目标时弹出通知</div>
+        <div class="select-dropdown" id="calcDropdown"></div>
       </div>
     </div>
-  </div>
-
-  <!-- Price chart -->
-  <div class="price-chart">
-    <div class="chart-title">
-      <span>价格走势</span>
-      <span id="chartUpdateTime">-</span>
+    <div class="calc-row">
+      <label>买入价:</label>
+      <input class="calc-input" type="number" id="buyPrice" placeholder="买入单价" value="">
     </div>
-    <div class="chart-bars" id="chartBars">
-      <div class="chart-bw"><div class="chart-val">-</div><div class="chart-bar" style="background:var(--blue);height:20px;"></div><div class="chart-lbl">买入</div></div>
-      <div class="chart-bw"><div class="chart-val">-</div><div class="chart-bar" style="background:var(--green);height:30px;"></div><div class="chart-lbl">当前</div></div>
-      <div class="chart-bw"><div class="chart-val">-</div><div class="chart-bar" style="background:var(--yellow);height:25px;"></div><div class="chart-lbl">卖出</div></div>
+    <div class="calc-row">
+      <label>卖出价:</label>
+      <input class="calc-input" type="number" id="sellPrice" placeholder="卖出单价" value="">
     </div>
-  </div>
-
-  <!-- Calculator -->
-  <div class="main-grid">
-    <div class="card">
-      <div class="card-title"><span class="dot"></span> 买入计算</div>
-      <div class="input-group">
-        <label class="input-label">买入单价</label>
-        <div class="input-row">
-          <input type="number" id="buyPrice" oninput="calc()" placeholder="输入单价">
-          <span class="unit">¥</span>
-        </div>
-      </div>
-      <div class="input-group">
-        <label class="input-label">购买数量</label>
-        <div class="input-row">
-          <input type="number" id="buyQty" oninput="calc()" placeholder="输入数量" value="100">
-          <span class="unit">发</span>
-        </div>
-      </div>
-      <div class="stats-grid">
-        <div class="stat-box">
-          <div class="stat-lbl">总价</div>
-          <div class="stat-val y" id="buyTotal">¥0</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-lbl">手续费</div>
-          <div class="stat-val r" id="buyFee">¥0</div>
-          <div class="stat-sub" id="buyFeeRate">-</div>
-        </div>
-      </div>
+    <div class="calc-row">
+      <label>数量:</label>
+      <input class="calc-input" type="number" id="quantity" placeholder="数量" value="1">
     </div>
-
-    <div class="card">
-      <div class="card-title"><span class="dot"></span> 卖出计算</div>
-      <div class="input-group">
-        <label class="input-label">卖出单价</label>
-        <div class="input-row">
-          <input type="number" id="sellPrice" oninput="calc()" placeholder="输入单价">
-          <span class="unit">¥</span>
-        </div>
-      </div>
-      <div class="input-group">
-        <label class="input-label">卖出数量</label>
-        <div class="input-row">
-          <input type="number" id="sellQty" oninput="calc()" placeholder="输入数量" value="100">
-          <span class="unit">发</span>
-        </div>
-      </div>
-      <div class="stats-grid">
-        <div class="stat-box">
-          <div class="stat-lbl">总收入</div>
-          <div class="stat-val b" id="sellTotal">¥0</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-lbl">手续费</div>
-          <div class="stat-val r" id="sellFee">¥0</div>
-          <div class="stat-sub" id="sellFeeRate">-</div>
-        </div>
-      </div>
+    <div class="calc-row">
+      <button class="calc-btn" onclick="runCalc()">计算收益</button>
     </div>
-  </div>
-
-  <!-- Profit summary -->
-  <div class="card" style="margin-top:8px;">
-    <div class="card-title"><span class="dot g"></span> 利润计算</div>
-    <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);">
-      <div class="stat-box">
-        <div class="stat-lbl">总成本</div>
-        <div class="stat-val" id="totalCost">¥0</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-lbl">净收入</div>
-        <div class="stat-val" id="netIncome">¥0</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-lbl">纯利润</div>
-        <div class="stat-val" id="profit">¥0</div>
-      </div>
-    </div>
-    <div class="qcalc" style="margin-top:8px;">
-      <span>利润率: <span id="profitRate">0%</span></span>
-      <span>单发利润: <span id="profitPerBullet">¥0</span></span>
-    </div>
-  </div>
-
-  <!-- Fee rates -->
-  <div class="card" style="margin-top:8px;">
-    <div class="card-title"><span class="dot"></span> 手续费率表</div>
-    <table class="fee-table">
-      <tr><th>品级</th><th>买入</th><th>卖出</th></tr>
-      <tr><td>1级</td><td>10%</td><td class="r">10%</td></tr>
-      <tr><td>2级</td><td>10%</td><td class="r">10%</td></tr>
-      <tr><td>3级</td><td>13%</td><td class="r">13%</td></tr>
-      <tr><td>4级</td><td>17%</td><td class="r">17%</td></tr>
-      <tr><td>5级+</td><td>20%</td><td class="r">20%</td></tr>
-    </table>
-  </div>
-
-  <!-- History -->
-  <div class="card history-card">
-    <div class="card-title"><span class="dot"></span> 交易历史</div>
-    <div class="history-list" id="historyList">
-      <div class="history-item" style="color:var(--muted);text-align:center;padding:12px;">
-        暂无历史记录
-      </div>
+    <div class="calc-result" id="calcResult" style="display:none">
+      <h3>📊 计算结果</h3>
+      <div class="result-grid" id="resultGrid"></div>
+      <div class="fee-note" id="feeNote"></div>
     </div>
   </div>
 </div>
-
-<!-- Import Modal -->
-<div class="modal-overlay" id="importModal">
-  <div class="modal">
-    <div class="modal-title">📥 导入价格数据</div>
-    <textarea id="importText" placeholder='粘贴JSON数据，格式：
-[
-  {"name": "5.56x45mm M855", "price": 1521},
-  {"name": "7.62x39mm BP", "price": 1961}
-]'></textarea>
-    <div class="modal-hint">
-      💡 从游戏内或数据源复制价格数据，按 <code>[{"name":"子弹名","price":价格}, ...]</code> 格式粘贴。<br>
-      也可只粘贴 <code>{"name":"价格", ...}</code> 格式的对象。
-    </div>
-    <div class="modal-actions">
-      <button class="modal-btn secondary" onclick="closeImportModal()">取消</button>
-      <button class="modal-btn primary" onclick="importData()">导入</button>
-    </div>
-  </div>
-</div>
-
-<!-- Toast -->
-<div class="toast" id="toast"></div>
 
 <script>
-// ═══════════════════════════════════════════════════════════
-// 内置94种子弹基础数据（来自 df.sanyueqi.cn 2026-04-28）
-// ═══════════════════════════════════════════════════════════
-const DEFAULT_BULLETS = [
-  {"id":"37120400003","name":"5.45x39mm BT ST","grade":4,"caliber":"5.45mm","price":2402,"pic":"https://zzz.sanyueqi.cn/public/df/img/amm_st.png"},
-  {"id":"37100400002","name":"5.56x45mm M855A1 APC+","grade":4,"caliber":"5.56mm","price":2200,"pic":"https://zzz.sanyueqi.cn/public/df/img/amm_apc%2B.png"},
-  {"id":"37100300002","name":"5.56x45mm M855 APC","grade":3,"caliber":"5.56mm","price":422,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"},
-  {"id":"37120500003","name":"5.45x39mm BS ST+","grade":5,"caliber":"5.45mm","price":7967,"pic":"https://zzz.sanyueqi.cn/public/df/img/amm_st%2B.png"},
-  {"id":"37300600002","name":".50 BMG M3 K-0","grade":6,"caliber":".50BMG","price":0,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/37300600002.png"},
-  {"id":"37300600001","name":".50 BMG M10 RAZOR","grade":6,"caliber":".50BMG","price":0,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/37300600001.png"},
-  {"id":"37300700001","name":".50 BMG M903 SLAP","grade":7,"caliber":".50BMG","price":0,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/37300700001.png"},
-  {"id":"37280400002","name":".300 BLK SUB","grade":4,"caliber":"7.62x35","price":2056,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/300BLK.png"},
-  {"id":"37270500002","name":"碳纤维散射箭矢","grade":5,"caliber":"Arrow","price":3616,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/37270500002.png"},
-  {"id":"37210000001","name":"5.7x28mm R37.F","grade":3,"caliber":"5.7x28","price":687,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.7x28mm.png"},
-  {"id":"37210200001","name":"5.7x28mm SS197SR","grade":2,"caliber":"5.7x28","price":97,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.7x28mm.png"},
-  {"id":"37210100001","name":"5.7x28mm SS198LF","grade":1,"caliber":"5.7x28","price":37,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.7x28mm.png"},
-  {"id":"37110200001","name":"7.62x39mm T45M","grade":2,"caliber":"7.62x39mm","price":110,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x39mm.png"},
-  {"id":"37110100001","name":"7.62x39mm LP","grade":1,"caliber":"7.62x39mm","price":42,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x39mm.png"},
-  {"id":"37100200001","name":"5.56x45mm FMJ","grade":2,"caliber":"5.56mm","price":78,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"},
-  {"id":"37100100001","name":"5.56x45mm RRLP","grade":1,"caliber":"5.56mm","price":33,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"},
-  {"id":"37120200001","name":"5.45x39mm T","grade":2,"caliber":"5.45mm","price":99,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39mm.png"},
-  {"id":"37120100001","name":"5.45x39mm PRS","grade":1,"caliber":"5.45mm","price":36,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39mm.png"},
-  {"id":"37250400004","name":"12 Gauge 独头 APX","grade":4,"caliber":"12GA","price":0,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},
-  {"id":"37250300002","name":"12 Gauge 独头 FTX","grade":3,"caliber":"12GA","price":519,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},
-  {"id":"37250300001","name":"12 Gauge 箭形弹","grade":3,"caliber":"12GA","price":508,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},
-  {"id":"37250000001","name":"12 Gauge 8.5毫米鹿弹","grade":3,"caliber":"12GA","price":388,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},
-  {"id":"37250000002","name":"12 Gauge 独头 RIP","grade":2,"caliber":"12GA","price":132,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},
-  {"id":"37250200002","name":"12 Gauge 独头 GT","grade":2,"caliber":"12GA","price":63,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},
-  {"id":"37250100001","name":"12 Gauge 7毫米鹿弹","grade":1,"caliber":"12GA","price":25,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},
-  {"id":"37190500001","name":".45 ACP Super​","grade":5,"caliber":".45","price":0,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/45-ACP.png"},
-  {"id":"37190000001","name":".45 ACP RIP","grade":3,"caliber":".45","price":770,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/45-ACP.png"},
-  {"id":"37190200001","name":".45 ACP JHP","grade":2,"caliber":".45","price":108,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/45-ACP.png"},
-  {"id":"37190100001","name":".45 ACP HS","grade":1,"caliber":".45","price":41,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/45-ACP.png"},
-  {"id":"37130200001","name":"5.8x42mm DBP87","grade":2,"caliber":"5.8x42","price":94,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.8x42mm.png"},
-  {"id":"37220200001","name":".357 Magnum HP","grade":2,"caliber":".357","price":151,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/357-Magnum.png"},
-  {"id":"37200000001","name":"9x19mm RIP","grade":3,"caliber":"9mm","price":638,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x19mm.png"},
-  {"id":"37200200001","name":"9x19mm Pst","grade":2,"caliber":"9mm","price":83,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x19mm.png"},
-  {"id":"37200100001","name":"9x19mm PSO","grade":1,"caliber":"9mm","price":28,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x19mm.png"},
-  {"id":"37230200001","name":".50 AE HP","grade":2,"caliber":".50","price":153,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/50-AE.png"},
-  {"id":"37250400002","name":"12 Gauge 独头 AP-20","grade":4,"caliber":"12GA","price":631,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},
-  {"id":"37120400002","name":"5.45x39mm BT +P","grade":4,"caliber":"5.45mm","price":0,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39.png"},
-  {"id":"37230500001","name":".50 AE AP","grade":5,"caliber":".50","price":0,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/50-AE.png"},
-  {"id":"37170200001","name":"7.62x51mm Ultra Nosler","grade":2,"caliber":"7.62mm","price":114,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x51mm.png"},
-  {"id":"37270300001","name":"玻纤柳叶箭矢","grade":3,"caliber":"Arrow","price":739,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/37270300001.png"},
-  {"id":"37280300001","name":".300 BLK","grade":3,"caliber":"7.62x35","price":602,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/300BLK.png"},
-  {"id":"37260300001","name":"4.6x30mm Subsonic SX","grade":3,"caliber":"4.6mm","price":387,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/4.6x30mm.png"},
-  {"id":"37290300001","name":"45-70 Govt RN","grade":3,"caliber":".45-70","price":374,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/37290300001.png"},
-  {"id":"37220300001","name":".357 Magnum JHP","grade":3,"caliber":".357","price":599,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/357-Magnum.png"},
-  {"id":"37220000001","name":".357 Magnum 9号霰射\"鼠弹\"","grade":3,"caliber":".357","price":263,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/357-Magnum.png"},
-  {"id":"37210300001","name":"5.7x28mm L191","grade":3,"caliber":"5.7x28","price":420,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.7x28mm.png"},
-  {"id":"37200300001","name":"9x19mm AP6.3","grade":3,"caliber":"9mm","price":321,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x19mm.png"},
-  {"id":"37190300001","name":".45 ACP FMJ","grade":3,"caliber":".45","price":581,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/45-ACP.png"},
-  {"id":"37180300001","name":"7.62x54R T46M","grade":3,"caliber":"7.62x54","price":522,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x54mm.png"},
-  {"id":"37230300001","name":".50 AE JHP","grade":3,"caliber":".50","price":404,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/50-AE.png"},
-  {"id":"37160300001","name":"12.7x55mm PS12A","grade":3,"caliber":"12.7mm","price":624,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12.7x55mm.png"},
-  {"id":"37140300001","name":"9x39mm SP5","grade":3,"caliber":"9x39mm","price":364,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x39mm.png"},
-  {"id":"37280400001","name":".300 BLK VAP","grade":4,"caliber":"7.62x35","price":2317,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/300BLK.png"},
-  {"id":"37130300001","name":"5.8x42mm DVP88","grade":3,"caliber":"5.8x42","price":508,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.8x42mm.png"},
-  {"id":"37120300001","name":"5.45x39mm PS","grade":3,"caliber":"5.45mm","price":504,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39mm.png"},
-  {"id":"37110300001","name":"7.62x39mm PS","grade":3,"caliber":"7.62x39mm","price":506,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x39mm.png"},
-  {"id":"37170300001","name":"7.62x51mm BPZ","grade":3,"caliber":"7.62mm","price":408,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x51mm.png"},
-  {"id":"37100300001","name":"5.56x45mm M855","grade":3,"caliber":"5.56mm","price":361,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"},
-  {"id":"37290400001","name":"45-70 Govt FMJ","grade":4,"caliber":".45-70","price":1538,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/37290400001.png"},
-  {"id":"37190400001","name":".45 ACP AP","grade":4,"caliber":".45","price":2100,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/45-ACP.png"},
-  {"id":"37270400001","name":"碳纤维刺骨箭矢","grade":4,"caliber":"Arrow","price":1714,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/37270400001.png"},
-  {"id":"37250400003","name":"12 Gauge 龙息弹","grade":4,"caliber":"12GA","price":2160,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},
-  {"id":"37230400001","name":".50 AE FMJ","grade":4,"caliber":".50","price":1820,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/50-AE.png"},
-  {"id":"37220400001","name":".357 Magnum FMJ","grade":4,"caliber":".357","price":635,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/357-Magnum.png"},
-  {"id":"37210400001","name":"5.7x28mm SS193","grade":4,"caliber":"5.7x28","price":1983,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.7x28mm.png"},
-  {"id":"37200400001","name":"9x19mm PBP","grade":4,"caliber":"9mm","price":1456,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x19mm.png"},
-  {"id":"37260400001","name":"4.6x30mm FMJ SX","grade":4,"caliber":"4.6mm","price":1520,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/4.6x30mm.png"},
-  {"id":"37130400001","name":"5.8x42mm DBP10","grade":4,"caliber":"5.8x42","price":2058,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.8x42mm.png"},
-  {"id":"37170400001","name":"7.62x51mm M80","grade":4,"caliber":"7.62mm","price":1738,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x51mm.png"},
-  {"id":"37150400001","name":"6.8x51mm FMJ","grade":4,"caliber":"6.8x51","price":2294,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/6.8x51mm.png"},
-  {"id":"37160400001","name":"12.7x55mm PS12","grade":4,"caliber":"12.7mm","price":2452,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12.7x55mm.png"},
-  {"id":"37160400002","name":"12.7x55mm PD12双头弹","grade":4,"caliber":"12.7mm","price":3067,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12.7x55mm.png"},
-  {"id":"37180400001","name":"7.62x54R LPS","grade":4,"caliber":"7.62x54","price":2250,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x54mm.png"},
-  {"id":"37140400001","name":"9x39mm SP6","grade":4,"caliber":"9x39mm","price":2161,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x39mm.png"},
-  {"id":"37100400001","name":"5.56x45mm M855A1","grade":4,"caliber":"5.56mm","price":1521,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"},
-  {"id":"37110400001","name":"7.62x39mm BP","grade":4,"caliber":"7.62x39mm","price":1961,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x39mm.png"},
-  {"id":"37120400001","name":"5.45x39mm BT","grade":4,"caliber":"5.45mm","price":1966,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39mm.png"},
-  {"id":"37290500001","name":"45-70 Govt FTX","grade":5,"caliber":".45-70","price":4955,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/37290500001.png"},
-  {"id":"37270500001","name":"碳纤维穿甲箭矢","grade":5,"caliber":"Arrow","price":4924,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/37270500001.png"},
-  {"id":"37260500001","name":"4.6x30mm AP SX","grade":5,"caliber":"4.6mm","price":3942,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/4.6x30mm.png"},
-  {"id":"37150500001","name":"6.8x51mm Hybrid","grade":5,"caliber":"6.8x51","price":5264,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/6.8x51mm.png"},
-  {"id":"37210500001","name":"5.7x28mm SS190","grade":5,"caliber":"5.7x28","price":4897,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.7x28mm.png"},
-  {"id":"37170500001","name":"7.62x51mm M62","grade":5,"caliber":"7.62mm","price":5967,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x51mm.png"},
-  {"id":"37180500001","name":"7.62x54R BT","grade":5,"caliber":"7.62x54","price":5374,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x54mm.png"},
-  {"id":"37160500001","name":"12.7x55mm PS12B","grade":5,"caliber":"12.7mm","price":6223,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12.7x55mm.png"},
-  {"id":"37130500001","name":"5.8x42mm DVC12","grade":5,"caliber":"5.8x42","price":4865,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.8x42mm.png"},
-  {"id":"37140500001","name":"9x39mm BP","grade":5,"caliber":"9x39mm","price":5264,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x39mm.png"},
-  {"id":"37110500001","name":"7.62x39mm AP","grade":5,"caliber":"7.62x39mm","price":5046,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x39mm.png"},
-  {"id":"37100500001","name":"5.56x45mm M995","grade":5,"caliber":"5.56mm","price":4277,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"},
-  {"id":"37240700001","name":".338 Lap Mag AP","grade":6,"caliber":".338","price":0,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/338.png"},
-  {"id":"37170600001","name":"7.62x51mm M61","grade":6,"caliber":"7.62mm","price":0,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x51mm.png"},
-  {"id":"37180600001","name":"7.62x54R SNB","grade":6,"caliber":"7.62x54","price":0,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x54mm.png"},
-  {"id":"37150600001","name":"6.8x51mm AP","grade":6,"caliber":"6.8x51","price":0,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/6.8x51mm.png"},
-  {"id":"37120500001","name":"5.45x39mm BS","grade":5,"caliber":"5.45mm","price":5134,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39mm.png"}
-];
+// ===== DATA =====
+const TIMING_BULLETS = [[37120500003,"5.45*39mm BS ST+",5,"",5,6097,"stable","综合 00:00-02:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39.png"],[37110500002,"7.62*39mm AP SUB",5,"",5,5777,"stable","综合 00:00-02:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x39.png"],[37170500001,"7.62x51mm M62",5,"",5,5667,"stable","综合 08:00-10:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x51mm.png"],[37150500001,"6.8x51mm Hybrid",5,"",5,5169,"stable","综合 10:30-12:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/6.8x51.png"],[37160500001,"12.7x55mm PS12B",5,"",5,5143,"stable","综合 07:00-09:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12.7x55.png"],[37180500001,"7.62x54R BT",5,"",5,4894,"rising","综合 07:00-09:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x54mm.png"],[37110500001,"7.62x39mm AP",5,"",5,4821,"stable","综合 08:00-10:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x39.png"],[37270500001,"碳纤维穿甲箭矢",5,"",5,4779,"falling","综合 08:30-10:30","https://playerhub.df.qq.com/playerhub/60004/object/37270500001.png"],[37140500001,"9x39mm BP",5,"",5,4679,"stable","综合 09:30-11:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x39.png"],[37230500001,".50 AE AP",5,"",5,4568,"falling","综合 08:00-10:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/50-AE.png"],[37290500001,"45-70 Govt FTX",5,"",5,4535,"falling","综合 08:00-10:00","https://playerhub.df.qq.com/playerhub/60004/object/37290500001.png"],[37280500001,".300BLK",5,"",5,4293,"falling","综合 07:30-09:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/300BLK.png"],[37120500001,"5.45x39mm BS",5,"",5,4144,"stable","综合 08:00-10:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39.png"],[37130500001,"5.8x42mm DVC12",5,"",5,4095,"stable","综合 08:00-10:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.8x42.png"],[37210500001,"5.7x28mm SS190",5,"",5,4052,"stable","综合 08:00-10:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.7x28.png"],[37100500001,"5.56x45mm M995",5,"",5,3952,"stable","综合 08:00-10:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"],[37260500001,"4.6x30mm AP SX",5,"",5,3887,"stable","综合 07:30-09:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/4.6x30.png"],[37270500002,"碳纤维散射箭矢",5,"",5,3241,"stable","综合 00:00-02:00","https://playerhub.df.qq.com/playerhub/60004/object/37270500002.png"],[37160400002,"12.7x55mm PD12双头弹",4,"",4,2667,"stable","综合 06:00-08:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12.7x55.png"],[37280400002,".300BLK BCP SUB",4,"",4,1906,"stable","综合 00:00-02:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/300BLK.png"],[37160400001,"12.7x55mm PS12",4,"",4,1772,"rising","综合 05:30-07:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12.7x55.png"],[37180400001,"7.62x54R LPS",4,"",4,1730,"stable","综合 06:00-08:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x54mm.png"],[37140400001,"9x39mm SP6",4,"",4,1721,"stable","综合 04:30-06:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x39.png"],[37150400001,"6.8x51mm FMJ",4,"",4,1709,"falling","综合 04:30-06:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/6.8x51.png"],[37270400001,"碳纤维刺骨箭矢",4,"",4,1644,"rising","综合 05:30-07:30","https://playerhub.df.qq.com/playerhub/60004/object/37270400001.png"],[37250400003,"12 Gauge 龙息弹",4,"",null,1640,"stable","综合 06:30-08:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"],[37120400003,"5.45*39mm BT ST",4,"",4,1632,"stable","综合 01:30-03:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39.png"],[37100400002,"5.56*45mm M855A1 APC+",4,"",4,1625,"stable","综合 02:00-04:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"],[37280400001,".300BLK",4,"",4,1617,"stable","综合 02:30-04:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/300BLK.png"],[37210400001,"5.7x28mm SS193",4,"",4,1593,"stable","综合 02:30-04:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.7x28.png"],[37110400002,"7.62*39mm BP SUB",4,"",4,1586,"stable","综合 00:00-02:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x39.png"],[37230400001,".50 AE FMJ",4,"",4,1505,"falling","综合 08:00-10:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/50-AE.png"],[37130400001,"5.8x42mm DBP10",4,"",4,1428,"stable","综合 04:30-06:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.8x42.png"],[37190400001,".45 ACP AP",4,"",4,1365,"falling","综合 04:30-06:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/45-ACP.png"],[37170400001,"7.62x51mm M80",4,"",4,1258,"stable","综合 04:30-06:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x51mm.png"],[37290400001,"45-70 Govt FMJ",4,"",4,1213,"falling","综合 07:30-09:30","https://playerhub.df.qq.com/playerhub/60004/object/37290400001.png"],[37110400001,"7.62x39mm BP",4,"",4,1191,"stable","综合 04:30-06:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x39.png"],[37120400001,"5.45x39mm BT",4,"",4,1166,"stable","综合 03:30-05:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39.png"],[37100400001,"5.56x45mm M855A1",4,"",4,1101,"stable","综合 02:30-04:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"],[37260400001,"4.6x30mm FMJ SX",4,"",4,1095,"stable","综合 03:00-05:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/4.6x30.png"],[37200400001,"9x19mm PBP",4,"",4,1036,"stable","综合 04:00-06:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x19.png"],[37270300001,"玻纤柳叶箭矢",3,"",3,709,"stable","综合 00:30-02:30","https://playerhub.df.qq.com/playerhub/60004/object/37270300001.png"],[37160300001,"12.7x55mm PS12A",3,"",3,694,"stable","综合 03:30-05:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12.7x55.png"],[37190000001,".45 ACP RIP",3,"",null,650,"stable","综合 02:30-04:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/45-ACP.png"],[37200000001,"9x19mm RIP",3,"",null,578,"stable","综合 01:00-03:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x19.png"],[37220400001,".357 Magnum FMJ",4,"",4,545,"stable","综合 22:00-24:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/.357.png"],[37190300001,".45 ACP FMJ",3,"",3,521,"stable","综合 04:00-06:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/45-ACP.png"],[37250300002,"12 Gauge独头 FTX",3,"",3,519,"stable","综合 04:00-06:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"],[37280300002,".300BLK V SUB",3,"",3,519,"stable","综合 00:00-02:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/300BLK.png"],[37170300001,"7.62x51mm BPZ",3,"",3,508,"rising","综合 04:00-06:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x51mm.png"],[37140300001,"9x39mm SP5",3,"",3,504,"stable","综合 04:00-06:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x39.png"],[37220300001,".357 Magnum JHP",3,"",3,499,"falling","综合 03:30-05:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/.357.png"],[37110300001,"7.62x39mm PS",3,"",3,491,"stable","综合 03:30-05:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x39.png"],[37180300001,"7.62x54R T46M",3,"",3,482,"falling","综合 04:30-06:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x54mm.png"],[37250400002,"12 Gauge独头 AP-20",4,"",4,471,"stable","综合 06:00-08:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"],[37210000001,"5.7x28mm R37.F",3,"",null,467,"stable","综合 02:00-04:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.7x28.png"],[37230300001,".50 AE JHP",3,"",3,464,"falling","综合 04:00-06:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/50-AE.png"],[37120300001,"5.45x39mm PS",3,"",3,444,"stable","综合 04:00-06:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39.png"],[37280300001,".300BLK",3,"",3,437,"stable","综合 04:00-06:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/300BLK.png"],[37290300001,"45-70 Govt RN",3,"",null,434,"rising","综合 04:30-06:30","https://playerhub.df.qq.com/playerhub/60004/object/37290300001.png"],[37130300001,"5.8x42mm DVP88",3,"",3,403,"falling","综合 04:00-06:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.8x42.png"],[37250300001,"12 Gauge 箭形弹",3,"",3,403,"rising","综合 04:00-06:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"],[37210300001,"5.7x28mm L191",3,"",3,390,"falling","综合 04:30-06:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.7x28.png"],[37260300001,"4.6x30mm Subsonic SX",3,"",3,387,"stable","综合 04:30-06:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/4.6x30.png"],[37200300001,"9x19mm AP6.3",3,"",3,366,"stable","综合 04:00-06:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x19.png"],[37100300002,"5.56*45mm M855 APC",3,"",3,352,"rising","综合 01:00-03:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"],[37250000001,"12 Gauge 8.5毫米鹿弹",3,"",null,343,"stable","综合 02:30-04:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"],[37100300001,"5.56x45mm M855",3,"",3,331,"stable","综合 02:30-04:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"],[37220000001,".357 Magnum 9号霰射\"鼠弹\"",3,"",null,208,"rising","综合 03:30-05:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/.357.png"],[37230200001,".50 AE HP",2,"",2,164,"stable","综合 18:30-20:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/50-AE.png"],[37220200001,".357 Magnum HP",2,"",2,162,"stable","综合 08:30-10:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/.357.png"],[37250000002,"12 Gauge独头 RIP",2,"",null,133,"stable","综合 00:00-02:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"],[37170200001,"7.62x51mm UN",2,"",2,114,"stable","综合 04:30-06:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x51mm.png"],[37190200001,".45 ACP JHP",2,"",2,111,"stable","综合 01:30-03:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/45-ACP.png"],[37110200001,"7.62x39mm T45M",2,"",2,111,"stable","综合 00:00-02:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x39.png"],[37120200001,"5.45x39mm T",2,"",2,100,"stable","综合 00:00-02:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39.png"],[37210200001,"5.7x28mm SS197SR",2,"",2,97,"stable","综合 04:00-06:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.7x28.png"],[37130200001,"5.8x42mm DBP87",2,"",2,94,"stable","综合 04:30-06:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.8x42.png"],[37200200001,"9x19mm Pst",2,"",2,85,"rising","综合 04:00-06:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x19.png"],[37100200001,"5.56x45mm FMJ",2,"",2,79,"stable","综合 07:30-09:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"],[37250200002,"12 Gauge独头 GT",2,"",2,65,"stable","综合 00:00-02:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"],[37110100001,"7.62x39mm LP",1,"",1,43,"stable","综合 03:30-05:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x39.png"],[37190100001,".45 ACP HS",1,"",1,43,"stable","综合 12:30-14:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/45-ACP.png"],[37120100001,"5.45x39mm PRS",1,"",1,40,"stable","综合 06:00-08:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39.png"],[37210100001,"5.7x28mm SS198LF",1,"",1,38,"stable","综合 05:30-07:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.7x28.png"],[37100100001,"5.56x45mm RRLP",1,"",1,35,"stable","综合 09:00-11:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"],[37200100001,"9x19mm PSO",1,"",1,32,"stable","综合 00:00-02:00","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x19.png"],[37250100001,"12 Gauge 7毫米鹿弹",1,"",1,23,"stable","综合 02:30-04:30","https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"]];
 
-// ═══════════════════════════════════════════════════════════
-// 状态变量
-// ═══════════════════════════════════════════════════════════
-let bullets = JSON.parse(localStorage.getItem('bullets')) || JSON.parse(JSON.stringify(DEFAULT_BULLETS));
-let selectedBullet = null;
-let currentCaliber = '';
-let watchList = JSON.parse(localStorage.getItem('watchList')) || [];
-let historyList = JSON.parse(localStorage.getItem('historyList')) || [];
-let notifEnabled = localStorage.getItem('notifEnabled') === 'true';
+// ===== DFHUB API CLIENT =====
+const DFHUB_BASE = 'https://dfhub.cn';
 
-// 手续费率
-const FEE_RATES = { 1: 0.10, 2: 0.10, 3: 0.13, 4: 0.17, 5: 0.20, 6: 0.20, 7: 0.20 };
-const GRADE_COLORS = { 1: 'g1', 2: 'g2', 3: 'g3', 4: 'g4', 5: 'g5', 6: 'g6', 7: 'g7' };
+async function dfhubDecrypt(encrypted) {
+  var magic = new DataView(encrypted).getUint16(0, false);
+  if (magic !== 0xdf01) throw new Error('Bad magic');
+  var nb = new Uint8Array(encrypted);
+  var nonceLen = nb[2];
+  var encName = new TextDecoder().decode(encrypted.slice(3, 3+nonceLen));
+  var kd = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('防君子不防小人' + encName));
+  var key = await crypto.subtle.importKey('raw', kd, 'AES-GCM', false, ['decrypt']);
+  var iv = encrypted.slice(3+nonceLen, 3+nonceLen+12);
+  var ctWithTag = encrypted.slice(3+nonceLen+12);
+  var ct = ctWithTag.slice(0, ctWithTag.byteLength-16);
+  var tag = ctWithTag.slice(ctWithTag.byteLength-16);
+  var combined = new Uint8Array(tag.byteLength + ct.byteLength);
+  combined.set(new Uint8Array(tag), 0);
+  combined.set(new Uint8Array(ct), tag.byteLength);
+  var dec = await crypto.subtle.decrypt({name:'AES-GCM', iv:iv, tagLength:128}, key, combined);
+  var inflated = pako.inflateRaw(new Uint8Array(dec));
+  return JSON.parse(new TextDecoder().decode(inflated));
+}
 
-// ═══════════════════════════════════════════════════════════
-// 初始化
-// ═══════════════════════════════════════════════════════════
-function init() {
-  buildCaliberRow();
-  renderBulletList();
-  renderWatchList();
-  renderHistory();
-  updateStats();
-  
-  // 恢复通知状态
-  if (notifEnabled) {
-    document.getElementById('notifToggle').classList.add('on');
-  }
-  
-  // 点击外部关闭下拉
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('.bullet-dropdown')) {
-      closeDropdown();
+async function dfhubApi(path) {
+  var resp = await fetch(DFHUB_BASE + path, {
+    headers: {
+      'User-Agent': 'Mozilla/5.0',
+      'Referer': 'https://dfhub.cn/ammo-timing/',
+      'Origin': 'https://dfhub.cn'
     }
   });
-
-  setTimeout(function(){ refreshPrices().catch(function(e){ console.warn('自动刷新:', e.message); }); }, 2000);
+  if (!resp.ok) throw new Error('HTTP ' + resp.status);
+  return dfhubDecrypt(await resp.arrayBuffer());
 }
 
-// ═══════════════════════════════════════════════════════════
-// 口径选择器
-// ═══════════════════════════════════════════════════════════
-function buildCaliberRow() {
-  const calibers = [...new Set(bullets.map(b => b.caliber))].sort();
-  const row = document.getElementById('caliberRow');
-  row.innerHTML = '<button class="cal-btn active" onclick="selectCaliber(\'\', this)">全部</button>';
-  calibers.forEach(c => {
-    row.innerHTML += `<button class="cal-btn" onclick="selectCaliber('${c}', this)">${c}</button>`;
+// ===== STATE =====
+var livePrices = {}; // object_id -> price
+var activeGrade = 'all';
+var activeTrend = null;
+var selectedCalcBullet = null;
+var currentTab = 'timing';
+
+// ===== INIT =====
+var statusEl = document.getElementById('status');
+
+function setStatus(cls, text) {
+  statusEl.className = 'status ' + cls;
+  statusEl.textContent = text;
+}
+
+async function init() {
+  setStatus('loading', '加载数据...');
+  try {
+    // Try live first
+    var r = await dfhubApi('/api/v1/prices/ammo?page=1&size=50');
+    if (r.code === 0 && r.data && r.data.length > 0) {
+      var all = r.data;
+      var page = 2;
+      var lastPage = r.meta && r.meta.last_page || 9;
+      while (page <= lastPage) {
+        var r2 = await dfhubApi('/api/v1/prices/ammo?page=' + page + '&size=50');
+        if (r2.data) all = all.concat(r2.data);
+        if (!r2.data || r2.data.length < 50) break;
+        page++;
+      }
+      // Update TIMING_BULLETS with live prices
+      all.forEach(function(b) {
+        livePrices[b.object_id] = b.latest_price;
+        // Update price in TIMING_BULLETS array
+        for (var i = 0; i < TIMING_BULLETS.length; i++) {
+          if (TIMING_BULLETS[i][0] === b.object_id) {
+            TIMING_BULLETS[i][5] = b.latest_price;
+            TIMING_BULLETS[i][6] = b.trend;
+            TIMING_BULLETS[i][7] = b.best_buy_time_label;
+            break;
+          }
+        }
+      });
+      setStatus('ok', '实时数据 ✓ (' + all.length + '条)');
+      renderTimingList();
+    } else {
+      throw new Error('Empty response');
+    }
+  } catch(e) {
+    console.error('Live fetch failed:', e);
+    setStatus('error', '使用缓存数据');
+    renderTimingList();
+  }
+}
+
+// ===== TIMING LIST =====
+function renderTimingList() {
+  var list = document.getElementById('timing-list');
+  var grade = activeGrade;
+  var trend = activeTrend;
+  var filtered = TIMING_BULLETS.filter(function(b) {
+    if (grade !== 'all' && b[2] !== grade) return false;
+    if (trend && b[6] !== trend) return false;
+    return true;
   });
-}
 
-function selectCaliber(cal, btn) {
-  currentCaliber = cal;
-  document.querySelectorAll('.cal-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderBulletList();
-}
-
-// ═══════════════════════════════════════════════════════════
-// 子弹列表
-// ═══════════════════════════════════════════════════════════
-function renderBulletList() {
-  const search = document.getElementById('searchInput').value.toLowerCase();
-  let list = bullets;
-  
-  if (currentCaliber) {
-    list = list.filter(b => b.caliber === currentCaliber);
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="loading-center">没有匹配的子弹</div>';
+    return;
   }
-  if (search) {
-    list = list.filter(b => b.name.toLowerCase().includes(search));
-  }
-  
-  const wrap = document.getElementById('bulletListWrap');
-  wrap.innerHTML = list.map(b => `
-    <div class="bl-item" onclick="selectBullet('${b.id}')">
-      <div class="bl-left">
-        <span class="bl-name">${b.name}</span>
-        <span class="bl-grade ${GRADE_COLORS[b.grade] || 'g1'}">${b.grade}级</span>
-      </div>
-      <div>
-        <span class="bl-price">${b.price > 0 ? '¥' + b.price : '暂无'}</span>
-      </div>
-    </div>
-  `).join('');
-}
 
-function filterBullets() {
-  renderBulletList();
+  var html = '<div class="bullet-grid">';
+  filtered.forEach(function(b) {
+    var id = b[0], name = b[1], g = b[2], price = b[5], trend = b[6], bestTime = b[7], pic = b[8];
+    var gradeLabel = 'G' + g;
+    var gradeClass = 'g' + g + '-badge';
+    var cardClass = 'g' + g;
+    var trendClass = trend === 'rising' ? 'trend-up' : trend === 'falling' ? 'trend-down' : 'trend-stable';
+    var trendIcon = trend === 'rising' ? '📈' : trend === 'falling' ? '📉' : '➖';
+    var pen = b[4];
+    html += '<div class="bullet-card ' + cardClass + '" onclick="selectBullet(' + id + ')">' +
+      '<div class="card-header">' +
+        '<img class="card-pic" src="' + pic + '" onerror="this.classList.add(\'error\')"> ' +
+        '<div class="card-info">' +
+          '<div class="card-name" title="' + name + '">' + name + '</div>' +
+          '<div class="card-meta">' +
+            '<span class="grade-badge ' + gradeClass + '">' + gradeLabel + '</span>' +
+            '<span class="pen-badge">穿透' + pen + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="card-price">' + price.toLocaleString() + '<small><br>₵</small></div>' +
+      '</div>' +
+      '<div class="trend-badge ' + trendClass + '">' + trendIcon + ' ' + trend + '</div>' +
+      '<div class="best-time">' + bestTime + '</div>' +
+    '</div>';
+  });
+  html += '</div>';
+  list.innerHTML = html;
 }
 
 function selectBullet(id) {
-  selectedBullet = bullets.find(b => b.id === id);
-  if (!selectedBullet) return;
-  
-  closeDropdown();
-  
-  // 更新触发器显示
-  document.getElementById('triggerName').textContent = selectedBullet.name;
-  document.getElementById('triggerGrade').textContent = selectedBullet.grade + '级';
-  document.getElementById('triggerGrade').className = 'trigger-grade ' + (GRADE_COLORS[selectedBullet.grade] || 'g1');
-  document.getElementById('triggerPrice').textContent = selectedBullet.price > 0 ? '¥' + selectedBullet.price : '';
-  
-  // 更新选中信息
-  document.getElementById('selectedInfo').innerHTML = `
-    <div class="chip">口径: <strong>${selectedBullet.caliber}</strong></div>
-    <div class="chip">品级: <strong>${selectedBullet.grade}级</strong></div>
-    <div class="chip green">参考价: <strong>¥${selectedBullet.price || '-'}</strong></div>
-  `;
-  
-  // 显示添加监控按钮
-  document.getElementById('watchAddBtn').style.display = 'block';
-  
-  // 自动填入买入价格
-  if (selectedBullet.price > 0) {
-    document.getElementById('buyPrice').value = selectedBullet.price;
-    calc();
-  }
-  
-  updateChart();
-}
-
-// ═══════════════════════════════════════════════════════════
-// 下拉控制
-// ═══════════════════════════════════════════════════════════
-function toggleDropdown() {
-  const trigger = document.getElementById('bulletTrigger');
-  const list = document.getElementById('bulletListWrap');
-  trigger.classList.toggle('open');
-  list.classList.toggle('open');
-}
-
-function closeDropdown() {
-  document.getElementById('bulletTrigger').classList.remove('open');
-  document.getElementById('bulletListWrap').classList.remove('open');
-}
-
-// ═══════════════════════════════════════════════════════════
-// 计算器
-// ═══════════════════════════════════════════════════════════
-function calc() {
-  const buyPrice = parseFloat(document.getElementById('buyPrice').value) || 0;
-  const buyQty = parseInt(document.getElementById('buyQty').value) || 0;
-  const sellPrice = parseFloat(document.getElementById('sellPrice').value) || 0;
-  const sellQty = parseInt(document.getElementById('sellQty').value) || 0;
-  
-  // 获取品级（用于手续费）
-  const grade = selectedBullet ? selectedBullet.grade : 3;
-  const feeRate = FEE_RATES[grade] || 0.17;
-  
-  // 买入计算
-  const buyTotal = buyPrice * buyQty;
-  const buyFee = Math.floor(buyTotal * feeRate);
-  const buyCost = buyTotal + buyFee;
-  
-  document.getElementById('buyTotal').textContent = '¥' + buyTotal.toLocaleString();
-  document.getElementById('buyFee').textContent = '¥' + buyFee.toLocaleString();
-  document.getElementById('buyFeeRate').textContent = (feeRate * 100) + '% 手续费';
-  
-  // 卖出计算
-  const sellTotal = sellPrice * sellQty;
-  const sellFee = Math.floor(sellTotal * feeRate);
-  const netSell = sellTotal - sellFee;
-  
-  document.getElementById('sellTotal').textContent = '¥' + sellTotal.toLocaleString();
-  document.getElementById('sellFee').textContent = '¥' + sellFee.toLocaleString();
-  document.getElementById('sellFeeRate').textContent = (feeRate * 100) + '% 手续费';
-  
-  // 利润计算
-  const totalCost = buyCost;
-  const netIncome = netSell;
-  const profit = netIncome - totalCost;
-  const profitRate = totalCost > 0 ? ((profit / totalCost) * 100).toFixed(1) : 0;
-  const profitPerBullet = (buyQty > 0 || sellQty > 0) ? (profit / Math.max(buyQty, sellQty)).toFixed(2) : 0;
-  
-  document.getElementById('totalCost').textContent = '¥' + totalCost.toLocaleString();
-  document.getElementById('netIncome').textContent = '¥' + netIncome.toLocaleString();
-  
-  const profitEl = document.getElementById('profit');
-  profitEl.textContent = (profit >= 0 ? '¥' : '-¥') + Math.abs(profit).toLocaleString();
-  profitEl.className = 'stat-val ' + (profit >= 0 ? 'g' : 'r');
-  
-  document.getElementById('profitRate').textContent = profitRate + '%';
-  document.getElementById('profitPerBullet').textContent = '¥' + profitPerBullet;
-  
-  updateChart();
-}
-
-// ═══════════════════════════════════════════════════════════
-// 价格图表
-// ═══════════════════════════════════════════════════════════
-function updateChart() {
-  const buyPrice = parseFloat(document.getElementById('buyPrice').value) || 0;
-  const sellPrice = parseFloat(document.getElementById('sellPrice').value) || 0;
-  const currentPrice = selectedBullet ? selectedBullet.price : 0;
-  
-  const maxPrice = Math.max(buyPrice, sellPrice, currentPrice, 1);
-  const buyH = buyPrice > 0 ? Math.max((buyPrice / maxPrice) * 36, 4) : 0;
-  const sellH = sellPrice > 0 ? Math.max((sellPrice / maxPrice) * 36, 4) : 0;
-  const currH = currentPrice > 0 ? Math.max((currentPrice / maxPrice) * 36, 4) : 0;
-  
-  const bars = document.getElementById('chartBars');
-  bars.innerHTML = `
-    <div class="chart-bw">
-      <div class="chart-val">${buyPrice > 0 ? '¥' + buyPrice : '-'}</div>
-      <div class="chart-bar" style="background:var(--blue);height:${buyH}px;"></div>
-      <div class="chart-lbl">买入</div>
-    </div>
-    <div class="chart-bw">
-      <div class="chart-val">${currentPrice > 0 ? '¥' + currentPrice : '-'}</div>
-      <div class="chart-bar" style="background:var(--green);height:${currH}px;"></div>
-      <div class="chart-lbl">当前</div>
-    </div>
-    <div class="chart-bw">
-      <div class="chart-val">${sellPrice > 0 ? '¥' + sellPrice : '-'}</div>
-      <div class="chart-bar" style="background:var(--yellow);height:${sellH}px;"></div>
-      <div class="chart-lbl">卖出</div>
-    </div>
-  `;
-}
-
-// ═══════════════════════════════════════════════════════════
-// 监控列表
-// ═══════════════════════════════════════════════════════════
-function addToWatch() {
-  if (!selectedBullet) return;
-  
-  // 检查是否已存在
-  if (watchList.find(w => w.id === selectedBullet.id)) {
-    showToast('该子弹已在监控列表中', 'error');
-    return;
-  }
-  
-  const buyTarget = parseFloat(document.getElementById('buyPrice').value) || selectedBullet.price;
-  const sellTarget = parseFloat(document.getElementById('sellPrice').value) || Math.floor(selectedBullet.price * 1.2);
-  
-  watchList.push({
-    id: selectedBullet.id,
-    name: selectedBullet.name,
-    grade: selectedBullet.grade,
-    currentPrice: selectedBullet.price,
-    buyTarget: buyTarget,
-    sellTarget: sellTarget
+  // Highlight selected
+  document.querySelectorAll('.bullet-card').forEach(function(el) {
+    el.classList.remove('selected');
   });
-  
-  saveWatchList();
-  renderWatchList();
-  showToast('已添加监控: ' + selectedBullet.name, 'success');
-}
+  event.currentTarget.classList.add('selected');
 
-function renderWatchList() {
-  const list = document.getElementById('watchList');
-  
-  if (watchList.length === 0) {
-    list.innerHTML = '<div class="watch-empty">选择子弹后添加监控<br>价格达到目标时弹出通知</div>';
-    return;
+  // Find bullet data
+  var b = null;
+  for (var i = 0; i < TIMING_BULLETS.length; i++) {
+    if (TIMING_BULLETS[i][0] === id) { b = TIMING_BULLETS[i]; break; }
   }
-  
-  list.innerHTML = watchList.map((w, i) => {
-    const b = bullets.find(b => b.id === w.id);
-    const currentPrice = b ? b.price : w.currentPrice;
-    const alertBuy = currentPrice > 0 && currentPrice <= w.buyTarget;
-    const alertSell = currentPrice > 0 && currentPrice >= w.sellTarget;
-    
-    return `
-      <div class="watch-item ${alertBuy ? 'alert-buy' : ''} ${alertSell ? 'alert-sell' : ''}">
-        <div class="watch-item-row">
-          <span class="watch-item-name">${w.name}</span>
-          <span class="watch-item-grade ${GRADE_COLORS[w.grade] || 'g1'}">${w.grade}级</span>
-          <span class="watch-item-close" onclick="removeFromWatch(${i})">×</span>
-        </div>
-        <div class="watch-item-current">当前: <span>¥${currentPrice || '-'}</span></div>
-        <div class="watch-item-targets">
-          <span class="watch-target buy">买入 ≤¥${w.buyTarget}</span>
-          <span class="watch-target sell">卖出 ≥¥${w.sellTarget}</span>
-        </div>
-      </div>
-    `;
-  }).join('');
+  if (!b) return;
+
+  var id=b[0], name=b[1], g=b[2], pen=b[4], price=b[5], trend=b[6], bestTime=b[7], pic=b[8];
+  var trendClass = trend === 'rising' ? 'trend-up' : trend === 'falling' ? 'trend-down' : 'trend-stable';
+  var trendIcon = trend === 'rising' ? '📈' : trend === 'falling' ? '📉' : '➖';
+  var gradeColor = {1:'#9d6cd9',2:'#6a9bd1',3:'#a0a0a0',4:'#c0a060',5:'#ffd700'}[g];
+
+  var detail = document.getElementById('timing-detail');
+  detail.style.display = 'block';
+  detail.innerHTML = '<div class="detail-hero">' +
+    '<img class="detail-pic" src="' + pic + '" onerror="this.style.display=\'none\'"> ' +
+    '<div class="detail-info">' +
+      '<div class="detail-name">' + name + '</div>' +
+      '<div class="detail-badges">' +
+        '<span class="grade-badge g' + g + '-badge">G' + g + '</span>' +
+        '<span class="pen-badge">穿透等级 ' + pen + '</span>' +
+        '<span class="trend-badge ' + trendClass + '">' + trendIcon + ' ' + trend + '</span>' +
+      '</div>' +
+    '</div>' +
+    '<div class="detail-price">' + price.toLocaleString() + '<small> ₵</small></div>' +
+  '</div>' +
+  '<div class="detail-body">' +
+    '<div class="detail-section">' +
+      '<h3>🕐 最佳买入时段</h3>' +
+      '<div class="time-grid">' +
+        '<div class="time-slot"><div class="time">' + bestTime.split(' ')[1] + '</div><div class="label">' + bestTime.split(' ')[0] + '</div></div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="detail-section">' +
+      '<h3>📋 子弹属性</h3>' +
+      '<div class="prop-grid">' +
+        '<div class="prop-item"><div class="prop-label">子弹名称</div><div class="prop-value" style="font-size:12px">' + name + '</div></div>' +
+        '<div class="prop-item"><div class="prop-label">等级</div><div class="prop-value" style="color:' + gradeColor + '">G' + g + '</div></div>' +
+        '<div class="prop-item"><div class="prop-label">穿透等级</div><div class="prop-value">' + pen + '</div></div>' +
+        '<div class="prop-item"><div class="prop-label">当前价格</div><div class="prop-value" style="color:var(--accent)">' + price.toLocaleString() + ' ₵</div></div>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+
+  detail.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
-function removeFromWatch(index) {
-  watchList.splice(index, 1);
-  saveWatchList();
-  renderWatchList();
+function filterGrade(el) {
+  document.querySelectorAll('.filter-btn[data-grade]').forEach(function(b){ b.classList.remove('active'); });
+  el.classList.add('active');
+  activeGrade = el.dataset.grade;
+  activeTrend = null;
+  document.querySelectorAll('.filter-btn[data-trend]').forEach(function(b){ b.classList.remove('active'); });
+  renderTimingList();
 }
 
-function saveWatchList() {
-  localStorage.setItem('watchList', JSON.stringify(watchList));
-}
-
-// ═══════════════════════════════════════════════════════════
-// 通知
-// ═══════════════════════════════════════════════════════════
-function toggleNotif() {
-  notifEnabled = !notifEnabled;
-  localStorage.setItem('notifEnabled', notifEnabled);
-  document.getElementById('notifToggle').classList.toggle('on', notifEnabled);
-  
-  if (notifEnabled && 'Notification' in window) {
-    Notification.requestPermission();
+function filterTrend(el) {
+  var t = el.dataset.trend;
+  if (activeTrend === t) {
+    activeTrend = null;
+    el.classList.remove('active');
+  } else {
+    activeTrend = t;
+    document.querySelectorAll('.filter-btn[data-trend]').forEach(function(b){ b.classList.remove('active'); });
+    el.classList.add('active');
   }
-}
-
-function checkWatchAlerts() {
-  if (!notifEnabled || !('Notification' in window) || Notification.permission !== 'granted') return;
-  
-  watchList.forEach(w => {
-    const b = bullets.find(b => b.id === w.id);
-    if (!b || b.price <= 0) return;
-    
-    if (b.price <= w.buyTarget) {
-      new Notification('抄底提醒', {
-        body: `${w.name} 当前价 ¥${b.price}，已达到买入目标 ≤¥${w.buyTarget}`,
-        icon: '🎯'
-      });
-    } else if (b.price >= w.sellTarget) {
-      new Notification('出货提醒', {
-        body: `${w.name} 当前价 ¥${b.price}，已达到卖出目标 ≥¥${w.sellTarget}`,
-        icon: '💰'
-      });
-    }
-  });
-}
-
-// ═══════════════════════════════════════════════════════════
-// 历史记录
-// ═══════════════════════════════════════════════════════════
-function renderHistory() {
-  const list = document.getElementById('historyList');
-  
-  if (historyList.length === 0) {
-    list.innerHTML = '<div class="history-item" style="color:var(--muted);text-align:center;padding:12px;">暂无历史记录</div>';
-    return;
-  }
-  
-  list.innerHTML = historyList.slice(0, 10).map(h => `
-    <div class="history-item">
-      <div class="history-left">
-        <span class="history-name">${h.name}</span>
-        <span class="history-time">${h.time}</span>
-      </div>
-      <div class="history-right">
-        <span class="history-profit ${h.profit >= 0 ? 'g' : 'r'}">${h.profit >= 0 ? '+' : ''}¥${h.profit}</span>
-      </div>
-    </div>
-  `).join('');
-}
-
-function addHistory(name, profit) {
-  historyList.unshift({
-    name: name,
-    profit: profit,
-    time: new Date().toLocaleString('zh-CN')
-  });
-  
-  if (historyList.length > 50) historyList.pop();
-  localStorage.setItem('historyList', JSON.stringify(historyList));
-  renderHistory();
-}
-
-// ═══════════════════════════════════════════════════════════
-// 数据导入
-// ═══════════════════════════════════════════════════════════
-function openImportModal() {
-  document.getElementById('importModal').classList.add('open');
-}
-
-function closeImportModal() {
-  document.getElementById('importModal').classList.remove('open');
-}
-
-function importData() {
-  const text = document.getElementById('importText').value.trim();
-  if (!text) {
-    showToast('请粘贴JSON数据', 'error');
-    return;
-  }
-  
-  try {
-    let data = JSON.parse(text);
-    let updated = 0;
-    
-    // 支持数组格式
-    if (Array.isArray(data)) {
-      data.forEach(item => {
-        const b = bullets.find(b => b.name === item.name);
-        if (b && item.price) {
-          b.price = item.price;
-          updated++;
-        }
-      });
-    }
-    // 支持对象格式 {"子弹名": 价格, ...}
-    else if (typeof data === 'object') {
-      Object.entries(data).forEach(([name, price]) => {
-        const b = bullets.find(b => b.name === name);
-        if (b && price) {
-          b.price = price;
-          updated++;
-        }
-      });
-    }
-    
-    if (updated > 0) {
-      localStorage.setItem('bullets', JSON.stringify(bullets));
-      renderBulletList();
-      renderWatchList();
-      updateStats();
-      showToast(`成功更新 ${updated} 个价格`, 'success');
-      closeImportModal();
-      document.getElementById('importText').value = '';
-    } else {
-      showToast('未找到匹配的子弹名称', 'error');
-    }
-  } catch (e) {
-    showToast('JSON格式错误: ' + e.message, 'error');
-  }
-}
-
-// ═══════════════════════════════════════════════════════════
-// 工具函数
-// ═══════════════════════════════════════════════════════════
-function updateStats() {
-  document.getElementById('bulletCount').textContent = bullets.length;
-  document.getElementById('updateTime').textContent = new Date().toLocaleDateString('zh-CN');
-}
-
-function showToast(msg, type = '') {
-  const toast = document.getElementById('toast');
-  toast.textContent = msg;
-  toast.className = 'toast ' + type + ' show';
-  setTimeout(() => toast.classList.remove('show'), 2500);
-}
-
-// 启动
-init();
-
-// ════════════════════════════════════════════
-// 实时价格刷新功能
-async function decryptApiResponse(buffer) {
-  try {
-    const encNameLen = new DataView(buffer).getUint8(0);
-    const encName = new TextDecoder().decode(buffer.slice(1, 1 + encNameLen));
-    const iv = buffer.slice(1 + encNameLen, 1 + encNameLen + 16);
-    const encrypted = buffer.slice(1 + encNameLen + 16);
-    const keyBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(encName));
-    const key = await crypto.subtle.importKey('raw', keyBuffer, { name: 'AES-CBC' }, false, ['decrypt']);
-    const decrypted = await crypto.subtle.decrypt({ name: 'AES-CBC', iv }, key, encrypted);
-    const gunzipped = pako.inflate(new Uint8Array(decrypted), { to: 'string' });
-    return JSON.parse(gunzipped);
-  } catch (e) {
-    try { return JSON.parse(new TextDecoder().decode(buffer)); } catch { return null; }
-  }
+  renderTimingList();
 }
 
 async function refreshPrices() {
-  const status = document.getElementById('refreshStatus');
-  const btn = document.getElementById('refreshBtn');
-  if (status) status.textContent = '刷新中...';
-  if (btn) btn.disabled = true;
+  setStatus('loading', '刷新中...');
   try {
-    const resp = await fetch('https://df.sanyueqi.cn/api/v1/z/ammo/base_ammo_list?page=1&size=200', {
-      headers: { 'Origin': 'https://gamefun66.com', 'Referer': 'https://gamefun66.com/exchange/' }
-    });
-    const buffer = await resp.arrayBuffer();
-    const apiData = await decryptApiResponse(buffer);
-    if (!apiData) { throw new Error('解密失败'); }
-    
-    let rows = [];
-    if (Array.isArray(apiData)) {
-      rows = apiData;
-    } else if (apiData?.data?.rows) {
-      rows = apiData.data.rows;
-    } else if (apiData?.data && Array.isArray(apiData.data)) {
-      rows = apiData.data;
+    var r = await dfhubApi('/api/v1/prices/ammo?page=1&size=50');
+    if (r.code === 0 && r.data && r.data.length > 0) {
+      var all = r.data;
+      var page = 2;
+      var lastPage = r.meta && r.meta.last_page || 9;
+      while (page <= lastPage) {
+        var r2 = await dfhubApi('/api/v1/prices/ammo?page=' + page + '&size=50');
+        if (r2.data) all = all.concat(r2.data);
+        if (!r2.data || r2.data.length < 50) break;
+        page++;
+      }
+      all.forEach(function(b) {
+        livePrices[b.object_id] = b.latest_price;
+        for (var i = 0; i < TIMING_BULLETS.length; i++) {
+          if (TIMING_BULLETS[i][0] === b.object_id) {
+            TIMING_BULLETS[i][5] = b.latest_price;
+            TIMING_BULLETS[i][6] = b.trend;
+            TIMING_BULLETS[i][7] = b.best_buy_time_label;
+            break;
+          }
+        }
+      });
+      setStatus('ok', '实时数据 ✓ (' + all.length + '条)');
+      renderTimingList();
+      // Re-render detail if open
+      var sel = document.querySelector('.bullet-card.selected');
+      if (sel) selectBullet(parseInt(sel.getAttribute('onclick').match(/\d+/)[0]));
     }
-    
-    const priceMap = {};
-    rows.forEach(item => {
-      const price = item['object_price.c_price'] || item.c_price || 0;
-      if (item.object_id && price) {
-        priceMap[item.object_id] = price;
-      }
-    });
-    
-    let updated = 0;
-    DEFAULT_BULLETS.forEach(b => {
-      if (priceMap[b.id] !== undefined) {
-        b.price = priceMap[b.id];
-        updated++;
-      }
-    });
-    
-    if (typeof renderBulletList === 'function') renderBulletList();
-    if (typeof renderWatchList === 'function') renderWatchList();
-    if (typeof updateStats === 'function') updateStats();
-    if (typeof saveBullets === 'function') saveBullets();
-    
-    const now = new Date().toLocaleTimeString('zh-CN');
-    if (status) status.textContent = '✅ ' + now + ' 更新' + updated + '条';
-    document.getElementById('updateTime').textContent = now;
-    console.log('价格刷新成功:', updated, '条');
-  } catch (e) {
-    if (status) status.textContent = '❌ 刷新失败';
-    console.error('刷新失败:', e);
+  } catch(e) {
+    setStatus('error', '刷新失败');
+    setTimeout(function(){ setStatus('ok', '实时数据 ✓'); }, 2000);
   }
-  if (btn) btn.disabled = false;
 }
+
+// ===== CALCULATOR =====
+function initCalcDropdown() {
+  var dd = document.getElementById('calcDropdown');
+  var html = '<input type="text" placeholder="搜索子弹..." style="width:100%;padding:8px 12px;background:var(--bg);border:none;border-bottom:1px solid var(--border);color:var(--text);font-size:13px" oninput="searchCalc(this.value)">';
+  
+  [5,4,3,2,1].forEach(function(g) {
+    var items = TIMING_BULLETS.filter(function(b){ return b[2] === g; });
+    if (items.length === 0) return;
+    items.forEach(function(b) {
+      html += '<div class="so" onclick="selectCalcBullet(' + b[0] + ')">' +
+        '<img src="' + b[8] + '" style="width:24px;height:24px;border-radius:4px;object-fit:contain;background:var(--bg)" onerror="this.style.opacity=.3"> ' +
+        '<span class="sname">' + b[1] + '</span>' +
+        '<span class="sprice">' + b[5].toLocaleString() + '</span>' +
+      '</div>';
+    });
+  });
+  dd.innerHTML = html;
+}
+
+function searchCalc(q) {
+  q = q.toLowerCase();
+  document.querySelectorAll('#calcDropdown .so').forEach(function(el) {
+    var name = el.querySelector('.sname').textContent.toLowerCase();
+    el.style.display = name.includes(q) ? '' : 'none';
+  });
+}
+
+function toggleCalcDropdown() {
+  var dd = document.getElementById('calcDropdown');
+  dd.classList.toggle('open');
+  if (dd.classList.contains('open')) dd.querySelector('input').focus();
+}
+
+function selectCalcBullet(id) {
+  var b = null;
+  for (var i = 0; i < TIMING_BULLETS.length; i++) {
+    if (TIMING_BULLETS[i][0] === id) { b = TIMING_BULLETS[i]; break; }
+  }
+  if (!b) return;
+  selectedCalcBullet = b;
+  document.getElementById('calcTriggerText').textContent = b[1];
+  document.getElementById('buyPrice').value = b[5];
+  document.getElementById('sellPrice').value = b[5];
+  document.getElementById('calcDropdown').classList.remove('open');
+}
+
+function closeCalcDropdown(e) {
+  if (!e.target.closest('.bullet-select')) {
+    document.getElementById('calcDropdown').classList.remove('open');
+  }
+}
+
+document.addEventListener('click', closeCalcDropdown);
+
+var FEE_RATES = {1:0.10, 2:0.10, 3:0.13, 4:0.17, 5:0.20};
+
+function runCalc() {
+  if (!selectedCalcBullet) {
+    alert('请先选择子弹！');
+    return;
+  }
+  var buyPrice = parseFloat(document.getElementById('buyPrice').value);
+  var sellPrice = parseFloat(document.getElementById('sellPrice').value);
+  var qty = parseInt(document.getElementById('quantity').value) || 1;
+
+  if (isNaN(buyPrice) || isNaN(sellPrice) || buyPrice <= 0 || sellPrice <= 0) {
+    alert('请输入有效的价格和数量');
+    return;
+  }
+
+  var grade = selectedCalcBullet[2];
+  var feeRate = FEE_RATES[grade] || 0.20;
+  
+  var totalBuy = buyPrice * qty;
+  var grossSell = sellPrice * qty;
+  var sellFee = grossSell * feeRate;
+  var netSell = grossSell - sellFee;
+  var profit = netSell - totalBuy;
+  var profitPct = (profit / totalBuy * 100).toFixed(2);
+  var breakEven = Math.round(totalBuy / (1 - feeRate) / qty);
+
+  var grid = document.getElementById('resultGrid');
+  var isPos = profit >= 0;
+  grid.innerHTML = 
+    '<div class="result-item"><div class="result-label">买入总价</div><div class="result-value">' + totalBuy.toLocaleString() + '</div></div>' +
+    '<div class="result-item"><div class="result-label">卖出总价</div><div class="result-value">' + grossSell.toLocaleString() + '</div></div>' +
+    '<div class="result-item"><div class="result-label">手续费(' + (feeRate*100).toFixed(0) + '%)</div><div class="result-value" style="color:#f85149">-' + sellFee.toLocaleString() + '</div></div>' +
+    '<div class="result-item"><div class="result-label">实际到账</div><div class="result-value">' + netSell.toLocaleString() + '</div></div>' +
+    '<div class="result-item"><div class="result-label">利润/亏损</div><div class="result-value ' + (isPos ? 'positive' : 'negative') + '">' + (isPos ? '+' : '') + profit.toLocaleString() + '</div></div>' +
+    '<div class="result-item"><div class="result-label">利润率</div><div class="result-value ' + (isPos ? 'positive' : 'negative') + '">' + (isPos ? '+' : '') + profitPct + '%</div></div>' +
+    '<div class="result-item"><div class="result-label">保本价</div><div class="result-value" style="font-size:14px">' + breakEven.toLocaleString() + '</div></div>' +
+    '<div class="result-item"><div class="result-label">数量</div><div class="result-value">×' + qty + '</div></div>';
+  
+  document.getElementById('feeNote').textContent = 'G' + grade + '等级手续费: ' + (feeRate*100).toFixed(0) + '% | 市场价差建议: 利润率 > ' + ((feeRate/(1-feeRate)*100+5)).toFixed(0) + '% 才值得操作';
+  document.getElementById('calcResult').style.display = 'block';
+}
+
+// ===== TABS =====
+function switchTab(el, tab) {
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  el.classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
+  document.getElementById('panel-' + tab).classList.add('active');
+  currentTab = tab;
+  if (tab === 'calc') initCalcDropdown();
+}
+
+// Init
+init();
 </script>
 </body>
 </html>
