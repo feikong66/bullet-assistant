@@ -5,240 +5,683 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>三角洲行动 · 子弹交易助手 V6</title>
 <style>
-:root{--bg:#0f172a;--card:#1e293b;--text:#f1f5f9;--muted:#94a3b8;--accent:#3b82f6;--gold:#f59e0b;--purple:#a855f7;--blue:#3b82f6;--green:#22c55e;--red:#ef4444;--border:#334155;}
-:root.light{--bg:#f8fafc;--card:#ffffff;--text:#1e293b;--muted:#64748b;--accent:#2563eb;--border:#e2e8f0;}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-.container{max-width:1400px;margin:0 auto;padding:16px}
-.header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;padding:16px;background:var(--card);border-radius:12px;border:1px solid var(--border)}
-.header h1{font-size:20px;display:flex;align-items:center;gap:8px}
-.header-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.btn{padding:8px 16px;border-radius:8px;border:none;background:var(--accent);color:#fff;cursor:pointer;font-size:13px;display:inline-flex;align-items:center;gap:6px;transition:opacity .2s}
-.btn:hover{opacity:.85}
-.btn-secondary{background:var(--border);color:var(--text)}
-.status{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
-.status-dot{width:8px;height:8px;border-radius:50%;background:var(--green)}
-.status-dot.offline{background:var(--red)}
-#liveClock{font-size:13px;color:var(--muted);font-family:monospace}
-.tabs{display:flex;gap:8px;margin-bottom:16px;border-bottom:2px solid var(--border);padding-bottom:8px}
-.tab{padding:10px 20px;border-radius:8px 8px 0 0;cursor:pointer;background:transparent;border:none;color:var(--muted);font-size:14px;transition:all .2s}
-.tab:hover{color:var(--text)}
-.tab.active{background:var(--accent);color:#fff}
-.main-layout{display:grid;grid-template-columns:320px 1fr;gap:16px}
-@media(max-width:900px){.main-layout{grid-template-columns:1fr}}
-.sidebar{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:16px;height:fit-content;max-height:calc(100vh - 200px);overflow-y:auto;position:sticky;top:16px}
-.search-box{width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);margin-bottom:12px;font-size:13px}
-.filter-group{margin-bottom:12px}
-.filter-label{font-size:12px;color:var(--muted);margin-bottom:6px}
-.filter-btns{display:flex;flex-wrap:wrap;gap:6px}
-.filter-btn{padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:12px;transition:all .2s}
-.filter-btn:hover,.filter-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-.bullet-list{display:flex;flex-direction:column;gap:8px}
-.bullet-item{display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;background:var(--bg);cursor:pointer;transition:all .2s;border-left:3px solid transparent}
-.bullet-item:hover{background:var(--border)}
-.bullet-item.active{background:rgba(59,130,246,.15);border-left-color:var(--accent)}
-.bullet-item img{width:40px;height:40px;border-radius:6px;object-fit:cover}
-.bullet-info{flex:1;min-width:0}
-.bullet-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.bullet-meta{font-size:11px;color:var(--muted);display:flex;gap:8px;align-items:center}
-.bullet-price{font-size:14px;font-weight:700;color:var(--gold)}
-.bullet-price.down{color:var(--green)}
-.bullet-price.up{color:var(--red)}
-.grade-tag{padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;color:#fff}
-.trend-icon{font-size:12px}
-.detail-panel{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:20px}
-.detail-header{display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap}
-.detail-header img{width:64px;height:64px;border-radius:12px;object-fit:cover}
-.detail-title h2{font-size:20px;margin-bottom:4px}
-.detail-title .meta{display:flex;gap:12px;align-items:center;color:var(--muted);font-size:13px}
-.hero-price{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
-.price-card{background:var(--bg);padding:16px;border-radius:10px;text-align:center;border:1px solid var(--border)}
-.price-card .label{font-size:12px;color:var(--muted);margin-bottom:4px}
-.price-card .value{font-size:22px;font-weight:700;color:var(--gold)}
-.price-card .change{font-size:12px;margin-top:4px}
-.price-card .change.up{color:var(--red)}
-.price-card .change.down{color:var(--green)}
-.section{margin-bottom:20px}
-.section-title{font-size:16px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
-.section-title::before{content:'';width:4px;height:18px;background:var(--accent);border-radius:2px}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
-.stat-card{background:var(--bg);padding:14px;border-radius:10px;border:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.stat-card .stat-name{font-size:13px;color:var(--muted)}
-.stat-card .stat-value{font-size:16px;font-weight:700;color:var(--accent)}
-.stat-card .stat-badge{padding:4px 10px;border-radius:6px;font-size:12px;font-weight:600;color:#fff;background:var(--blue)}
-.gun-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px}
-.gun-card{background:var(--bg);padding:12px;border-radius:10px;border:1px solid var(--border);text-align:center;cursor:pointer;transition:all .2s}
-.gun-card:hover{border-color:var(--accent);transform:translateY(-2px)}
-.gun-card img{width:60px;height:60px;object-fit:contain;margin-bottom:8px;border-radius:6px}
-.gun-card .gun-name{font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.material-card{background:var(--bg);padding:16px;border-radius:10px;border:1px solid var(--border);margin-bottom:12px}
-.material-card .mat-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-.material-card .mat-header img{width:48px;height:48px;border-radius:8px;object-fit:cover}
-.material-card .mat-title{font-size:14px;font-weight:700}
-.material-card .mat-subtitle{font-size:12px;color:var(--muted)}
-.material-items{display:flex;flex-wrap:wrap;gap:10px}
-.mat-item{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--card);border-radius:8px;border:1px solid var(--border)}
-.mat-item img{width:32px;height:32px;border-radius:6px;object-fit:cover}
-.mat-item .mat-name{font-size:12px}
-.mat-item .mat-count{font-size:11px;color:var(--muted)}
-.similar-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
-.similar-card{background:var(--bg);padding:12px;border-radius:10px;border:1px solid var(--border);text-align:center;cursor:pointer;transition:all .2s}
-.similar-card:hover{border-color:var(--accent)}
-.similar-card img{width:48px;height:48px;object-fit:cover;border-radius:8px;margin-bottom:8px}
-.similar-card .sim-name{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.similar-card .sim-price{font-size:13px;font-weight:700;color:var(--gold);margin-top:4px}
-.calc-layout{display:grid;grid-template-columns:300px 1fr;gap:16px}
-@media(max-width:900px){.calc-layout{grid-template-columns:1fr}}
-.calc-card{background:var(--bg);padding:20px;border-radius:12px;border:1px solid var(--border)}
-.calc-card h3{margin-bottom:16px;font-size:16px}
-.form-group{margin-bottom:14px}
-.form-group label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
-.form-group input,.form-group select{width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:14px}
-.calc-result{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:16px}
-.result-card{background:var(--card);padding:14px;border-radius:10px;border:1px solid var(--border);text-align:center}
-.result-card .res-label{font-size:12px;color:var(--muted)}
-.result-card .res-value{font-size:20px;font-weight:700;margin-top:4px}
-.result-card.profit .res-value{color:var(--green)}
-.result-card.loss .res-value{color:var(--red)}
-.watch-list{display:flex;flex-direction:column;gap:10px}
-.watch-item{display:flex;align-items:center;gap:12px;padding:14px;background:var(--bg);border-radius:10px;border:1px solid var(--border)}
-.watch-item.alert{border-color:var(--red);background:rgba(239,68,68,.1)}
-.watch-info{flex:1}
-.watch-name{font-size:14px;font-weight:600}
-.watch-target{font-size:12px;color:var(--muted)}
-.watch-current{font-size:16px;font-weight:700;color:var(--gold)}
-.watch-actions{display:flex;gap:8px}
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--card);color:var(--text);padding:12px 24px;border-radius:10px;border:1px solid var(--border);box-shadow:0 10px 40px rgba(0,0,0,.3);opacity:0;transition:all .3s;z-index:1000;font-size:14px}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--bg:#060c18;--card:#0f1923;--border:#1e2d40;--text:#dde6ef;--muted:#5a6d7e;--bg2:#070e18;--green:#10b981;--red:#ef4444;--yellow:#f59e0b;--blue:#3b82f6;--purple:#8b5cf6;}
+:root.light{--bg:#f1f5f9;--card:#ffffff;--border:#e2e8f0;--text:#1e293b;--muted:#64748b;--bg2:#f8fafc;}
+html,body{height:100%;font-family:system-ui,"Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);}
+.app{max-width:1400px;margin:0 auto;padding:10px;display:grid;grid-template-columns:320px 1fr;gap:10px;min-height:100vh;}
+@media(max-width:900px){.app{grid-template-columns:1fr;}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;}
+.header{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+.header h1{font-size:19px;background:linear-gradient(135deg,#93c5fd,#c4b5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.status-bar{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);}
+.btn{background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);border-radius:5px;color:var(--blue);padding:4px 10px;font-size:11px;cursor:pointer;transition:all .15s;}
+.btn:hover{background:rgba(59,130,246,0.22);}
+.btn-sm{font-size:10px;padding:3px 8px;}
+.theme-btn{width:30px;height:30px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:15px;padding:0;}
+
+/* TABS */
+.tabs{display:flex;gap:2px;margin-bottom:4px;}
+.tab-btn{padding:5px 14px;border-radius:7px 7px 0 0;border:1px solid transparent;background:transparent;color:var(--muted);font-size:12px;cursor:pointer;font-weight:500;}
+.tab-btn.active{background:var(--card);border:1px solid var(--border);border-bottom-color:var(--card);color:var(--blue);position:relative;z-index:1;}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+
+/* SIDEBAR */
+.sidebar{display:flex;flex-direction:column;gap:6px;overflow:hidden;}
+.search-box input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:6px 9px;color:var(--text);font-size:12px;outline:none;}
+.search-box input:focus{border-color:var(--blue);}
+.filter-row{display:flex;flex-wrap:wrap;gap:3px;}
+.filter-btn{padding:2px 9px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:10px;cursor:pointer;}
+.filter-btn.active{border-color:var(--blue);background:rgba(59,130,246,0.1);color:var(--blue);}
+.bullet-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:3px;max-height:calc(100vh - 270px);}
+.bullet-item{display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:7px;cursor:pointer;border:1px solid transparent;transition:all .12s;}
+.bullet-item:hover{background:rgba(59,130,246,0.06);border-color:var(--border);}
+.bullet-item.active{background:rgba(59,130,246,0.1);border-color:var(--blue);}
+.bullet-left{display:flex;align-items:center;gap:7px;}
+.bullet-name{font-size:11px;font-weight:500;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bullet-grade{font-size:8px;padding:1px 5px;border-radius:3px;font-weight:700;flex-shrink:0;}
+.bullet-price{font-size:11px;color:var(--yellow);font-family:"Courier New",monospace;font-weight:600;}
+.bullet-change{font-size:8px;margin-left:3px;}
+.up{color:var(--green);}.dn{color:var(--red);}
+
+/* DETAIL */
+.price-hero{background:linear-gradient(135deg,rgba(59,130,246,0.08),rgba(139,92,246,0.04));border:1px solid rgba(59,130,246,0.18);border-radius:10px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:10px;}
+.price-main{font-size:26px;font-weight:900;color:var(--yellow);font-family:"Courier New",monospace;}
+.price-label{font-size:10px;color:var(--muted);}
+.price-range{display:flex;gap:14px;font-size:11px;}
+.price-range>div{display:flex;flex-direction:column;align-items:center;}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;}
+@media(max-width:600px){.stat-grid{grid-template-columns:repeat(2,1fr);}}
+.stat-box{background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:7px;text-align:center;}
+.stat-lbl{font-size:9px;color:var(--muted);margin-bottom:2px;}
+.stat-val{font-size:13px;font-weight:700;font-family:"Courier New",monospace;}
+.g{color:var(--green);}.r{color:var(--red);}.y{color:var(--yellow);}
+
+/* CHART */
+.chart-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:10px;}
+.chart-wrap canvas{width:100%;height:180px;display:block;}
+
+/* SECTIONS */
+.section-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:8px 0 6px;display:flex;align-items:center;gap:8px;}
+.section-title::after{content:"";flex:1;height:1px;background:var(--border);}
+.time-block{background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:8px 10px;margin-bottom:6px;}
+.time-row{display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;}
+.time-row span{color:var(--muted);}
+.time-row strong{color:var(--green);font-family:"Courier New",monospace;}
+.gun-list,.mat-list{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px;}
+.gun-tag{background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.18);border-radius:3px;padding:2px 7px;font-size:9px;color:var(--blue);}
+.mat-tag{background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.18);border-radius:3px;padding:2px 7px;font-size:9px;color:var(--purple);}
+
+/* CALCULATOR */
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+@media(max-width:600px){.calc-grid{grid-template-columns:1fr;}}
+.calc-grid-3{grid-template-columns:1fr 1fr 1fr;}
+.input-group{margin-bottom:6px;}
+.input-label{display:block;font-size:10px;color:var(--muted);margin-bottom:2px;display:flex;justify-content:space-between;align-items:center;}
+.input-row{display:flex;align-items:center;background:var(--bg2);border:1px solid var(--border);border-radius:5px;overflow:hidden;}
+.input-row input,.input-row select{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-size:12px;padding:6px 8px;font-family:"Courier New",monospace;}
+.input-row select{font-family:inherit;cursor:pointer;}
+.input-row .unit{padding:0 7px;font-size:10px;color:var(--muted);border-left:1px solid var(--border);white-space:nowrap;}
+.result-box{background:linear-gradient(135deg,rgba(16,185,129,0.06),rgba(59,130,246,0.03));border:1px solid rgba(16,185,129,0.15);border-radius:7px;padding:10px 12px;}
+.result-row{display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;}
+.result-row span{color:var(--muted);}
+.result-row strong{font-family:"Courier New",monospace;}
+.result-row.profit strong{color:var(--green);font-size:14px;}
+
+/* MONITOR */
+.monitor-item{background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:9px 11px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+.monitor-info{font-size:11px;}
+.monitor-name{font-weight:600;}
+.monitor-target{color:var(--yellow);font-family:"Courier New",monospace;}
+.monitor-status{font-size:10px;padding:2px 6px;border-radius:3px;}
+.monitor-actions{display:flex;gap:4px;}
+.badge{font-size:9px;padding:1px 5px;border-radius:3px;}
+.badge-on{background:rgba(16,185,129,0.15);color:var(--green);border:1px solid rgba(16,185,129,0.3);}
+.badge-off{background:rgba(107,114,128,0.1);color:var(--muted);border:1px solid rgba(107,114,128,0.2);}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--border);border-radius:7px;padding:9px 15px;font-size:12px;z-index:1001;opacity:0;transition:opacity .3s;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.3);}
+.toast.show{opacity:1;}
+
+/* EMPTY STATE */
+.empty{text-align:center;color:var(--muted);padding:40px;font-size:13px;}
+
+/* SCROLLBAR */
+.bullet-list::-webkit-scrollbar{width:4px;}
+.bullet-list::-webkit-scrollbar-track{background:transparent;}
+.bullet-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
 </style>
 </head>
 <body>
-<div class="container">
+<div class="app">
   <div class="header">
-    <h1>🎯 三角洲行动 · 子弹交易助手 <span style="color:var(--accent)">V6</span></h1>
-    <div class="header-actions">
-      <span id="liveClock">--:--:--</span>
-      <span class="status"><span class="status-dot" id="statusDot"></span><span id="statusText">实时数据</span></span>
-      <button class="btn" onclick="refreshData()">🔄 刷新</button>
-      <button class="btn btn-secondary" onclick="toggleTheme()">🌙</button>
+    <h1>🎯 三角洲行动 · 子弹交易助手 V6</h1>
+    <div class="status-bar">
+      <span class="status-dot"></span>
+      <span id="statusText">就绪</span>
+      <span id="updateTime">-</span>
+      <button class="btn btn-sm" onclick="refreshData()">🔄 刷新</button>
+      <button class="btn theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
     </div>
   </div>
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('timing')">📊 子弹时机</button>
-    <button class="tab" onclick="switchTab('calc')">🧮 收益计算</button>
-    <button class="tab" onclick="switchTab('watch')">🔔 价格监控</button>
+  <div class="sidebar card">
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="🔍 搜索子弹名称..." oninput="filterBullets()">
+    </div>
+    <div class="filter-row" id="gradeFilter">
+      <button class="filter-btn active" data-grade="0">全部</button>
+      <button class="filter-btn" data-grade="5">五级</button>
+      <button class="filter-btn" data-grade="4">四级</button>
+      <button class="filter-btn" data-grade="3">三级</button>
+      <button class="filter-btn" data-grade="2">二级</button>
+      <button class="filter-btn" data-grade="1">一级</button>
+    </div>
+    <div class="filter-row" id="trendFilter">
+      <button class="filter-btn active" data-trend="">全部趋势</button>
+      <button class="filter-btn" data-trend="rising">📈 上涨</button>
+      <button class="filter-btn" data-trend="falling">📉 下跌</button>
+    </div>
+    <div class="bullet-list" id="bulletList"></div>
   </div>
-  <div id="tab-timing" class="tab-content">
-    <div class="main-layout">
-      <div class="sidebar">
-        <input type="text" class="search-box" id="searchBox" placeholder="🔍 搜索子弹名称..." oninput="filterBullets()">
-        <div class="filter-group">
-          <div class="filter-label">等级筛选</div>
-          <div class="filter-btns" id="gradeFilters">
-            <button class="filter-btn active" onclick="setGradeFilter('all')">全部</button>
-            <button class="filter-btn" onclick="setGradeFilter(5)">五级</button>
-            <button class="filter-btn" onclick="setGradeFilter(4)">四级</button>
-            <button class="filter-btn" onclick="setGradeFilter(3)">三级</button>
-            <button class="filter-btn" onclick="setGradeFilter(2)">二级</button>
-            <button class="filter-btn" onclick="setGradeFilter(1)">一级</button>
-          </div>
-        </div>
-        <div class="filter-group">
-          <div class="filter-label">趋势筛选</div>
-          <div class="filter-btns" id="trendFilters">
-            <button class="filter-btn active" onclick="setTrendFilter('all')">全部</button>
-            <button class="filter-btn" onclick="setTrendFilter('rising')">📈 上涨</button>
-            <button class="filter-btn" onclick="setTrendFilter('falling')">📉 下跌</button>
-            <button class="filter-btn" onclick="setTrendFilter('stable')">➡️ 平稳</button>
-          </div>
-        </div>
-        <div class="bullet-list" id="bulletList"></div>
-      </div>
-      <div class="detail-panel" id="detailPanel">
-        <div style="text-align:center;color:var(--muted);padding:60px 20px">
-          <div style="font-size:48px;margin-bottom:16px">🎯</div>
-          <div style="font-size:16px">选择左侧子弹查看详情</div>
-          <div style="font-size:13px;margin-top:8px">实时价格 · 涨跌分析 · 购买建议</div>
-        </div>
+  <div class="main">
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="detail" id="tabDetail">📊 行情详情</button>
+      <button class="tab-btn" data-tab="calc" id="tabCalc">🧮 收益计算</button>
+      <button class="tab-btn" data-tab="monitor" id="tabMonitor">🔔 价格监控</button>
+    </div>
+    <div class="tab-content active" id="tabContent_detail">
+      <div id="detailArea">
+        <div class="empty">👈 点击左侧子弹查看行情详情<br><span style="font-size:11px">含实时价格、涨跌幅、最佳购买时段、走势图</span></div>
       </div>
     </div>
-  </div>
-  <div id="tab-calc" class="tab-content" style="display:none">
-    <div class="calc-layout">
-      <div class="sidebar">
-        <input type="text" class="search-box" id="calcSearchBox" placeholder="🔍 搜索子弹..." oninput="filterCalcBullets()">
-        <div class="filter-group">
-          <div class="filter-label">子弹类型</div>
-          <div class="filter-btns">
-            <button class="filter-btn active" onclick="setCalcType('all')">全部</button>
-            <button class="filter-btn" onclick="setCalcType('rifle')">步枪</button>
-            <button class="filter-btn" onclick="setCalcType('sniper')">狙击</button>
-            <button class="filter-btn" onclick="setCalcType('smg')">冲锋枪</button>
-            <button class="filter-btn" onclick="setCalcType('pistol')">手枪</button>
+    <div class="tab-content" id="tabContent_calc">
+      <div class="card">
+        <div class="section-title">🧮 收益计算器</div>
+        <div class="calc-grid">
+          <div class="input-group">
+            <label class="input-label">子弹类型</label>
+            <div class="input-row"><select id="calcBullet" onchange="onCalcBullet()"><option value="">手动输入</option></select></div>
+          </div>
+          <div class="input-group">
+            <label class="input-label">品级（手续费率）</label>
+            <div class="input-row"><select id="calcGrade" onchange="calc()"><option value="1">一级 · 10%</option><option value="2">二级 · 10%</option><option value="3">三级 · 13%</option><option value="4" selected>四级 · 17%</option><option value="5">五级 · 20%</option></select></div>
+          </div>
+          <div class="input-group">
+            <label class="input-label">买入单价</label>
+            <div class="input-row"><input type="number" id="buyPrice" oninput="calc()" placeholder="0"><span class="unit">¥</span></div>
+          </div>
+          <div class="input-group">
+            <label class="input-label">卖出单价</label>
+            <div class="input-row"><input type="number" id="sellPrice" oninput="calc()" placeholder="0"><span class="unit">¥</span></div>
+          </div>
+          <div class="input-group">
+            <label class="input-label">交易数量</label>
+            <div class="input-row"><input type="number" id="qty" oninput="calc()" value="100"><span class="unit">发</span></div>
           </div>
         </div>
-        <div class="bullet-list" id="calcBulletList"></div>
-      </div>
-      <div>
-        <div class="calc-card">
-          <h3>🧮 收益计算器</h3>
-          <div id="calcSelected" style="margin-bottom:16px;padding:12px;background:var(--card);border-radius:8px;display:none">
-            <div style="display:flex;align-items:center;gap:10px">
-              <img id="calcPic" src="" style="width:48px;height:48px;border-radius:8px">
-              <div>
-                <div id="calcName" style="font-weight:700"></div>
-                <div id="calcGrade" style="font-size:12px;color:var(--muted)"></div>
-              </div>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>买入单价</label>
-            <input type="number" id="buyPrice" placeholder="输入买入价格" oninput="calculate()">
-          </div>
-          <div class="form-group">
-            <label>卖出单价</label>
-            <input type="number" id="sellPrice" placeholder="输入卖出价格" oninput="calculate()">
-          </div>
-          <div class="form-group">
-            <label>数量</label>
-            <input type="number" id="quantity" value="1" min="1" oninput="calculate()">
-          </div>
-          <div class="calc-result" id="calcResult"></div>
+        <div class="result-box" id="calcResult">
+          <div class="result-row"><span>买入总价</span><strong id="rBuyTotal">¥0</strong></div>
+          <div class="result-row"><span>买入手续费</span><strong id="rBuyFee">¥0</strong></div>
+          <div class="result-row"><span>卖出总收入</span><strong id="rSellTotal">¥0</strong></div>
+          <div class="result-row"><span>卖出手续费</span><strong id="rSellFee">¥0</strong></div>
+          <div class="result-row profit"><span>净利润</span><strong id="rProfit">¥0</strong></div>
+          <div class="result-row"><span>利润率</span><strong id="rRate">0%</strong></div>
         </div>
       </div>
     </div>
-  </div>
-  <div id="tab-watch" class="tab-content" style="display:none">
-    <div style="max-width:800px;margin:0 auto">
-      <div class="calc-card" style="margin-bottom:16px">
-        <h3>➕ 添加监控</h3>
-        <div style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:10px;align-items:end">
-          <div class="form-group" style="margin-bottom:0">
-            <label>选择子弹</label>
-            <select id="watchBulletSelect"></select>
-          </div>
-          <div class="form-group" style="margin-bottom:0">
-            <label>目标价格</label>
-            <input type="number" id="watchTarget" placeholder="抄底价">
-          </div>
-          <div class="form-group" style="margin-bottom:0">
-            <label>类型</label>
-            <select id="watchType"><option value="buy">抄底买入</option><option value="sell">高位卖出</option></select>
-          </div>
-          <button class="btn" onclick="addWatch()">添加</button>
+    <div class="tab-content" id="tabContent_monitor">
+      <div class="card">
+        <div class="section-title">🔔 价格监控 <span id="monitorCount" style="font-size:10px;color:var(--muted)">已添加 0 个监控</span></div>
+        <div id="monitorList">
+          <div class="empty">暂无监控<br><span style="font-size:11px">点击行情详情页 +添加监控 来设置价格提醒</span></div>
         </div>
-      </div>
-      <div class="watch-list" id="watchList"></div>
-      <div style="margin-top:16px;text-align:center">
-        <button class="btn btn-secondary" onclick="requestNotification()">🔔 开启桌面通知</button>
+        <div style="margin-top:10px;display:flex;align-items:center;gap:8px;font-size:10px;color:var(--muted);">
+          <span id="notifStatus" class="badge badge-off">通知: 未授权</span>
+          <button class="btn btn-sm" onclick="requestNotif()">🔔 开启浏览器通知</button>
+        </div>
       </div>
     </div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
-<script src="_v6_app.js"></script>
+<script>
+var BULLETS=[{"id":"37120400003","name":"5.45x39mm BT ST","grade":4,"price":1632,"max":1737,"min":1562,"d3":"-0.0816","d7":"-0.2524","d30":"0.0000","pen":4,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"01:30-03:30","avg_price":1901,"savings_percent":5,"description":"01:30-03:30通常更容易刷出低价，窗口均价约能省5%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"01:30-03:30","avg_price":1892,"savings_percent":5.6,"description":"01:30-03:30通常更容易刷出低价，窗口均价约能省5.6%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"20:30-22:30","avg_price":1860,"savings_percent":6.5,"description":"20:30-22:30通常更容易刷出低价，窗口均价约能省6.5%。","sample_days":4,"sample_points":24,"confidence":"low","confidence_text":"样本较少（4天、24个点），仅供参考"}}},"guns":["KC17突击步枪","AKS-74U突击步枪","AK-12突击步枪"],"mats":["军用网络模块","残缺的档案","小糖人姜饼人","袖珍录像带"],"pic":"https://zzz.sanyueqi.cn/public/df/img/amm_st.png"},{"id":"37100400002","name":"5.56x45mm M855A1 APC+","grade":4,"price":1675,"max":1775,"min":1550,"d3":"-0.0159","d7":"-0.1904","d30":"0.0000","pen":4,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"02:00-04:00","avg_price":1858,"savings_percent":8.7,"description":"02:00-04:00通常更容易刷出低价，窗口均价约能省8.7%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"02:00-04:00","avg_price":1904,"savings_percent":8.8,"description":"02:00-04:00通常更容易刷出低价，窗口均价约能省8.8%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"02:00-04:00","avg_price":1703,"savings_percent":7.9,"description":"02:00-04:00通常更容易刷出低价，窗口均价约能省7.9%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["Mini-14射手步枪","M249轻机枪","CAR-15突击步枪","M16A4突击步枪","SG552突击步枪","AUG突击步枪","M4A1突击步枪","K416突击步枪"],"mats":["金笔","植物样本","大豆蛋白粉包"],"pic":"https://zzz.sanyueqi.cn/public/df/img/amm_apc%2B.png"},{"id":"37100300002","name":"5.56x45mm M855 APC","grade":3,"price":342,"max":402,"min":332,"d3":"-0.1471","d7":"-0.1471","d30":"0.0000","pen":3,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"01:00-03:00","avg_price":376,"savings_percent":6.6,"description":"01:00-03:00通常更容易刷出低价，窗口均价约能省6.6%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"01:00-03:00","avg_price":378,"savings_percent":6,"description":"01:00-03:00通常更容易刷出低价，窗口均价约能省6%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"00:30-02:30","avg_price":371,"savings_percent":8.5,"description":"00:30-02:30通常更容易刷出低价，窗口均价约能省8.5%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["Mini-14射手步枪","M249轻机枪","CAR-15突击步枪","M16A4突击步枪","SG552突击步枪","AUG突击步枪","M4A1突击步枪","K416突击步枪"],"mats":["犄角墙饰","图腾箭矢","鸟雕","袋装咖啡豆"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"},{"id":"37120500003","name":"5.45x39mm BS ST+","grade":5,"price":6372,"max":6427,"min":5712,"d3":"-0.0331","d7":"-0.1577","d30":"0.0000","pen":5,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"00:00-02:00","avg_price":6906,"savings_percent":3.7,"description":"00:00-02:00通常更容易刷出低价，窗口均价约能省3.7%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"00:00-02:00","avg_price":6928,"savings_percent":4,"description":"00:00-02:00通常更容易刷出低价，窗口均价约能省4%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"11:00-13:00","avg_price":6561,"savings_percent":6.8,"description":"11:00-13:00通常更容易刷出低价，窗口均价约能省6.8%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["KC17突击步枪","AKS-74U突击步枪","AK-12突击步枪"],"mats":[],"pic":"https://zzz.sanyueqi.cn/public/df/img/amm_st%2B.png"},{"id":"37280400002","name":".300 BLK SUB","grade":4,"price":2056,"max":2386,"min":0,"d3":"-0.0044","d7":"0.0069","d30":"-0.0780","pen":4,"trend":"stable","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"00:00-02:00","avg_price":1906,"savings_percent":0,"description":"00:00-02:00时段价格与整体均价接近，无明显优势。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"00:00-02:00","avg_price":1906,"savings_percent":0,"description":"00:00-02:00时段价格与整体均价接近，无明显优势。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"00:00-02:00","avg_price":1906,"savings_percent":0,"description":"00:00-02:00时段价格与整体均价接近，无明显优势。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["MCX LT突击步枪","K437突击步枪"],"mats":[],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/300BLK.png"},{"id":"37270500002","name":"碳纤维散射箭矢","grade":5,"price":3616,"max":3741,"min":0,"d3":"-0.0581","d7":"-0.1524","d30":"-0.4668","pen":5,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"00:00-02:00","avg_price":3241,"savings_percent":0,"description":"00:00-02:00时段价格与整体均价接近，无明显优势。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"00:00-02:00","avg_price":3241,"savings_percent":0,"description":"00:00-02:00时段价格与整体均价接近，无明显优势。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"00:00-02:00","avg_price":3241,"savings_percent":0,"description":"00:00-02:00时段价格与整体均价接近，无明显优势。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["复合弓"],"mats":[],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/37270500002.png"},{"id":"37210000001","name":"5.7x28mm R37.F","grade":3,"price":477,"max":537,"min":457,"d3":"-0.0827","d7":"-0.2684","d30":"-0.2570","pen":null,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"02:00-04:00","avg_price":509,"savings_percent":10.2,"description":"02:00-04:00通常更容易刷出低价，窗口均价约能省10.2%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"02:00-04:00","avg_price":517,"savings_percent":9.9,"description":"02:00-04:00通常更容易刷出低价，窗口均价约能省9.9%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"01:30-03:30","avg_price":484,"savings_percent":11.5,"description":"01:30-03:30通常更容易刷出低价，窗口均价约能省11.5%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["AR57突击步枪","P90冲锋枪"],"mats":["私密笔记簿","非洲鼓"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.7x28mm.png"},{"id":"37210200001","name":"5.7x28mm SS197SR","grade":2,"price":96,"max":96,"min":96,"d3":"0.0000","d7":"0.0000","d30":"0.0000","pen":2,"trend":"stable","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"04:00-06:00","avg_price":99,"savings_percent":1.8,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省1.8%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"04:00-06:00","avg_price":99,"savings_percent":1.6,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省1.6%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"03:30-05:30","avg_price":98,"savings_percent":2.8,"description":"03:30-05:30通常更容易刷出低价，窗口均价约能省2.8%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["AR57突击步枪","P90冲锋枪"],"mats":["哈夫币"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.7x28mm.png"},{"id":"37210100001","name":"5.7x28mm SS198LF","grade":1,"price":36,"max":36,"min":36,"d3":"0.0000","d7":"0.0286","d30":"0.0286","pen":1,"trend":"stable","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"05:30-07:30","avg_price":38,"savings_percent":0.2,"description":"05:30-07:30通常更容易刷出低价，窗口均价约能省0.2%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"05:30-07:30","avg_price":38,"savings_percent":0.1,"description":"05:30-07:30通常更容易刷出低价，窗口均价约能省0.1%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"02:30-04:30","avg_price":38,"savings_percent":0.5,"description":"02:30-04:30通常更容易刷出低价，窗口均价约能省0.5%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["AR57突击步枪","P90冲锋枪"],"mats":["哈夫币"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.7x28mm.png"},{"id":"37110200001","name":"7.62x39mm T45M","grade":2,"price":110,"max":110,"min":110,"d3":"0.0000","d7":"0.0000","d30":"0.0092","pen":2,"trend":"stable","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"00:00-02:00","avg_price":111,"savings_percent":0,"description":"00:00-02:00时段价格与整体均价接近，无明显优势。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"00:00-02:00","avg_price":111,"savings_percent":0,"description":"00:00-02:00时段价格与整体均价接近，无明显优势。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"00:00-02:00","avg_price":111,"savings_percent":0,"description":"00:00-02:00时段价格与整体均价接近，无明显优势。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["MK47突击步枪","SKS射手步枪","PTR-32突击步枪","AKM突击步枪"],"mats":["哈夫币"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x39mm.png"},{"id":"37110100001","name":"7.62x39mm LP","grade":1,"price":42,"max":42,"min":42,"d3":"0.0000","d7":"0.0500","d30":"0.0244","pen":1,"trend":"stable","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"03:30-05:30","avg_price":43,"savings_percent":0.1,"description":"03:30-05:30通常更容易刷出低价，窗口均价约能省0.1%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"03:30-05:30","avg_price":43,"savings_percent":0.1,"description":"03:30-05:30通常更容易刷出低价，窗口均价约能省0.1%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"00:00-02:00","avg_price":43,"savings_percent":0,"description":"00:00-02:00时段价格与整体均价接近，无明显优势。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["MK47突击步枪","SKS射手步枪","PTR-32突击步枪","AKM突击步枪"],"mats":["哈夫币"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x39mm.png"},{"id":"37100200001","name":"5.56x45mm FMJ","grade":2,"price":78,"max":78,"min":78,"d3":"0.0130","d7":"0.0130","d30":"0.0130","pen":2,"trend":"rising","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"07:30-09:30","avg_price":79,"savings_percent":0.5,"description":"07:30-09:30通常更容易刷出低价，窗口均价约能省0.5%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"07:30-09:30","avg_price":79,"savings_percent":0.5,"description":"07:30-09:30通常更容易刷出低价，窗口均价约能省0.5%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"04:00-06:00","avg_price":79,"savings_percent":0.4,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省0.4%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["Mini-14射手步枪","M249轻机枪","CAR-15突击步枪","M16A4突击步枪","SG552突击步枪","AUG突击步枪","M4A1突击步枪","K416突击步枪"],"mats":["哈夫币"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"},{"id":"37100100001","name":"5.56x45mm RRLP","grade":1,"price":32,"max":32,"min":32,"d3":"0.1034","d7":"0.1429","d30":"0.1034","pen":1,"trend":"rising","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"09:00-11:00","avg_price":35,"savings_percent":0.1,"description":"09:00-11:00通常更容易刷出低价，窗口均价约能省0.1%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"09:00-11:00","avg_price":35,"savings_percent":0.1,"description":"09:00-11:00通常更容易刷出低价，窗口均价约能省0.1%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"00:00-02:00","avg_price":35,"savings_percent":0,"description":"00:00-02:00时段价格与整体均价接近，无明显优势。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["Mini-14射手步枪","M249轻机枪","CAR-15突击步枪","M16A4突击步枪","SG552突击步枪","AUG突击步枪","M4A1突击步枪","K416突击步枪"],"mats":["哈夫币"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"},{"id":"37120200001","name":"5.45x39mm T","grade":2,"price":99,"max":99,"min":99,"d3":"0.0000","d7":"0.0000","d30":"0.1124","pen":2,"trend":"stable","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"00:00-02:00","avg_price":100,"savings_percent":0.1,"description":"00:00-02:00通常更容易刷出低价，窗口均价约能省0.1%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"00:00-02:00","avg_price":100,"savings_percent":0.1,"description":"00:00-02:00通常更容易刷出低价，窗口均价约能省0.1%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"00:00-02:00","avg_price":100,"savings_percent":0.3,"description":"00:00-02:00通常更容易刷出低价，窗口均价约能省0.3%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["KC17突击步枪","AKS-74U突击步枪","AK-12突击步枪"],"mats":["哈夫币"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39mm.png"},{"id":"37120100001","name":"5.45x39mm PRS","grade":1,"price":35,"max":35,"min":35,"d3":"0.0294","d7":"0.0294","d30":"0.0294","pen":1,"trend":"rising","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"06:00-08:00","avg_price":40,"savings_percent":0.2,"description":"06:00-08:00通常更容易刷出低价，窗口均价约能省0.2%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"06:00-08:00","avg_price":40,"savings_percent":0.2,"description":"06:00-08:00通常更容易刷出低价，窗口均价约能省0.2%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"22:30-24:00","avg_price":40,"savings_percent":0.2,"description":"22:30-24:00通常更容易刷出低价，窗口均价约能省0.2%。","sample_days":4,"sample_points":25,"confidence":"low","confidence_text":"样本较少（4天、25个点），仅供参考"}}},"guns":["KC17突击步枪","AKS-74U突击步枪","AK-12突击步枪"],"mats":["哈夫币"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39mm.png"},{"id":"37250300002","name":"12 Gauge 独头 FTX","grade":3,"price":519,"max":519,"min":499,"d3":"0.0000","d7":"0.0039","d30":"0.0000","pen":3,"trend":"stable","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"04:00-06:00","avg_price":513,"savings_percent":2.1,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省2.1%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"03:00-05:00","avg_price":514,"savings_percent":2.2,"description":"03:00-05:00通常更容易刷出低价，窗口均价约能省2.2%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"04:00-06:00","avg_price":509,"savings_percent":1.9,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省1.9%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["FS-12霰弹枪","725双管霰弹枪","S12K霰弹枪","M870霰弹枪","M1014霰弹枪"],"mats":["摄像头","酒店宣传海报","键盘"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},{"id":"37250300001","name":"12 Gauge 箭形弹","grade":3,"price":388,"max":418,"min":388,"d3":"-0.2302","d7":"-0.1780","d30":"-0.3169","pen":3,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"04:00-06:00","avg_price":413,"savings_percent":9.7,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省9.7%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"04:00-06:00","avg_price":408,"savings_percent":8.1,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省8.1%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"04:00-06:00","avg_price":428,"savings_percent":14.7,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省14.7%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["FS-12霰弹枪","725双管霰弹枪","S12K霰弹枪","M870霰弹枪","M1014霰弹枪"],"mats":["额温枪","压力计","残弹挂坠"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},{"id":"37250000001","name":"12 Gauge 8.5毫米鹿弹","grade":3,"price":378,"max":388,"min":303,"d3":"0.0559","d7":"0.0300","d30":"-0.0105","pen":null,"trend":"rising","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"02:30-04:30","avg_price":296,"savings_percent":17.6,"description":"02:30-04:30通常更容易刷出低价，窗口均价约能省17.6%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"02:30-04:30","avg_price":298,"savings_percent":17,"description":"02:30-04:30通常更容易刷出低价，窗口均价约能省17%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"02:30-04:30","avg_price":287,"savings_percent":19.5,"description":"02:30-04:30通常更容易刷出低价，窗口均价约能省19.5%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["FS-12霰弹枪","725双管霰弹枪","S12K霰弹枪","M870霰弹枪","M1014霰弹枪"],"mats":["原木木板"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},{"id":"37250000002","name":"12 Gauge 独头 RIP","grade":2,"price":132,"max":132,"min":132,"d3":"0.0076","d7":"0.0154","d30":"0.1681","pen":null,"trend":"stable","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"00:00-02:00","avg_price":131,"savings_percent":1.3,"description":"00:00-02:00通常更容易刷出低价，窗口均价约能省1.3%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"00:00-02:00","avg_price":131,"savings_percent":1.4,"description":"00:00-02:00通常更容易刷出低价，窗口均价约能省1.4%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"00:00-02:00","avg_price":133,"savings_percent":0.9,"description":"00:00-02:00通常更容易刷出低价，窗口均价约能省0.9%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["FS-12霰弹枪","725双管霰弹枪","S12K霰弹枪","M870霰弹枪","M1014霰弹枪"],"mats":["阿萨拉娱乐月刊"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},{"id":"37250200002","name":"12 Gauge 独头 GT","grade":2,"price":63,"max":63,"min":63,"d3":"0.0328","d7":"0.0328","d30":"0.0500","pen":2,"trend":"rising","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"00:00-02:00","avg_price":65,"savings_percent":0,"description":"00:00-02:00时段价格与整体均价接近，无明显优势。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"00:00-02:00","avg_price":65,"savings_percent":0,"description":"00:00-02:00时段价格与整体均价接近，无明显优势。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"00:00-02:00","avg_price":65,"savings_percent":0,"description":"00:00-02:00时段价格与整体均价接近，无明显优势。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["FS-12霰弹枪","725双管霰弹枪","S12K霰弹枪","M870霰弹枪","M1014霰弹枪"],"mats":["哈夫币"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},{"id":"37250100001","name":"12 Gauge 7毫米鹿弹","grade":1,"price":20,"max":20,"min":20,"d3":"0.0000","d7":"0.0000","d30":"0.0000","pen":1,"trend":"stable","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"02:30-04:30","avg_price":23,"savings_percent":5.2,"description":"02:30-04:30通常更容易刷出低价，窗口均价约能省5.2%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"02:30-04:30","avg_price":23,"savings_percent":5.2,"description":"02:30-04:30通常更容易刷出低价，窗口均价约能省5.2%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"01:30-03:30","avg_price":23,"savings_percent":5.2,"description":"01:30-03:30通常更容易刷出低价，窗口均价约能省5.2%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["FS-12霰弹枪","725双管霰弹枪","S12K霰弹枪","M870霰弹枪","M1014霰弹枪"],"mats":["哈夫币"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},{"id":"37190000001","name":".45 ACP RIP","grade":3,"price":665,"max":725,"min":635,"d3":"-0.0404","d7":"-0.0853","d30":"-0.2834","pen":null,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"02:30-04:30","avg_price":657,"savings_percent":8,"description":"02:30-04:30通常更容易刷出低价，窗口均价约能省8%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"02:30-04:30","avg_price":663,"savings_percent":8.1,"description":"02:30-04:30通常更容易刷出低价，窗口均价约能省8.1%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"06:30-08:30","avg_price":630,"savings_percent":9,"description":"06:30-08:30通常更容易刷出低价，窗口均价约能省9%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["SMG-45冲锋枪","Vector冲锋枪"],"mats":["摄像头","额温枪","水平仪"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/45-ACP.png"},{"id":"37190200001","name":".45 ACP JHP","grade":2,"price":109,"max":109,"min":109,"d3":"0.0093","d7":"0.0093","d30":"-0.0091","pen":2,"trend":"stable","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"01:30-03:30","avg_price":111,"savings_percent":0.6,"description":"01:30-03:30通常更容易刷出低价，窗口均价约能省0.6%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"01:30-03:30","avg_price":111,"savings_percent":0.5,"description":"01:30-03:30通常更容易刷出低价，窗口均价约能省0.5%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"00:00-02:00","avg_price":111,"savings_percent":0.9,"description":"00:00-02:00通常更容易刷出低价，窗口均价约能省0.9%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["SMG-45冲锋枪","Vector冲锋枪"],"mats":["哈夫币"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/45-ACP.png"},{"id":"37190100001","name":".45 ACP HS","grade":1,"price":42,"max":42,"min":42,"d3":"0.0244","d7":"0.0244","d30":"0.0244","pen":1,"trend":"rising","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"13:30-15:30","avg_price":42,"savings_percent":1.2,"description":"13:30-15:30通常更容易刷出低价，窗口均价约能省1.2%。","sample_days":15,"sample_points":153,"confidence":"medium","confidence_text":"基于近28天内15天、153个样本，数据中等"},"weekday":{"time_range":"13:30-15:30","avg_price":42,"savings_percent":1.5,"description":"13:30-15:30通常更容易刷出低价，窗口均价约能省1.5%。","sample_days":11,"sample_points":117,"confidence":"medium","confidence_text":"基于近28天内11天、117个样本，数据中等"},"weekend":{"time_range":"00:00-02:00","avg_price":43,"savings_percent":0,"description":"00:00-02:00时段价格与整体均价接近，无明显优势。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["SMG-45冲锋枪","Vector冲锋枪"],"mats":["哈夫币"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/45-ACP.png"},{"id":"37130200001","name":"5.8x42mm DBP87","grade":2,"price":93,"max":93,"min":93,"d3":"0.0000","d7":"0.0000","d30":"0.0000","pen":2,"trend":"stable","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"04:30-06:30","avg_price":95,"savings_percent":3.8,"description":"04:30-06:30通常更容易刷出低价，窗口均价约能省3.8%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"04:30-06:30","avg_price":95,"savings_percent":4.3,"description":"04:30-06:30通常更容易刷出低价，窗口均价约能省4.3%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"03:00-05:00","avg_price":94,"savings_percent":3.2,"description":"03:00-05:00通常更容易刷出低价，窗口均价约能省3.2%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["腾龙突击步枪","QJB201轻机枪","QBZ95-1突击步枪"],"mats":["哈夫币"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.8x42mm.png"},{"id":"37220200001","name":".357 Magnum HP","grade":2,"price":150,"max":150,"min":150,"d3":"0.0067","d7":"0.0274","d30":"0.1278","pen":2,"trend":"stable","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"08:00-10:00","avg_price":158,"savings_percent":1.1,"description":"08:00-10:00通常更容易刷出低价，窗口均价约能省1.1%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"00:00-02:00","avg_price":159,"savings_percent":0.6,"description":"00:00-02:00通常更容易刷出低价，窗口均价约能省0.6%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"06:00-08:00","avg_price":156,"savings_percent":2.8,"description":"06:00-08:00通常更容易刷出低价，窗口均价约能省2.8%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":[".357左轮"],"mats":["哈夫币"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/357-Magnum.png"},{"id":"37200000001","name":"9x19mm RIP","grade":3,"price":638,"max":648,"min":548,"d3":"0.0981","d7":"0.0340","d30":"-0.1390","pen":null,"trend":"rising","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"01:00-03:00","avg_price":544,"savings_percent":9.6,"description":"01:00-03:00通常更容易刷出低价，窗口均价约能省9.6%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"02:30-04:30","avg_price":545,"savings_percent":10.3,"description":"02:30-04:30通常更容易刷出低价，窗口均价约能省10.3%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"01:00-03:00","avg_price":514,"savings_percent":11.3,"description":"01:00-03:00通常更容易刷出低价，窗口均价约能省11.3%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["93R","G18","QSZ92G","G17","UZI冲锋枪","勇士冲锋枪","MP5冲锋枪","野牛冲锋枪","QCQ171冲锋枪"],"mats":["医用酒精","非洲木雕"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x19mm.png"},{"id":"37200200001","name":"9x19mm Pst","grade":2,"price":83,"max":83,"min":83,"d3":"0.0122","d7":"0.0122","d30":"0.0122","pen":2,"trend":"rising","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"04:00-06:00","avg_price":84,"savings_percent":2.1,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省2.1%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"04:00-06:00","avg_price":84,"savings_percent":1.8,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省1.8%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"06:00-08:00","avg_price":84,"savings_percent":3.5,"description":"06:00-08:00通常更容易刷出低价，窗口均价约能省3.5%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["93R","G18","QSZ92G","G17","UZI冲锋枪","勇士冲锋枪","MP5冲锋枪","野牛冲锋枪","QCQ171冲锋枪"],"mats":["哈夫币"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x19mm.png"},{"id":"37200100001","name":"9x19mm PSO","grade":1,"price":27,"max":27,"min":27,"d3":"0.0385","d7":"0.0385","d30":"0.0385","pen":1,"trend":"rising","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"00:00-02:00","avg_price":32,"savings_percent":0.5,"description":"00:00-02:00通常更容易刷出低价，窗口均价约能省0.5%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"00:00-02:00","avg_price":32,"savings_percent":0.5,"description":"00:00-02:00通常更容易刷出低价，窗口均价约能省0.5%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"00:00-02:00","avg_price":32,"savings_percent":0.3,"description":"00:00-02:00通常更容易刷出低价，窗口均价约能省0.3%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["93R","G18","QSZ92G","G17","UZI冲锋枪","勇士冲锋枪","MP5冲锋枪","野牛冲锋枪","QCQ171冲锋枪"],"mats":["哈夫币"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x19mm.png"},{"id":"37230200001","name":".50 AE HP","grade":2,"price":153,"max":153,"min":153,"d3":"0.0132","d7":"0.0200","d30":"0.2047","pen":2,"trend":"rising","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"18:30-20:30","avg_price":162,"savings_percent":0.7,"description":"18:30-20:30通常更容易刷出低价，窗口均价约能省0.7%。","sample_days":15,"sample_points":152,"confidence":"medium","confidence_text":"基于近28天内15天、152个样本，数据中等"},"weekday":{"time_range":"18:30-20:30","avg_price":162,"savings_percent":0.9,"description":"18:30-20:30通常更容易刷出低价，窗口均价约能省0.9%。","sample_days":11,"sample_points":118,"confidence":"medium","confidence_text":"基于近28天内11天、118个样本，数据中等"},"weekend":{"time_range":"00:00-02:00","avg_price":164,"savings_percent":0,"description":"00:00-02:00时段价格与整体均价接近，无明显优势。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["沙漠之鹰"],"mats":["哈夫币"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/50-AE.png"},{"id":"37250400002","name":"12 Gauge 独头 AP-20","grade":4,"price":471,"max":471,"min":431,"d3":"-0.1374","d7":"-0.1559","d30":"-0.3557","pen":4,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"06:00-08:00","avg_price":540,"savings_percent":5.4,"description":"06:00-08:00通常更容易刷出低价，窗口均价约能省5.4%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"06:00-08:00","avg_price":539,"savings_percent":4.2,"description":"06:00-08:00通常更容易刷出低价，窗口均价约能省4.2%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"05:30-07:30","avg_price":541,"savings_percent":9.8,"description":"05:30-07:30通常更容易刷出低价，窗口均价约能省9.8%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["FS-12霰弹枪","725双管霰弹枪","S12K霰弹枪","M870霰弹枪","M1014霰弹枪"],"mats":["初级子弹生产零件","高精数显卡尺","可乐"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},{"id":"37230500001","name":".50 AE AP","grade":5,"price":4568,"max":4868,"min":4418,"d3":"-0.0801","d7":"-0.2540","d30":"0.0000","pen":5,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"08:00-10:00","avg_price":6385,"savings_percent":3.7,"description":"08:00-10:00通常更容易刷出低价，窗口均价约能省3.7%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"08:00-10:00","avg_price":6375,"savings_percent":5.5,"description":"08:00-10:00通常更容易刷出低价，窗口均价约能省5.5%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"20:30-22:30","avg_price":4918,"savings_percent":21.2,"description":"20:30-22:30通常更容易刷出低价，窗口均价约能省21.2%。","sample_days":4,"sample_points":24,"confidence":"low","confidence_text":"样本较少（4天、24个点），仅供参考"}}},"guns":["沙漠之鹰"],"mats":["哈夫币"],"pic":"https://zzz.sanyueqi.cn/public/df/img/ammo_50ae.png"},{"id":"37170200001","name":"7.62x51mm Ultra Nosler","grade":2,"price":113,"max":113,"min":113,"d3":"0.0000","d7":"0.0000","d30":"0.0000","pen":2,"trend":"stable","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"04:30-06:30","avg_price":114,"savings_percent":3.1,"description":"04:30-06:30通常更容易刷出低价，窗口均价约能省3.1%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"04:30-06:30","avg_price":114,"savings_percent":3.2,"description":"04:30-06:30通常更容易刷出低价，窗口均价约能省3.2%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"03:30-05:30","avg_price":114,"savings_percent":2.8,"description":"03:30-05:30通常更容易刷出低价，窗口均价约能省2.8%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["M700狙击步枪","R93狙击步枪","M14射手步枪","SR-25射手步枪","PSG-1射手步枪","SCAR-H战斗步枪","G3战斗步枪","SR9射手步枪"],"mats":["哈夫币"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x51mm.png"},{"id":"37260300001","name":"4.6x30mm Subsonic SX","grade":3,"price":387,"max":387,"min":372,"d3":"-0.2150","d7":"-0.0584","d30":"-0.1205","pen":3,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"04:30-06:30","avg_price":402,"savings_percent":7,"description":"04:30-06:30通常更容易刷出低价，窗口均价约能省7%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"04:30-06:30","avg_price":395,"savings_percent":6,"description":"04:30-06:30通常更容易刷出低价，窗口均价约能省6%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"04:00-06:00","avg_price":427,"savings_percent":10.3,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省10.3%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["MK4冲锋枪","MP7冲锋枪"],"mats":["音频播放器","可乐","古老的斯芬克斯像"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/4.6x30mm.png"},{"id":"37280300001","name":".300 BLK","grade":3,"price":407,"max":437,"min":407,"d3":"-0.2518","d7":"-0.2518","d30":"0.0436","pen":3,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"04:00-06:00","avg_price":502,"savings_percent":8.4,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省8.4%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"04:00-06:00","avg_price":499,"savings_percent":8,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省8%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"03:30-05:30","avg_price":510,"savings_percent":10,"description":"03:30-05:30通常更容易刷出低价，窗口均价约能省10%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["MCX LT突击步枪","K437突击步枪"],"mats":["阿萨拉特色酒壶","犄角墙饰","可乐","残弹挂坠"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/300BLK.png"},{"id":"37270300001","name":"玻纤柳叶箭矢","grade":3,"price":799,"max":799,"min":619,"d3":"-0.0490","d7":"0.2323","d30":"0.3236","pen":3,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"00:30-02:30","avg_price":645,"savings_percent":7.8,"description":"00:30-02:30通常更容易刷出低价，窗口均价约能省7.8%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"00:30-02:30","avg_price":647,"savings_percent":7.1,"description":"00:30-02:30通常更容易刷出低价，窗口均价约能省7.1%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"00:00-02:00","avg_price":629,"savings_percent":11.4,"description":"00:00-02:00通常更容易刷出低价，窗口均价约能省11.4%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["复合弓"],"mats":["后妃耳环","图腾箭矢","苹果"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/37270300001.png"},{"id":"37290300001","name":"45-70 Govt RN","grade":3,"price":344,"max":464,"min":374,"d3":"-0.3087","d7":"-0.0260","d30":"-0.0483","pen":null,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"04:30-06:30","avg_price":408,"savings_percent":6.9,"description":"04:30-06:30通常更容易刷出低价，窗口均价约能省6.9%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"23:00-24:00","avg_price":402,"savings_percent":5.6,"description":"23:00-24:00通常更容易刷出低价，窗口均价约能省5.6%。","sample_days":11,"sample_points":60,"confidence":"medium","confidence_text":"基于近28天内11天、60个样本，数据中等"},"weekend":{"time_range":"00:00-02:00","avg_price":407,"savings_percent":15.6,"description":"00:00-02:00通常更容易刷出低价，窗口均价约能省15.6%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["杠杆式步枪"],"mats":["后妃耳环","犄角墙饰","骨锯"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/37290300001.png"},{"id":"37220000001","name":".357 Magnum 9号霰射\"鼠弹\"","grade":3,"price":208,"max":238,"min":198,"d3":"-0.1073","d7":"-0.1186","d30":"-0.1510","pen":null,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"03:30-05:30","avg_price":202,"savings_percent":10.2,"description":"03:30-05:30通常更容易刷出低价，窗口均价约能省10.2%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"01:00-03:00","avg_price":200,"savings_percent":9.3,"description":"01:00-03:00通常更容易刷出低价，窗口均价约能省9.3%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"03:30-05:30","avg_price":206,"savings_percent":14.2,"description":"03:30-05:30通常更容易刷出低价，窗口均价约能省14.2%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":[".357左轮"],"mats":["摄像头","额温枪","残弹挂坠"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/357-Magnum.png"},{"id":"37230300001","name":".50 AE JHP","grade":3,"price":464,"max":524,"min":444,"d3":"-0.3747","d7":"-0.2000","d30":"-0.2109","pen":3,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"04:00-06:00","avg_price":560,"savings_percent":7.8,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省7.8%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"23:30-24:00","avg_price":543,"savings_percent":7.2,"description":"23:30-24:00通常更容易刷出低价，窗口均价约能省7.2%。","sample_days":11,"sample_points":30,"confidence":"medium","confidence_text":"基于近28天内11天、30个样本，数据中等"},"weekend":{"time_range":"03:30-05:30","avg_price":579,"savings_percent":14.7,"description":"03:30-05:30通常更容易刷出低价，窗口均价约能省14.7%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["沙漠之鹰"],"mats":["后妃耳环","维生素泡腾片","调料套组"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/50-AE.png"},{"id":"37210300001","name":"5.7x28mm L191","grade":3,"price":390,"max":405,"min":390,"d3":"-0.1789","d7":"-0.1522","d30":"-0.1858","pen":3,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"04:30-06:30","avg_price":439,"savings_percent":8.3,"description":"04:30-06:30通常更容易刷出低价，窗口均价约能省8.3%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"04:30-06:30","avg_price":440,"savings_percent":7.4,"description":"04:30-06:30通常更容易刷出低价，窗口均价约能省7.4%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"04:00-06:00","avg_price":435,"savings_percent":11.7,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省11.7%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["AR57突击步枪","P90冲锋枪"],"mats":["音频播放器","摄像头","酒店宣传海报","残弹挂坠"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.7x28mm.png"},{"id":"37220300001","name":".357 Magnum JHP","grade":3,"price":519,"max":519,"min":459,"d3":"0.0443","d7":"0.0926","d30":"-0.1036","pen":3,"trend":"rising","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"03:30-05:30","avg_price":478,"savings_percent":6.4,"description":"03:30-05:30通常更容易刷出低价，窗口均价约能省6.4%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"04:00-06:00","avg_price":481,"savings_percent":4.8,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省4.8%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"23:30-24:00","avg_price":463,"savings_percent":12.4,"description":"23:30-24:00通常更容易刷出低价，窗口均价约能省12.4%。","sample_days":4,"sample_points":9,"confidence":"low","confidence_text":"样本较少（4天、9个点），仅供参考"}}},"guns":[".357左轮"],"mats":["低级燃料","存储卡","非洲鼓"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/357-Magnum.png"},{"id":"37200300001","name":"9x19mm AP6.3","grade":3,"price":396,"max":396,"min":336,"d3":"-0.0458","d7":"0.1786","d30":"-0.1335","pen":3,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"04:00-06:00","avg_price":353,"savings_percent":12.7,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省12.7%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"04:00-06:00","avg_price":363,"savings_percent":10.7,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省10.7%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"04:30-06:30","avg_price":321,"savings_percent":19.8,"description":"04:30-06:30通常更容易刷出低价，窗口均价约能省19.8%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["93R","G18","QSZ92G","G17","UZI冲锋枪","勇士冲锋枪","MP5冲锋枪","野牛冲锋枪","QCQ171冲锋枪"],"mats":["军用移动电源","资料：商业文件","残弹挂坠"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x19mm.png"},{"id":"37190300001","name":".45 ACP FMJ","grade":3,"price":551,"max":551,"min":491,"d3":"0.1408","d7":"0.0377","d30":"0.2551","pen":3,"trend":"rising","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"04:00-06:00","avg_price":474,"savings_percent":9.8,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省9.8%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"04:00-06:00","avg_price":494,"savings_percent":8.5,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省8.5%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"04:00-06:00","avg_price":405,"savings_percent":14.7,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省14.7%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["SMG-45冲锋枪","Vector冲锋枪"],"mats":["摄像头","阿萨拉特色陶瓷","水平仪"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/45-ACP.png"},{"id":"37180300001","name":"7.62x54R T46M","grade":3,"price":502,"max":522,"min":462,"d3":"-0.1254","d7":"0.0415","d30":"-0.0582","pen":3,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"04:30-06:30","avg_price":505,"savings_percent":8.4,"description":"04:30-06:30通常更容易刷出低价，窗口均价约能省8.4%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"05:00-07:00","avg_price":508,"savings_percent":7.1,"description":"05:00-07:00通常更容易刷出低价，窗口均价约能省7.1%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"04:00-06:00","avg_price":490,"savings_percent":13.3,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省13.3%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["SV-98狙击步枪","PKM通用机枪","SVD狙击步枪"],"mats":["存储卡","三角洲特种部队：黑鹰坠落-战队之刃","阿萨拉新闻周刊"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x54mm.png"},{"id":"37120300001","name":"5.45x39mm PS","grade":3,"price":474,"max":474,"min":384,"d3":"0.0085","d7":"0.0172","d30":"0.1910","pen":3,"trend":"stable","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"04:00-06:00","avg_price":422,"savings_percent":10,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省10%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"04:00-06:00","avg_price":421,"savings_percent":9.5,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省9.5%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"03:00-05:00","avg_price":425,"savings_percent":11.8,"description":"03:00-05:00通常更容易刷出低价，窗口均价约能省11.8%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["KC17突击步枪","AKS-74U突击步枪","AK-12突击步枪"],"mats":["“起舞的女郎”挂饰","三角洲特种部队：黑鹰坠落-战队之刃","调料套组"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39mm.png"},{"id":"37290400001","name":"45-70 Govt FMJ","grade":4,"price":1148,"max":1278,"min":1083,"d3":"-0.0154","d7":"-0.2650","d30":"-0.5041","pen":4,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"07:30-09:30","avg_price":1648,"savings_percent":3.8,"description":"07:30-09:30通常更容易刷出低价，窗口均价约能省3.8%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"07:30-09:30","avg_price":1724,"savings_percent":4.4,"description":"07:30-09:30通常更容易刷出低价，窗口均价约能省4.4%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"20:30-22:30","avg_price":1170,"savings_percent":16.7,"description":"20:30-22:30通常更容易刷出低价，窗口均价约能省16.7%。","sample_days":4,"sample_points":24,"confidence":"low","confidence_text":"样本较少（4天、24个点），仅供参考"}}},"guns":["杠杆式步枪"],"mats":["藏秘筒","金枝桂冠","人工膝关节"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/37290400001.png"},{"id":"37170300001","name":"7.62x51mm BPZ","grade":3,"price":528,"max":528,"min":448,"d3":"-0.0912","d7":"0.0688","d30":"0.0560","pen":3,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"04:00-06:00","avg_price":481,"savings_percent":8.2,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省8.2%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"04:00-06:00","avg_price":484,"savings_percent":6.7,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省6.7%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"04:00-06:00","avg_price":473,"savings_percent":13.1,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省13.1%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["M700狙击步枪","R93狙击步枪","M14射手步枪","SR-25射手步枪","PSG-1射手步枪","SCAR-H战斗步枪","G3战斗步枪","SR9射手步枪"],"mats":["后妃耳环","三角洲特种部队：黑鹰坠落-战队之刃","额温枪","DVD光驱"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x51mm.png"},{"id":"37280400001","name":".300 BLK","grade":4,"price":1687,"max":1687,"min":1582,"d3":"-0.0896","d7":"-0.1722","d30":"-0.1432","pen":4,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"02:30-04:30","avg_price":1813,"savings_percent":5.9,"description":"02:30-04:30通常更容易刷出低价，窗口均价约能省5.9%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"02:30-04:30","avg_price":1811,"savings_percent":5.8,"description":"02:30-04:30通常更容易刷出低价，窗口均价约能省5.8%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"00:30-02:30","avg_price":1814,"savings_percent":6.4,"description":"00:30-02:30通常更容易刷出低价，窗口均价约能省6.4%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["MCX LT突击步枪","K437突击步枪"],"mats":["优秀雇员奖杯","阿萨拉特色酒杯","阿萨拉风情水壶","额温枪"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/300BLK.png"},{"id":"37100300001","name":"5.56x45mm M855","grade":3,"price":316,"max":331,"min":301,"d3":"-0.1813","d7":"-0.0733","d30":"-0.3511","pen":3,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"02:30-04:30","avg_price":347,"savings_percent":8.8,"description":"02:30-04:30通常更容易刷出低价，窗口均价约能省8.8%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"02:30-04:30","avg_price":352,"savings_percent":7.2,"description":"02:30-04:30通常更容易刷出低价，窗口均价约能省7.2%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"04:00-06:00","avg_price":322,"savings_percent":16.7,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省16.7%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["Mini-14射手步枪","M249轻机枪","CAR-15突击步枪","M16A4突击步枪","SG552突击步枪","AUG突击步枪","M4A1突击步枪","K416突击步枪"],"mats":["军用移动电源","袋装咖啡豆","酒店宣传海报"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"},{"id":"37110300001","name":"7.62x39mm PS","grade":3,"price":506,"max":506,"min":416,"d3":"-0.0269","d7":"-0.0059","d30":"-0.0783","pen":3,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"03:30-05:30","avg_price":462,"savings_percent":10,"description":"03:30-05:30通常更容易刷出低价，窗口均价约能省10%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"03:30-05:30","avg_price":467,"savings_percent":9.1,"description":"03:30-05:30通常更容易刷出低价，窗口均价约能省9.1%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"03:30-05:30","avg_price":448,"savings_percent":13.1,"description":"03:30-05:30通常更容易刷出低价，窗口均价约能省13.1%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["MK47突击步枪","SKS射手步枪","PTR-32突击步枪","AKM突击步枪"],"mats":["大豆蛋白粉包","香喷喷炒面","太阳碟"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x39mm.png"},{"id":"37130300001","name":"5.8x42mm DVP88","grade":3,"price":403,"max":433,"min":403,"d3":"-0.2309","d7":"-0.1587","d30":"-0.1239","pen":3,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"04:00-06:00","avg_price":447,"savings_percent":8.3,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省8.3%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"04:00-06:00","avg_price":442,"savings_percent":7.8,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省7.8%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"03:30-05:30","avg_price":463,"savings_percent":9.9,"description":"03:30-05:30通常更容易刷出低价，窗口均价约能省9.9%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["腾龙突击步枪","QJB201轻机枪","QBZ95-1突击步枪"],"mats":["英式袋泡茶","额温枪","酒店宣传海报","DVD光驱"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.8x42mm.png"},{"id":"37140300001","name":"9x39mm SP5","grade":3,"price":504,"max":524,"min":444,"d3":"0.0120","d7":"0.3023","d30":"0.2727","pen":3,"trend":"rising","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"04:00-06:00","avg_price":408,"savings_percent":9.6,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省9.6%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"04:00-06:00","avg_price":403,"savings_percent":9,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省9%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"02:30-04:30","avg_price":418,"savings_percent":12.5,"description":"02:30-04:30通常更容易刷出低价，窗口均价约能省12.5%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["VSS射手步枪","AS Val突击步枪","SR-3M紧凑突击步枪"],"mats":["古怪的海盗银币","三角洲特种部队：黑鹰坠落-战队之刃","袋装咖啡豆"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x39mm.png"},{"id":"37160300001","name":"12.7x55mm PS12A","grade":3,"price":624,"max":729,"min":589,"d3":"-0.2126","d7":"-0.0938","d30":"0.1240","pen":3,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"03:30-05:30","avg_price":657,"savings_percent":7.8,"description":"03:30-05:30通常更容易刷出低价，窗口均价约能省7.8%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"03:30-05:30","avg_price":657,"savings_percent":7.1,"description":"03:30-05:30通常更容易刷出低价，窗口均价约能省7.1%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"03:00-05:00","avg_price":655,"savings_percent":10.1,"description":"03:00-05:00通常更容易刷出低价，窗口均价约能省10.1%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["ASh-12战斗步枪"],"mats":["阿萨拉风情水壶","存储卡","军用移动电源"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12.7x55mm.png"},{"id":"37220400001","name":".357 Magnum FMJ","grade":4,"price":545,"max":590,"min":500,"d3":"-0.0587","d7":"-0.1224","d30":"-0.1363","pen":4,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"23:30-24:00","avg_price":633,"savings_percent":3.7,"description":"23:30-24:00通常更容易刷出低价，窗口均价约能省3.7%。","sample_days":15,"sample_points":39,"confidence":"medium","confidence_text":"基于近28天内15天、39个样本，数据中等"},"weekday":{"time_range":"22:00-24:00","avg_price":644,"savings_percent":3.3,"description":"22:00-24:00通常更容易刷出低价，窗口均价约能省3.3%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"20:30-22:30","avg_price":590,"savings_percent":5.7,"description":"20:30-22:30通常更容易刷出低价，窗口均价约能省5.7%。","sample_days":4,"sample_points":24,"confidence":"low","confidence_text":"样本较少（4天、24个点），仅供参考"}}},"guns":[".357左轮"],"mats":["资料：设计图纸","阿萨拉风情水壶","阿萨拉卫队机密档案"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/357-Magnum.png"},{"id":"37260400001","name":"4.6x30mm FMJ SX","grade":4,"price":1020,"max":1120,"min":1020,"d3":"0.0019","d7":"-0.2573","d30":"-0.2466","pen":4,"trend":"stable","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"03:00-05:00","avg_price":1286,"savings_percent":4.3,"description":"03:00-05:00通常更容易刷出低价，窗口均价约能省4.3%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"03:00-05:00","avg_price":1301,"savings_percent":5.3,"description":"03:00-05:00通常更容易刷出低价，窗口均价约能省5.3%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"20:30-22:30","avg_price":1062,"savings_percent":14.3,"description":"20:30-22:30通常更容易刷出低价，窗口均价约能省14.3%。","sample_days":4,"sample_points":24,"confidence":"low","confidence_text":"样本较少（4天、24个点），仅供参考"}}},"guns":["MK4冲锋枪","MP7冲锋枪"],"mats":["资料：设计图纸","亮闪闪的海盗金币","胶囊咖啡机套组","阿萨拉风情水壶"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/4.6x30mm.png"},{"id":"37200400001","name":"9x19mm PBP","grade":4,"price":1036,"max":1036,"min":1006,"d3":"-0.0522","d7":"-0.2740","d30":"-0.2923","pen":4,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"04:00-06:00","avg_price":1257,"savings_percent":5.5,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省5.5%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"04:00-06:00","avg_price":1281,"savings_percent":5.7,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省5.7%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"20:30-22:30","avg_price":1126,"savings_percent":8.7,"description":"20:30-22:30通常更容易刷出低价，窗口均价约能省8.7%。","sample_days":4,"sample_points":24,"confidence":"low","confidence_text":"样本较少（4天、24个点），仅供参考"}}},"guns":["93R","G18","QSZ92G","G17","UZI冲锋枪","勇士冲锋枪","MP5冲锋枪","野牛冲锋枪","QCQ171冲锋枪"],"mats":["优秀雇员奖杯","阿萨拉特色酒壶","犄角墙饰","维生素泡腾片"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x19mm.png"},{"id":"37210400001","name":"5.7x28mm SS193","grade":4,"price":1623,"max":1653,"min":1533,"d3":"-0.0747","d7":"-0.2021","d30":"-0.1778","pen":4,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"02:30-04:30","avg_price":1863,"savings_percent":7.4,"description":"02:30-04:30通常更容易刷出低价，窗口均价约能省7.4%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"02:30-04:30","avg_price":1915,"savings_percent":7,"description":"02:30-04:30通常更容易刷出低价，窗口均价约能省7%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"02:00-04:00","avg_price":1682,"savings_percent":9.3,"description":"02:00-04:00通常更容易刷出低价，窗口均价约能省9.3%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["AR57突击步枪","P90冲锋枪"],"mats":["自旋型手锯","阿萨拉特色酒壶","后妃耳环","机械破障锤"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.7x28mm.png"},{"id":"37230400001","name":".50 AE FMJ","grade":4,"price":1550,"max":1640,"min":1415,"d3":"-0.2133","d7":"-0.2830","d30":"-0.3822","pen":4,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"08:00-10:00","avg_price":1963,"savings_percent":5.6,"description":"08:00-10:00通常更容易刷出低价，窗口均价约能省5.6%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"08:30-10:30","avg_price":1987,"savings_percent":5.4,"description":"08:30-10:30通常更容易刷出低价，窗口均价约能省5.4%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"04:00-06:00","avg_price":1829,"savings_percent":9.1,"description":"04:00-06:00通常更容易刷出低价，窗口均价约能省9.1%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["沙漠之鹰"],"mats":["亮闪闪的海盗金币","胶囊咖啡机套组","犄角墙饰","清新橘味能量凝胶"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/50-AE.png"},{"id":"37190400001","name":".45 ACP AP","grade":4,"price":1330,"max":1400,"min":1295,"d3":"-0.0119","d7":"-0.3098","d30":"-0.2780","pen":4,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"04:30-06:30","avg_price":1631,"savings_percent":4.4,"description":"04:30-06:30通常更容易刷出低价，窗口均价约能省4.4%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"04:30-06:30","avg_price":1660,"savings_percent":5.1,"description":"04:30-06:30通常更容易刷出低价，窗口均价约能省5.1%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"20:30-22:30","avg_price":1365,"savings_percent":12.6,"description":"20:30-22:30通常更容易刷出低价，窗口均价约能省12.6%。","sample_days":4,"sample_points":24,"confidence":"low","confidence_text":"样本较少（4天、24个点），仅供参考"}}},"guns":["SMG-45冲锋枪","Vector冲锋枪"],"mats":["资料：设计图纸","海盗弯刀","后妃耳环","阿萨拉时尚周刊"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/45-ACP.png"},{"id":"37250400003","name":"12 Gauge 龙息弹","grade":4,"price":1680,"max":1680,"min":1600,"d3":"-0.1583","d7":"-0.1857","d30":"-0.3553","pen":null,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"06:30-08:30","avg_price":1918,"savings_percent":5.5,"description":"06:30-08:30通常更容易刷出低价，窗口均价约能省5.5%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"06:30-08:30","avg_price":1924,"savings_percent":4.3,"description":"06:30-08:30通常更容易刷出低价，窗口均价约能省4.3%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"06:30-08:30","avg_price":1900,"savings_percent":9.7,"description":"06:30-08:30通常更容易刷出低价，窗口均价约能省9.7%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["FS-12霰弹枪","725双管霰弹枪","S12K霰弹枪","M870霰弹枪","M1014霰弹枪"],"mats":["资料：设计图纸","亮闪闪的海盗金币","后妃耳环","胶囊咖啡机套组"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},{"id":"37270400001","name":"碳纤维刺骨箭矢","grade":4,"price":1644,"max":1714,"min":1504,"d3":"0.0055","d7":"-0.0012","d30":"-0.1260","pen":4,"trend":"stable","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"23:30-24:00","avg_price":1529,"savings_percent":5.3,"description":"23:30-24:00通常更容易刷出低价，窗口均价约能省5.3%。","sample_days":15,"sample_points":39,"confidence":"medium","confidence_text":"基于近28天内15天、39个样本，数据中等"},"weekday":{"time_range":"23:30-24:00","avg_price":1537,"savings_percent":4.7,"description":"23:30-24:00通常更容易刷出低价，窗口均价约能省4.7%。","sample_days":11,"sample_points":30,"confidence":"medium","confidence_text":"基于近28天内11天、30个样本，数据中等"},"weekend":{"time_range":"05:30-07:30","avg_price":1461,"savings_percent":9.8,"description":"05:30-07:30通常更容易刷出低价，窗口均价约能省9.8%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["复合弓"],"mats":["生化培养箱","鳄鱼蛋","犄角墙饰","维生素泡腾片"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/37270400001.png"},{"id":"37170400001","name":"7.62x51mm M80","grade":4,"price":1218,"max":1338,"min":1218,"d3":"-0.0688","d7":"-0.2693","d30":"-0.3016","pen":4,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"04:30-06:30","avg_price":1608,"savings_percent":3.7,"description":"04:30-06:30通常更容易刷出低价，窗口均价约能省3.7%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"06:00-08:00","avg_price":1629,"savings_percent":4.1,"description":"06:00-08:00通常更容易刷出低价，窗口均价约能省4.1%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"20:30-22:30","avg_price":1351,"savings_percent":13.9,"description":"20:30-22:30通常更容易刷出低价，窗口均价约能省13.9%。","sample_days":4,"sample_points":24,"confidence":"low","confidence_text":"样本较少（4天、24个点），仅供参考"}}},"guns":["M700狙击步枪","R93狙击步枪","M14射手步枪","SR-25射手步枪","PSG-1射手步枪","SCAR-H战斗步枪","G3战斗步枪","SR9射手步枪"],"mats":["资料：设计图纸","专业声卡","清新橘味能量凝胶","“起舞的女郎”挂饰"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x51mm.png"},{"id":"37120400001","name":"5.45x39mm BT","grade":4,"price":1191,"max":1191,"min":1141,"d3":"-0.0238","d7":"-0.3186","d30":"-0.2928","pen":4,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"03:30-05:30","avg_price":1457,"savings_percent":4.5,"description":"03:30-05:30通常更容易刷出低价，窗口均价约能省4.5%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"02:30-04:30","avg_price":1454,"savings_percent":5.3,"description":"02:30-04:30通常更容易刷出低价，窗口均价约能省5.3%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"20:30-22:30","avg_price":1262,"savings_percent":15.6,"description":"20:30-22:30通常更容易刷出低价，窗口均价约能省15.6%。","sample_days":4,"sample_points":24,"confidence":"low","confidence_text":"样本较少（4天、24个点），仅供参考"}}},"guns":["KC17突击步枪","AKS-74U突击步枪","AK-12突击步枪"],"mats":["阿萨拉风情水壶","犄角墙饰"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39mm.png"},{"id":"37110400001","name":"7.62x39mm BP","grade":4,"price":1191,"max":1191,"min":1156,"d3":"-0.0325","d7":"-0.3510","d30":"-0.2898","pen":4,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"04:30-06:30","avg_price":1553,"savings_percent":4.9,"description":"04:30-06:30通常更容易刷出低价，窗口均价约能省4.9%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"04:30-06:30","avg_price":1577,"savings_percent":5.5,"description":"04:30-06:30通常更容易刷出低价，窗口均价约能省5.5%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"20:30-22:30","avg_price":1279,"savings_percent":15.5,"description":"20:30-22:30通常更容易刷出低价，窗口均价约能省15.5%。","sample_days":4,"sample_points":24,"confidence":"low","confidence_text":"样本较少（4天、24个点），仅供参考"}}},"guns":["MK47突击步枪","SKS射手步枪","PTR-32突击步枪","AKM突击步枪"],"mats":["优秀雇员奖杯","胶囊咖啡机套组","海盗弯刀"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x39mm.png"},{"id":"37100400001","name":"5.56x45mm M855A1","grade":4,"price":1071,"max":1101,"min":1071,"d3":"-0.0316","d7":"-0.2773","d30":"-0.3946","pen":4,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"02:30-04:30","avg_price":1419,"savings_percent":3.2,"description":"02:30-04:30通常更容易刷出低价，窗口均价约能省3.2%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"02:30-04:30","avg_price":1454,"savings_percent":4.1,"description":"02:30-04:30通常更容易刷出低价，窗口均价约能省4.1%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"20:30-22:30","avg_price":1116,"savings_percent":13.8,"description":"20:30-22:30通常更容易刷出低价，窗口均价约能省13.8%。","sample_days":4,"sample_points":24,"confidence":"low","confidence_text":"样本较少（4天、24个点），仅供参考"}}},"guns":["Mini-14射手步枪","M249轻机枪","CAR-15突击步枪","M16A4突击步枪","SG552突击步枪","AUG突击步枪","M4A1突击步枪","K416突击步枪"],"mats":["胶囊咖啡机套组","海盗弯刀","后妃耳环"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"},{"id":"37140400001","name":"9x39mm SP6","grade":4,"price":1641,"max":1721,"min":1641,"d3":"-0.0984","d7":"-0.1924","d30":"-0.2558","pen":4,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"04:30-06:30","avg_price":1880,"savings_percent":6.1,"description":"04:30-06:30通常更容易刷出低价，窗口均价约能省6.1%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"04:30-06:30","avg_price":1952,"savings_percent":3.6,"description":"04:30-06:30通常更容易刷出低价，窗口均价约能省3.6%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"04:30-06:30","avg_price":1639,"savings_percent":14.9,"description":"04:30-06:30通常更容易刷出低价，窗口均价约能省14.9%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["VSS射手步枪","AS Val突击步枪","SR-3M紧凑突击步枪"],"mats":["卫队金扳指","专业声卡","海盗弯刀","阿萨拉时尚周刊"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x39mm.png"},{"id":"37130400001","name":"5.8x42mm DBP10","grade":4,"price":1393,"max":1428,"min":1358,"d3":"-0.0050","d7":"-0.2634","d30":"-0.2936","pen":4,"trend":"stable","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"04:30-06:30","avg_price":1607,"savings_percent":3.8,"description":"04:30-06:30通常更容易刷出低价，窗口均价约能省3.8%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"04:30-06:30","avg_price":1636,"savings_percent":3.9,"description":"04:30-06:30通常更容易刷出低价，窗口均价约能省3.9%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"20:30-22:30","avg_price":1428,"savings_percent":8.6,"description":"20:30-22:30通常更容易刷出低价，窗口均价约能省8.6%。","sample_days":4,"sample_points":24,"confidence":"low","confidence_text":"样本较少（4天、24个点），仅供参考"}}},"guns":["腾龙突击步枪","QJB201轻机枪","QBZ95-1突击步枪"],"mats":["高出力粉碎钳","后妃耳环","枪械零件","低级燃料"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.8x42mm.png"},{"id":"37180400001","name":"7.62x54R LPS","grade":4,"price":1690,"max":1730,"min":1650,"d3":"0.0261","d7":"-0.1875","d30":"-0.2418","pen":4,"trend":"rising","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"06:00-08:00","avg_price":1859,"savings_percent":3.2,"description":"06:00-08:00通常更容易刷出低价，窗口均价约能省3.2%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"06:00-08:00","avg_price":1887,"savings_percent":3.3,"description":"06:00-08:00通常更容易刷出低价，窗口均价约能省3.3%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"20:30-22:30","avg_price":1687,"savings_percent":7.2,"description":"20:30-22:30通常更容易刷出低价，窗口均价约能省7.2%。","sample_days":4,"sample_points":24,"confidence":"low","confidence_text":"样本较少（4天、24个点），仅供参考"}}},"guns":["SV-98狙击步枪","PKM通用机枪","SVD狙击步枪"],"mats":["资料：设计图纸","胶囊咖啡机套组","无线便携电钻","维生素泡腾片"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x54mm.png"},{"id":"37160400002","name":"12.7x55mm PD12双头弹","grade":4,"price":2667,"max":2667,"min":2667,"d3":"-0.0492","d7":"-0.1032","d30":"-0.2430","pen":4,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"06:00-08:00","avg_price":2752,"savings_percent":3.8,"description":"06:00-08:00通常更容易刷出低价，窗口均价约能省3.8%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"06:30-08:30","avg_price":2743,"savings_percent":3.9,"description":"06:30-08:30通常更容易刷出低价，窗口均价约能省3.9%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"05:30-07:30","avg_price":2773,"savings_percent":3.9,"description":"05:30-07:30通常更容易刷出低价，窗口均价约能省3.9%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["ASh-12战斗步枪"],"mats":["亮闪闪的海盗金币","资料：设计图纸","专业声卡"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12.7x55mm.png"},{"id":"37160400001","name":"12.7x55mm PS12","grade":4,"price":1687,"max":1857,"min":1687,"d3":"0.0062","d7":"-0.2526","d30":"-0.3084","pen":4,"trend":"stable","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"05:30-07:30","avg_price":2023,"savings_percent":3.6,"description":"05:30-07:30通常更容易刷出低价，窗口均价约能省3.6%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"05:30-07:30","avg_price":2042,"savings_percent":3.9,"description":"05:30-07:30通常更容易刷出低价，窗口均价约能省3.9%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"20:30-22:30","avg_price":1740,"savings_percent":13.6,"description":"20:30-22:30通常更容易刷出低价，窗口均价约能省13.6%。","sample_days":4,"sample_points":24,"confidence":"low","confidence_text":"样本较少（4天、24个点），仅供参考"}}},"guns":["ASh-12战斗步枪"],"mats":["自旋型手锯","专业声卡","专业声卡","清新橘味能量凝胶"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12.7x55mm.png"},{"id":"37150400001","name":"6.8x51mm FMJ","grade":4,"price":1709,"max":1754,"min":1664,"d3":"-0.0144","d7":"-0.1768","d30":"-0.2398","pen":4,"trend":"falling","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"04:30-06:30","avg_price":1997,"savings_percent":3,"description":"04:30-06:30通常更容易刷出低价，窗口均价约能省3%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"04:30-06:30","avg_price":2029,"savings_percent":2.9,"description":"04:30-06:30通常更容易刷出低价，窗口均价约能省2.9%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"20:30-22:30","avg_price":1754,"savings_percent":10,"description":"20:30-22:30通常更容易刷出低价，窗口均价约能省10%。","sample_days":4,"sample_points":24,"confidence":"low","confidence_text":"样本较少（4天、24个点），仅供参考"}}},"guns":["M250通用机枪","M7战斗步枪"],"mats":["脑机控制端子","高出力粉碎钳","海盗弯刀","专业声卡"],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/6.8x51mm.png"},{"id":"37290500001","name":"45-70 Govt FTX","grade":5,"price":4815,"max":4815,"min":4395,"d3":"0.0760","d7":"-0.0185","d30":"-0.2742","pen":5,"trend":"rising","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"08:00-10:00","avg_price":5009,"savings_percent":4,"description":"08:00-10:00通常更容易刷出低价，窗口均价约能省4%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"08:00-10:00","avg_price":5137,"savings_percent":4.3,"description":"08:00-10:00通常更容易刷出低价，窗口均价约能省4.3%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"20:30-22:30","avg_price":4459,"savings_percent":5,"description":"20:30-22:30通常更容易刷出低价，窗口均价约能省5%。","sample_days":4,"sample_points":24,"confidence":"low","confidence_text":"样本较少（4天、24个点），仅供参考"}}},"guns":["杠杆式步枪"],"mats":[],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/37290500001.png"},{"id":"37260500001","name":"4.6x30mm AP SX","grade":5,"price":4052,"max":4052,"min":3887,"d3":"0.0308","d7":"0.0422","d30":"-0.0857","pen":5,"trend":"rising","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"07:30-09:30","avg_price":3863,"savings_percent":2.4,"description":"07:30-09:30通常更容易刷出低价，窗口均价约能省2.4%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"07:00-09:00","avg_price":3880,"savings_percent":2.1,"description":"07:00-09:00通常更容易刷出低价，窗口均价约能省2.1%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"08:00-10:00","avg_price":3797,"savings_percent":3.3,"description":"08:00-10:00通常更容易刷出低价，窗口均价约能省3.3%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["MK4冲锋枪","MP7冲锋枪"],"mats":[],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/4.6x30mm.png"},{"id":"37170500001","name":"7.62x51mm M62","grade":5,"price":5967,"max":5967,"min":5567,"d3":"0.0139","d7":"0.0131","d30":"-0.0992","pen":5,"trend":"rising","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"08:00-10:00","avg_price":5725,"savings_percent":4.2,"description":"08:00-10:00通常更容易刷出低价，窗口均价约能省4.2%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"08:00-10:00","avg_price":5714,"savings_percent":4.6,"description":"08:00-10:00通常更容易刷出低价，窗口均价约能省4.6%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"10:30-12:30","avg_price":5667,"savings_percent":4.5,"description":"10:30-12:30通常更容易刷出低价，窗口均价约能省4.5%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["M700狙击步枪","R93狙击步枪","M14射手步枪","SR-25射手步枪","PSG-1射手步枪","SCAR-H战斗步枪","G3战斗步枪","SR9射手步枪"],"mats":[],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x51mm.png"},{"id":"37180500001","name":"7.62x54R BT","grade":5,"price":4894,"max":5014,"min":4654,"d3":"0.0062","d7":"-0.0787","d30":"-0.2339","pen":5,"trend":"stable","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"07:00-09:00","avg_price":4946,"savings_percent":3.5,"description":"07:00-09:00通常更容易刷出低价，窗口均价约能省3.5%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"07:00-09:00","avg_price":4981,"savings_percent":3.6,"description":"07:00-09:00通常更容易刷出低价，窗口均价约能省3.6%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"07:00-09:00","avg_price":4827,"savings_percent":3.2,"description":"07:00-09:00通常更容易刷出低价，窗口均价约能省3.2%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["SV-98狙击步枪","PKM通用机枪","SVD狙击步枪"],"mats":[],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x54mm.png"},{"id":"37160500001","name":"12.7x55mm PS12B","grade":5,"price":5323,"max":5323,"min":5143,"d3":"-0.0021","d7":"-0.1002","d30":"-0.1691","pen":5,"trend":"stable","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"07:00-09:00","avg_price":5595,"savings_percent":2.3,"description":"07:00-09:00通常更容易刷出低价，窗口均价约能省2.3%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"07:00-09:00","avg_price":5609,"savings_percent":2.8,"description":"07:00-09:00通常更容易刷出低价，窗口均价约能省2.8%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"20:30-22:30","avg_price":5398,"savings_percent":3.4,"description":"20:30-22:30通常更容易刷出低价，窗口均价约能省3.4%。","sample_days":4,"sample_points":24,"confidence":"low","confidence_text":"样本较少（4天、24个点），仅供参考"}}},"guns":["ASh-12战斗步枪"],"mats":[],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12.7x55mm.png"},{"id":"37270500001","name":"碳纤维穿甲箭矢","grade":5,"price":5359,"max":5504,"min":4344,"d3":"0.1046","d7":"0.0999","d30":"0.1189","pen":5,"trend":"rising","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"08:30-10:30","avg_price":4712,"savings_percent":3,"description":"08:30-10:30通常更容易刷出低价，窗口均价约能省3%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"08:30-10:30","avg_price":4696,"savings_percent":2.9,"description":"08:30-10:30通常更容易刷出低价，窗口均价约能省2.9%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"07:30-09:30","avg_price":4747,"savings_percent":3.6,"description":"07:30-09:30通常更容易刷出低价，窗口均价约能省3.6%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["复合弓"],"mats":[],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/37270500001.png"},{"id":"37210500001","name":"5.7x28mm SS190","grade":5,"price":4442,"max":4442,"min":4052,"d3":"0.0105","d7":"-0.0523","d30":"-0.1921","pen":5,"trend":"rising","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"10:30-12:30","avg_price":4397,"savings_percent":6.3,"description":"10:30-12:30通常更容易刷出低价，窗口均价约能省6.3%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"08:00-10:00","avg_price":4404,"savings_percent":7,"description":"08:00-10:00通常更容易刷出低价，窗口均价约能省7%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"10:30-12:30","avg_price":4200,"savings_percent":7.6,"description":"10:30-12:30通常更容易刷出低价，窗口均价约能省7.6%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["AR57突击步枪","P90冲锋枪"],"mats":[],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.7x28mm.png"},{"id":"37150500001","name":"6.8x51mm Hybrid","grade":5,"price":5549,"max":5549,"min":5074,"d3":"0.0358","d7":"0.0523","d30":"-0.0593","pen":5,"trend":"rising","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"10:30-12:30","avg_price":5056,"savings_percent":4.7,"description":"10:30-12:30通常更容易刷出低价，窗口均价约能省4.7%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"08:00-10:00","avg_price":5027,"savings_percent":5.1,"description":"08:00-10:00通常更容易刷出低价，窗口均价约能省5.1%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"10:30-12:30","avg_price":5027,"savings_percent":5.8,"description":"10:30-12:30通常更容易刷出低价，窗口均价约能省5.8%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["M250通用机枪","M7战斗步枪"],"mats":[],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/6.8x51mm.png"},{"id":"37130500001","name":"5.8x42mm DVC12","grade":5,"price":4165,"max":4165,"min":4025,"d3":"0.0090","d7":"-0.0963","d30":"-0.2347","pen":5,"trend":"stable","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"11:00-13:00","avg_price":4296,"savings_percent":2.7,"description":"11:00-13:00通常更容易刷出低价，窗口均价约能省2.7%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"08:00-10:00","avg_price":4317,"savings_percent":2.8,"description":"08:00-10:00通常更容易刷出低价，窗口均价约能省2.8%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"20:30-22:30","avg_price":4165,"savings_percent":3.8,"description":"20:30-22:30通常更容易刷出低价，窗口均价约能省3.8%。","sample_days":4,"sample_points":24,"confidence":"low","confidence_text":"样本较少（4天、24个点），仅供参考"}}},"guns":["腾龙突击步枪","QJB201轻机枪","QBZ95-1突击步枪"],"mats":[],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.8x42mm.png"},{"id":"37140500001","name":"9x39mm BP","grade":5,"price":5004,"max":5004,"min":4679,"d3":"0.0138","d7":"-0.0319","d30":"0.0087","pen":5,"trend":"rising","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"09:30-11:30","avg_price":4753,"savings_percent":7,"description":"09:30-11:30通常更容易刷出低价，窗口均价约能省7%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"08:30-10:30","avg_price":4740,"savings_percent":7.8,"description":"08:30-10:30通常更容易刷出低价，窗口均价约能省7.8%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"10:30-12:30","avg_price":4661,"savings_percent":6.8,"description":"10:30-12:30通常更容易刷出低价，窗口均价约能省6.8%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["VSS射手步枪","AS Val突击步枪","SR-3M紧凑突击步枪"],"mats":[],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x39mm.png"},{"id":"37110500001","name":"7.62x39mm AP","grade":5,"price":5346,"max":5346,"min":4746,"d3":"0.0423","d7":"0.0530","d30":"0.0309","pen":5,"trend":"rising","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"08:00-10:00","avg_price":4853,"savings_percent":6.3,"description":"08:00-10:00通常更容易刷出低价，窗口均价约能省6.3%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"08:00-10:00","avg_price":4835,"savings_percent":6.8,"description":"08:00-10:00通常更容易刷出低价，窗口均价约能省6.8%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"10:30-12:30","avg_price":4788,"savings_percent":6.8,"description":"10:30-12:30通常更容易刷出低价，窗口均价约能省6.8%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["MK47突击步枪","SKS射手步枪","PTR-32突击步枪","AKM突击步枪"],"mats":[],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x39mm.png"},{"id":"37120500001","name":"5.45x39mm BS","grade":5,"price":4639,"max":4639,"min":4089,"d3":"0.0383","d7":"-0.0540","d30":"-0.0911","pen":5,"trend":"rising","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"10:00-12:00","avg_price":4334,"savings_percent":5.7,"description":"10:00-12:00通常更容易刷出低价，窗口均价约能省5.7%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"08:00-10:00","avg_price":4276,"savings_percent":6.7,"description":"08:00-10:00通常更容易刷出低价，窗口均价约能省6.7%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"10:30-12:30","avg_price":4363,"savings_percent":6.2,"description":"10:30-12:30通常更容易刷出低价，窗口均价约能省6.2%。","sample_days":4,"sample_points":36,"confidence":"low","confidence_text":"样本较少（4天、36个点），仅供参考"}}},"guns":["KC17突击步枪","AKS-74U突击步枪","AK-12突击步枪"],"mats":[],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39mm.png"},{"id":"37100500001","name":"5.56x45mm M995","grade":5,"price":4017,"max":4017,"min":3952,"d3":"0.0129","d7":"-0.0411","d30":"-0.2290","pen":5,"trend":"rising","bt":{"granularity_minutes":30,"window_minutes":120,"default_view":"overall","recommended_view_for_today":"weekday","views":{"overall":{"time_range":"08:00-10:00","avg_price":4146,"savings_percent":1.6,"description":"08:00-10:00通常更容易刷出低价，窗口均价约能省1.6%。","sample_days":15,"sample_points":156,"confidence":"medium","confidence_text":"基于近28天内15天、156个样本，数据中等"},"weekday":{"time_range":"08:30-10:30","avg_price":4167,"savings_percent":2.1,"description":"08:30-10:30通常更容易刷出低价，窗口均价约能省2.1%。","sample_days":11,"sample_points":120,"confidence":"medium","confidence_text":"基于近28天内11天、120个样本，数据中等"},"weekend":{"time_range":"20:30-22:30","avg_price":3985,"savings_percent":2.3,"description":"20:30-22:30通常更容易刷出低价，窗口均价约能省2.3%。","sample_days":4,"sample_points":24,"confidence":"low","confidence_text":"样本较少（4天、24个点），仅供参考"}}},"guns":["Mini-14射手步枪","M249轻机枪","CAR-15突击步枪","M16A4突击步枪","SG552突击步枪","AUG突击步枪","M4A1突击步枪","K416突击步枪"],"mats":[],"pic":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"}];
+var FEE_RATES={1:.1,2:.1,3:.13,4:.17,5:.2};
+var GRADE_COLORS={5:"#f59e0b",4:"#a855f7",3:"#3b82f6",2:"#10b981",1:"#6b7280"};
+var GRADE_NAMES={5:"五级",4:"四级",3:"三级",2:"二级",1:"一级"};
+var selected=null,gradeFilter=0,trendFilter="",currentTab="detail";
+var monitors=[];
+var notifGranted=false;
+var LAST_MN={};
+
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+
+// ====== INIT ======
+function init(){
+  bindFilters("#gradeFilter",function(v){gradeFilter=v;renderList();});
+  bindFilters("#trendFilter",function(v){trendFilter=v;renderList();});
+  document.querySelectorAll(".tab-btn").forEach(function(b){
+    b.addEventListener("click",function(){switchTab(this.dataset.tab);});
+  });
+  loadMonitors();
+  checkNotif();
+  renderList();
+  buildCalcBulletSelect();
+  updateTime();
+  if(localStorage.getItem("theme")==="light") toggleTheme();
+  setInterval(function(){checkMonitors();updateTime();},30000);
+}
+
+function bindFilters(id,cb){
+  var val=0;
+  document.querySelectorAll(id+" .filter-btn").forEach(function(b){
+    b.addEventListener("click",function(){
+      var d=this.dataset;
+      val=d.grade?parseInt(d.grade):0;
+      if(d.trend!==undefined) val=d.trend;
+      document.querySelectorAll(id+" .filter-btn").forEach(function(x){x.classList.remove("active");});
+      this.classList.add("active");
+      cb(val);
+    });
+  });
+}
+
+function updateTime(){
+  document.getElementById("updateTime").textContent=new Date().toLocaleTimeString("zh-CN",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+}
+
+// ====== THEME ======
+function toggleTheme(){
+  var isLight=document.documentElement.classList.toggle("light");
+  document.getElementById("themeBtn").textContent=isLight?"☀️":"🌙";
+  localStorage.setItem("theme",isLight?"light":"dark");
+  if(selected) drawChart();
+}
+
+// ====== TABS ======
+function switchTab(tab){
+  currentTab=tab;
+  document.querySelectorAll(".tab-btn").forEach(function(b){b.classList.toggle("active",b.dataset.tab===tab);});
+  document.querySelectorAll(".tab-content").forEach(function(c){c.classList.toggle("active",c.id==="tabContent_"+tab);});
+  if(tab==="calc") buildCalcBulletSelect();
+  if(tab==="monitor") renderMonitors();
+}
+
+// ====== BULLET LIST ======
+function trendIcon(t){
+  if(t==="rising") return "📈";
+  if(t==="falling") return "📉";
+  return "➡️";
+}
+
+function renderList(){
+  var s=document.getElementById("searchInput").value.toLowerCase();
+  var list=BULLETS.filter(function(b){
+    if(gradeFilter&&b.grade!==gradeFilter) return false;
+    if(trendFilter&&b.trend!==trendFilter) return false;
+    if(s&&b.name.toLowerCase().indexOf(s)===-1) return false;
+    return true;
+  });
+  var h="";
+  for(var i=0;i<list.length;i++){
+    var b=list[i];
+    var d3=b.d3?parseFloat(b.d3)*100:0;
+    var cls=d3>0?"up":d3<0?"dn":"";
+    var ct=d3?((d3>0?"+":"")+d3.toFixed(1)+"%"):"";
+    var ac=selected&&selected.id===b.id?" active":"";
+    h+="<div class=\x27bullet-item"+ac+"\x27 data-id=\x27"+b.id+"\x27>";
+    h+="<div class=\x27bullet-left\x27><span class=\x27bullet-name\x27>"+esc(b.name)+"</span>";
+    h+="<span class=\x27bullet-grade\x27 style=\x27background:"+(GRADE_COLORS[b.grade]||"#6b7280")+"20;color:"+(GRADE_COLORS[b.grade]||"#6b7280")+"\x27>"+(GRADE_NAMES[b.grade]||b.grade+"级")+"</span></div>";
+    h+="<div><span class=\x27bullet-price\x27>¥"+(b.price||"-")+"</span>";
+    if(ct) h+="<span class=\x27bullet-change "+cls+"\x27>"+ct+"</span>";
+    h+="</div></div>";
+  }
+  document.getElementById("bulletList").innerHTML=h;
+  document.querySelectorAll(".bullet-item").forEach(function(el){
+    el.addEventListener("click",function(){selectBullet(this.dataset.id);switchTab("detail");document.getElementById("tabDetail").click();});
+  });
+}
+
+function filterBullets(){renderList();}
+
+function selectBullet(id){
+  selected=BULLETS.find(function(b){return b.id===id;});
+  if(!selected){renderList();return;}
+  renderList();
+  renderDetail();
+}
+
+// ====== DETAIL ======
+function renderDetail(){
+  if(!selected) return;
+  var b=selected;
+  var d3=b.d3?parseFloat(b.d3)*100:0;
+  var d7=b.d7?parseFloat(b.d7)*100:0;
+  var d30=b.d30?parseFloat(b.d30)*100:0;
+  var views=b.bt&&b.bt.views;
+  var ov=views&&views.overall;
+  var wd=views&&views.weekday;
+  var we=views&&views.weekend;
+  var guns=b.guns||[];
+  var mats=b.mats||[];
+  var uniqueGuns=[];
+  for(var i=0;i<guns.length;i++){if(uniqueGuns.indexOf(guns[i])===-1) uniqueGuns.push(guns[i]);}
+  var h="";
+  // Price hero
+  h+="<div class=\x27price-hero\x27>";
+  h+="<div><div class=\x27price-label\x27>当前价格</div><div class=\x27price-main\x27>¥"+(b.price||"-")+"</div></div>";
+  h+="<div class=\x27price-range\x27>";
+  h+="<div>今日最低<span style=\x27color:var(--green);font-weight:700\x27>¥"+(b.min||"-")+"</span></div>";
+  h+="<div>今日最高<span style=\x27color:var(--red);font-weight:700\x27>¥"+(b.max||"-")+"</span></div>";
+  h+="</div>";
+  h+="<div style=\x27font-size:24px\x27>"+trendIcon(b.trend)+"</div>";
+  h+="</div>";
+  // Stats
+  h+="<div class=\x27stat-grid\x27>";
+  h+="<div class=\x27stat-box\x27><div class=\x27stat-lbl\x27>3日涨幅</div><div class=\x27stat-val "+(d3>=0?"g":"r")+"\x27>"+(d3>0?"+":"")+d3.toFixed(1)+"%</div></div>";
+  h+="<div class=\x27stat-box\x27><div class=\x27stat-lbl\x27>7日涨幅</div><div class=\x27stat-val "+(d7>=0?"g":"r")+"\x27>"+(d7>0?"+":"")+d7.toFixed(1)+"%</div></div>";
+  h+="<div class=\x27stat-box\x27><div class=\x27stat-lbl\x27>30日涨幅</div><div class=\x27stat-val "+(d30>=0?"g":"r")+"\x27>"+(d30>0?"+":"")+d30.toFixed(1)+"%</div></div>";
+  h+="<div class=\x27stat-box\x27><div class=\x27stat-lbl\x27>穿透等级</div><div class=\x27stat-val y\x27>"+(b.pen||"-")+"</div></div>";
+  h+="</div>";
+  // Chart canvas
+  h+="<div class=\x27chart-wrap\x27><canvas id=\x27priceChart\x27></canvas></div>";
+  // Best time
+  var hasBt=ov&&ov.time_range;
+  if(hasBt){
+    h+="<div class=\x27section-title\x27>⏰ 最佳购买时段</div>";
+    h+="<div class=\x27time-block\x27>";
+    h+="<div class=\x27time-row\x27><span>综合时段</span><strong>"+esc(ov.time_range)+"</strong></div>";
+    h+="<div class=\x27time-row\x27><span>综合均价</span><strong>¥"+ov.avg_price+"</strong></div>";
+    h+="<div class=\x27time-row\x27 style=\x27font-size:9px;color:var(--muted)\x27>"+esc(ov.confidence_text||"")+"</div>";
+    h+="</div>";
+    if(wd&&wd.time_range){
+      h+="<div class=\x27time-block\x27>";
+      h+="<div class=\x27time-row\x27><span>工作日最佳</span><strong>"+esc(wd.time_range)+"</strong></div>";
+      h+="<div class=\x27time-row\x27><span>工作日均价</span><strong>¥"+wd.avg_price+"</strong></div>";
+      h+="</div>";
+    }
+    if(we&&we.time_range){
+      h+="<div class=\x27time-block\x27>";
+      h+="<div class=\x27time-row\x27><span>周末最佳</span><strong>"+esc(we.time_range)+"</strong></div>";
+      h+="<div class=\x27time-row\x27><span>周末均价</span><strong>¥"+we.avg_price+"</strong></div>";
+      h+="</div>";
+    }
+  }
+  // Guns
+  if(uniqueGuns.length>0){
+    h+="<div class=\x27section-title\x27>🔫 适用枪械 ("+uniqueGuns.length+"款)</div><div class=\x27gun-list\x27>";
+    for(var i=0;i<uniqueGuns.length;i++) h+="<span class=\x27gun-tag\x27>"+esc(uniqueGuns[i])+"</span>";
+    h+="</div>";
+  }
+  // Mats
+  if(mats.length>0){
+    h+="<div class=\x27section-title\x27>📦 可兑换材料</div><div class=\x27mat-list\x27>";
+    for(var i=0;i<Math.min(mats.length,12);i++) h+="<span class=\x27mat-tag\x27>"+esc(mats[i])+"</span>";
+    h+="</div>";
+  }
+  // Add monitor button
+  h+="<div style=\x27margin-top:12px;text-align:center\x27>";
+  h+="<button class=\x27btn\x27 onclick=\x27addMonitorFromSelected()\x27>🔔 添加价格监控</button>";
+  h+="</div>";
+  document.getElementById("detailArea").innerHTML=h;
+  setTimeout(drawChart,50);
+}
+
+// ====== CHART ======
+function drawChart(){
+  var c=document.getElementById("priceChart");
+  if(!c) return;
+  var b=selected;
+  if(!b) return;
+  var dpr=window.devicePixelRatio||1;
+  var w=c.parentElement.clientWidth-20;
+  var h=180;
+  c.width=w*dpr; c.height=h*dpr;
+  c.style.width=w+"px"; c.style.height=h+"px";
+  var ctx=c.getContext("2d");
+  ctx.scale(dpr,dpr);
+  var isLight=document.documentElement.classList.contains("light");
+  var fg=isLight?"#1e293b":"#dde6ef";
+  var mg=isLight?"#94a3b8":"#5a6d7e";
+  var gr=isLight?"#e2e8f0":"#1e2d40";
+  var pad={t:30,r:20,b:40,l:60};
+  var cw=w-pad.l-pad.r,ch=h-pad.t-pad.b;
+  if(cw<=0||ch<=0) return;
+  // --- Today's range gauge (top half) ---
+  var mn=parseFloat(b.min)||0,mx=parseFloat(b.max)||0,pr=parseFloat(b.price)||0;
+  if(mx>0&&mn>0&&mx>mn){
+    var gy=pad.t+5,gh=Math.floor(ch*.45);
+    // Range bar
+    var rw=cw-10;
+    var rx=pad.l+5;
+    var ry=gy+25;
+    var rh=14;
+    var grad=ctx.createLinearGradient(rx,0,rx+rw,0);
+    grad.addColorStop(0,"#10b981");
+    grad.addColorStop(.5,"#f59e0b");
+    grad.addColorStop(1,"#ef4444");
+    ctx.fillStyle=grad;
+    roundedRect(ctx,rx,ry,rw,rh,7);
+    ctx.fill();
+    // Price marker
+    var pct=(pr-mn)/(mx-mn);
+    var px=rx+pct*rw;
+    ctx.beginPath(); ctx.moveTo(px,ry-6); ctx.lineTo(px-5,ry-14); ctx.lineTo(px+5,ry-14); ctx.closePath();
+    ctx.fillStyle="#fff"; ctx.fill();
+    ctx.fillStyle=fg; ctx.font="bold 11px system-ui"; ctx.textAlign="center";
+    ctx.fillText("¥"+pr,px,ry-18);
+    // Labels
+    ctx.fillStyle=mg; ctx.font="9px system-ui"; ctx.textAlign="left";
+    ctx.fillText("¥"+mn,rx,ry-2);
+    ctx.textAlign="right";
+    ctx.fillText("¥"+mx,rx+rw,ry-2);
+    ctx.textAlign="center";
+    ctx.fillStyle=mg; ctx.font="bold 10px system-ui";
+    ctx.fillText("今日价格区间 (最低 → 最高)",rx+rw/2,gy+8);
+  }
+  // --- 3/7/30 day change bars (bottom half) ---
+  var d3=b.d3?parseFloat(b.d3)*100:0;
+  var d7=b.d7?parseFloat(b.d7)*100:0;
+  var d30=b.d30?parseFloat(b.d30)*100:0;
+  var maxAbs=Math.max(Math.abs(d3),Math.abs(d7),Math.abs(d30),1);
+  var by=h-pad.b-5,bh=ch*.45;
+  var items=[{l:"3日",v:d3},{l:"7日",v:d7},{l:"30日",v:d30}];
+  var barW=Math.min(Math.floor(cw/items.length*.5),28);
+  var gap=(cw-items.length*barW)/(items.length+1);
+  var bx=pad.l+gap;
+  for(var i=0;i<items.length;i++){
+    var it=items[i];
+    var hh=Math.abs(it.v)/maxAbs*bh;
+    if(hh<2) hh=2;
+    var by0=it.v>=0?by-hh:by;
+    ctx.fillStyle=it.v>=0?"#10b981":"#ef4444";
+    roundedRect(ctx,bx,by0,barW,hh,4);
+    ctx.fill();
+    // Label below
+    ctx.fillStyle=fg; ctx.font="bold 10px system-ui"; ctx.textAlign="center";
+    ctx.fillText((it.v>=0?"+":"")+it.v.toFixed(1)+"%",bx+barW/2,it.v>=0?by0-8:by0+hh+16);
+    ctx.fillStyle=mg; ctx.font="9px system-ui";
+    ctx.fillText(it.l,bx+barW/2,h-pad.b+5);
+    bx+=barW+gap;
+  }
+  // Zero line
+  ctx.strokeStyle=gr; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(pad.l,by); ctx.lineTo(pad.l+cw,by); ctx.stroke();
+}
+
+function roundedRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y);
+  ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);
+  ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);
+  ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
+}
+
+// ====== CALCULATOR ======
+function buildCalcBulletSelect(){
+  var sel=document.getElementById("calcBullet");
+  if(!sel) return;
+  var cur=sel.value;
+  sel.innerHTML="<option value=\x27\x27>手动输入</option>";
+  for(var i=0;i<BULLETS.length;i++){
+    var b=BULLETS[i];
+    var gname=GRADE_NAMES[b.grade]||b.grade+"级";
+    sel.innerHTML+="<option value=\x27"+b.id+"\x27>"+esc(b.name)+" ["+gname+" ¥"+b.price+"]</option>";
+  }
+  sel.value=cur;
+  if(!cur&&selected) sel.value=selected.id;
+}
+
+function onCalcBullet(){
+  var id=document.getElementById("calcBullet").value;
+  if(!id){calc();return;}
+  var b=BULLETS.find(function(x){return x.id===id;});
+  if(!b){calc();return;}
+  document.getElementById("buyPrice").value=b.price||"";
+  document.getElementById("calcGrade").value=b.grade||4;
+  calc();
+}
+
+function calc(){
+  var buy=parseFloat(document.getElementById("buyPrice").value)||0;
+  var sell=parseFloat(document.getElementById("sellPrice").value)||0;
+  var qty=parseInt(document.getElementById("qty").value)||0;
+  var grade=parseInt(document.getElementById("calcGrade").value)||4;
+  var fee=FEE_RATES[grade]||.17;
+  var buyTotal=buy*qty;
+  var buyFee=Math.floor(buyTotal*fee);
+  var cost=buyTotal+buyFee;
+  var sellTotal=sell*qty;
+  var sellFee=Math.floor(sellTotal*fee);
+  var profit=sellTotal-sellFee-cost;
+  var rate=cost>0?(profit/cost*100).toFixed(1):0;
+  document.getElementById("rBuyTotal").textContent="¥"+buyTotal.toLocaleString();
+  document.getElementById("rBuyFee").textContent="¥"+buyFee.toLocaleString();
+  document.getElementById("rSellTotal").textContent="¥"+sellTotal.toLocaleString();
+  document.getElementById("rSellFee").textContent="¥"+sellFee.toLocaleString();
+  document.getElementById("rProfit").textContent=(profit>=0?"+":"")+"¥"+profit.toLocaleString();
+  document.getElementById("rProfit").style.color=profit>=0?"var(--green)":"var(--red)";
+  document.getElementById("rRate").textContent=rate+"%";
+  document.getElementById("rRate").style.color=profit>=0?"var(--green)":"var(--red)";
+}
+
+// ====== MONITOR & NOTIFICATIONS ======
+function addMonitorFromSelected(){
+  if(!selected) return;
+  var id=selected.id;
+  // Check dup
+  for(var i=0;i<monitors.length;i++){if(monitors[i].bulletId===id){showToast("⚠️ 已添加过该子弹的监控");return;}}
+  monitors.push({
+    bulletId:id,
+    name:selected.name,
+    grade:selected.grade,
+    targetBuy:selected.price?Math.floor(selected.price*.9):0,
+    targetSell:selected.price?Math.floor(selected.price*1.15):0,
+    lastPrice:selected.price||0,
+    enabled:true,
+    alertedAt:0
+  });
+  saveMonitors();
+  showToast("✅ 已为 "+selected.name+" 添加价格监控");
+  renderMonitors();
+}
+
+function removeMonitor(idx){
+  var m=monitors[idx];
+  monitors.splice(idx,1);
+  saveMonitors();
+  showToast("🗑️ 已移除 "+m.name+" 监控");
+  renderMonitors();
+}
+
+function toggleMonitor(idx){
+  monitors[idx].enabled=!monitors[idx].enabled;
+  saveMonitors();
+  renderMonitors();
+}
+
+function updateMonitorTarget(idx,field,val){
+  monitors[idx][field]=parseInt(val)||0;
+  saveMonitors();
+  renderMonitors();
+}
+
+function saveMonitors(){
+  localStorage.setItem("monitors",JSON.stringify(monitors));
+}
+
+function loadMonitors(){
+  try{var m=JSON.parse(localStorage.getItem("monitors")||"[]");monitors=m;}catch(e){monitors=[];}
+}
+
+function getBullet(id){return BULLETS.find(function(b){return b.id===id;});}
+
+function renderMonitors(){
+  var list=document.getElementById("monitorList");
+  var cnt=document.getElementById("monitorCount");
+  if(!list) return;
+  cnt.textContent="已添加 "+monitors.length+" 个监控";
+  if(monitors.length===0){
+    list.innerHTML="<div class=\x27empty\x27>暂无监控<br><span style=\x27font-size:11px\x27>在行情详情页点击 +添加价格监控 来设置提醒</span></div>";
+    return;
+  }
+  var h="";
+  for(var i=0;i<monitors.length;i++){
+    var m=monitors[i];
+    var b=getBullet(m.bulletId);
+    var curPrice=b?b.price:m.lastPrice;
+    h+="<div class=\x27monitor-item\x27>";
+    h+="<div class=\x27monitor-info\x27>";
+    h+="<div class=\x27monitor-name\x27>"+esc(m.name)+" <span style=\x27font-size:9px;color:var(--muted)\x27>"+(GRADE_NAMES[m.grade]||"")+" ¥"+curPrice+"</span></div>";
+    h+="<div>抄底≤<span class=\x27monitor-target\x27>¥"+m.targetBuy+"</span> | 出货≥<span class=\x27monitor-target\x27>¥"+m.targetSell+"</span></div>";
+    h+="</div>";
+    h+="<div class=\x27monitor-actions\x27>";
+    h+="<span class=\x27badge "+(m.enabled?"badge-on":"badge-off")+"\x27 style=\x27cursor:pointer\x27 onclick=\x27toggleMonitor("+i+")\x27>"+(m.enabled?"▶ 启用":"⏸ 暂停")+"</span>";
+    h+="<button class=\x27btn btn-sm\x27 onclick=\x27removeMonitor("+i+")\x27>✕</button>";
+    h+="</div>";
+    h+="</div>";
+  }
+  list.innerHTML=h;
+}
+
+function checkMonitors(){
+  if(monitors.length===0) return;
+  var now=Date.now();
+  for(var i=0;i<monitors.length;i++){
+    var m=monitors[i];
+    if(!m.enabled) continue;
+    // Cooldown: 10 min between alerts for same bullet
+    if(now-m.alertedAt<600000) continue;
+    var b=getBullet(m.bulletId);
+    if(!b||!b.price) continue;
+    var p=parseFloat(b.price);
+    var prev=LAST_MN[m.bulletId]||p;
+    LAST_MN[m.bulletId]=p;
+    var msg="";
+    if(p<=m.targetBuy&&m.targetBuy>0){
+      msg="📉 "+m.name+" 跌至 ¥"+p+"（抄底目标 ¥"+m.targetBuy+"）";
+    }else if(p>=m.targetSell&&m.targetSell>0){
+      msg="📈 "+m.name+" 涨至 ¥"+p+"（出货目标 ¥"+m.targetSell+"）";
+    }
+    if(!msg) continue;
+    m.alertedAt=now;
+    saveMonitors();
+    showToast(msg);
+    if(notifGranted){
+      try{new Notification("子弹交易提醒",{body:msg,icon:"🎯"});}catch(e){}
+    }
+  }
+}
+
+function checkNotif(){
+  if(!("Notification" in window)) return;
+  if(Notification.permission==="granted"){notifGranted=true;updateNotifBadge();}
+}
+
+function requestNotif(){
+  if(!("Notification" in window)){showToast("⚠️ 浏览器不支持通知");return;}
+  if(Notification.permission==="granted"){notifGranted=true;showToast("✅ 浏览器通知已开启");updateNotifBadge();return;}
+  if(Notification.permission==="denied"){showToast("⚠️ 通知权限已被拒绝，请在浏览器设置中修改");return;}
+  Notification.requestPermission().then(function(p){
+    if(p==="granted"){notifGranted=true;showToast("✅ 浏览器通知已开启");}
+    updateNotifBadge();
+  });
+}
+
+function updateNotifBadge(){
+  var el=document.getElementById("notifStatus");
+  if(!el) return;
+  if(notifGranted){el.textContent="通知: 已授权";el.className="badge badge-on";}
+  else{el.textContent="通知: 未授权";el.className="badge badge-off";}
+}
+
+// ====== UTILS ======
+function refreshData(){
+  updateTime();
+  checkMonitors();
+  if(monitors.length>0) renderMonitors();
+  showToast("✅ 数据已刷新 "+new Date().toLocaleTimeString("zh-CN",{hour:"2-digit",minute:"2-digit"}));
+}
+
+function showToast(msg){
+  var t=document.getElementById("toast");
+  t.textContent=msg;
+  t.classList.add("show");
+  clearTimeout(t._tid);
+  t._tid=setTimeout(function(){t.classList.remove("show");},2500);
+}
+
+// ====== START ======
+init();
+
+</script>
 </body>
 </html>
