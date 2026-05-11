@@ -1,0 +1,1114 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>三角洲行动 · 交易助手 V8.1.1</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+
+:root{
+  --bg:#0d1117; --card:#161b22; --card2:#1c2333; --border:#30363d; --text:#e6edf3;
+  --muted:#7d8590; --accent:#18a058; --accent2:#1f6feb; --red:#f85149; --yellow:#d2991d;
+  --purple:#a371f7; --orange:#db6d28; --grad1:linear-gradient(135deg,#161b22,#1c2333);
+  --shadow:0 2px 8px rgba(0,0,0,0.3); --radius:10px;
+}
+:root.light{
+  --bg:#f6f8fa; --card:#fff; --card2:#f0f2f5; --border:#d0d7de; --text:#1f2328;
+  --muted:#656d76; --accent:#1a7f37; --accent2:#0969da; --shadow:0 1px 4px rgba(0,0,0,0.08);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font:14px/1.5 'Segoe UI','HarmonyOS Sans','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.app{max-width:1500px;margin:0 auto;padding:10px 14px}
+
+/* Header */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);margin-bottom:10px;flex-wrap:wrap;gap:8px}
+.topbar h1{font-size:18px;font-weight:700;color:var(--accent);white-space:nowrap}
+.topbar h1 span{color:var(--text);font-weight:400;font-size:13px;margin-left:6px}
+.topbar-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.btn{
+  background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--text);
+  padding:5px 12px;font-size:12px;cursor:pointer;transition:all 0.15s;white-space:nowrap;
+  display:inline-flex;align-items:center;gap:4px;
+}
+.btn:hover{background:var(--card2);border-color:var(--accent);color:var(--accent)}
+.btn.accent{background:rgba(24,160,88,0.12);border-color:var(--accent);color:var(--accent)}
+.btn.danger{background:rgba(248,81,73,0.1);border-color:var(--red);color:var(--red)}
+.btn.sm{padding:3px 8px;font-size:10px}
+.theme-btn{width:32px;height:32px;padding:0;justify-content:center;font-size:15px;border-radius:8px}
+.status-dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.status-dot.live{background:var(--accent);box-shadow:0 0 6px var(--accent)}
+.status-dot.stale{background:var(--yellow)}
+.status-dot.off{background:var(--red)}
+.status-text{font-size:11px;color:var(--muted)}
+
+/* Layout */
+.main-grid{display:grid;grid-template-columns:56px 300px 1fr;gap:10px}
+@media(max-width:960px){.main-grid{grid-template-columns:1fr}}
+
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;box-shadow:var(--shadow)}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.card-title{font-size:13px;font-weight:700;color:var(--text)}
+
+/* Sidebar */
+.sidebar{display:flex;flex-direction:column;gap:8px}
+.search-wrap{position:relative}
+.search-wrap input{
+  width:100%;background:var(--card2);border:1px solid var(--border);border-radius:8px;
+  padding:8px 10px 8px 30px;color:var(--text);font-size:12px;outline:none
+}
+.search-wrap input:focus{border-color:var(--accent)}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px}
+.filter-row{display:flex;flex-wrap:wrap;gap:3px}
+.tag{
+  padding:3px 9px;border-radius:12px;font-size:10px;cursor:pointer;border:1px solid var(--border);
+  background:transparent;color:var(--muted);transition:all 0.15s;white-space:nowrap
+}
+.tag:hover{border-color:var(--accent);color:var(--text)}
+.tag.active{background:rgba(24,160,88,0.12);border-color:var(--accent);color:var(--accent)}
+.sort-row{display:flex;gap:4px;flex-wrap:wrap}
+.sort-btn{padding:2px 7px;font-size:10px;border-radius:4px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted)}
+.sort-btn.active{background:rgba(31,111,235,0.1);border-color:var(--accent2);color:var(--accent2)}
+
+.bullet-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:3px;max-height:calc(100vh - 290px)}
+.bullet-list::-webkit-scrollbar{width:4px}
+.bullet-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.bullet-item{
+  display:flex;align-items:center;justify-content:space-between;padding:6px 8px;
+  border-radius:6px;cursor:pointer;border:1px solid transparent;transition:all 0.12s;font-size:11px
+}
+.bullet-item:hover{background:var(--card2)}
+.bullet-item.active{background:rgba(24,160,88,0.08);border-color:var(--accent)}
+.b-name{font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.b-grade{padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700;margin-right:6px;flex-shrink:0}
+.g1{color:#9ca3af;border:1px solid #4b5563}
+.g2{color:#4ade80;border:1px solid #166534}
+.g3{color:#60a5fa;border:1px solid #1e40af}
+.g4{color:#a78bfa;border:1px solid #5b21b6}
+.g5{color:#fbbf24;border:1px solid #92400e}
+.b-price{font-weight:600;font-size:11px;color:var(--yellow);margin-left:6px;flex-shrink:0}
+.b-trend{font-size:9px;margin-left:4px;flex-shrink:0}
+
+/* Tabs */
+.tabs{display:flex;gap:2px;overflow-x:auto}
+.tab{
+  padding:6px 16px;border-radius:8px 8px 0 0;font-size:12px;cursor:pointer;
+  background:var(--card);border:1px solid var(--border);border-bottom:none;color:var(--muted)
+}
+.tab.active{background:var(--card2);color:var(--accent);font-weight:600;border-color:var(--accent);border-bottom:2px solid var(--accent);margin-bottom:-2px}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* Detail */
+.detail-wrap{padding-top:8px}
+.price-hero{
+  background:linear-gradient(135deg,rgba(24,160,88,0.06),rgba(31,111,235,0.04));
+  border:1px solid rgba(24,160,88,0.15);border-radius:var(--radius);padding:14px;
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:10px
+}
+.p-hero-img{width:56px;height:56px;border-radius:8px;object-fit:contain;background:var(--card2);border:1px solid var(--border)}
+.p-hero-info{flex:1;min-width:140px}
+.p-hero-name{font-size:15px;font-weight:700;margin-bottom:2px}
+.p-hero-meta{font-size:11px;color:var(--muted)}
+.p-hero-price{text-align:right}
+.p-price-big{font-size:26px;font-weight:900;color:var(--yellow);font-family:'Cascadia Code','Courier New',monospace}
+.p-price-lbl{font-size:10px;color:var(--muted)}
+
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+@media(max-width:600px){.stat-row{grid-template-columns:repeat(2,1fr)}}
+.stat-card{
+  background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;text-align:center
+}
+.stat-lbl{font-size:9px;color:var(--muted);margin-bottom:3px}
+.stat-val{font-size:15px;font-weight:700;font-family:'Cascadia Code','Courier New',monospace}
+.stat-sub{font-size:9px;color:var(--muted);margin-top:1px}
+.up{color:var(--accent)}.dn{color:var(--red)}.st{color:var(--yellow)}
+
+.chart-box{height:240px;margin-bottom:10px}
+
+.section-title{
+  font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;
+  letter-spacing:0.5px;margin:12px 0 8px;display:flex;align-items:center;gap:8px
+}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.time-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+@media(max-width:600px){.time-grid{grid-template-columns:repeat(2,1fr)}}
+.time-card{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px}
+.time-card h4{font-size:10px;color:var(--muted);margin-bottom:3px}
+.time-card .t-val{font-size:13px;font-weight:700;color:var(--accent)}
+.time-card .t-det{font-size:9px;color:var(--muted)}
+
+.suggest-box{
+  background:rgba(24,160,88,0.06);border:1px solid rgba(24,160,88,0.15);
+  border-radius:8px;padding:10px 12px;font-size:12px;margin-bottom:10px
+}
+.suggest-box strong{color:var(--accent)}
+
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.info-row{display:flex;justify-content:space-between;font-size:11px;padding:4px 0;border-bottom:1px solid var(--border)}
+.info-row span{color:var(--muted)}
+.info-row strong{color:var(--text)}
+.tag-row{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.itag{padding:2px 7px;border-radius:4px;font-size:10px}
+.itag.blue{background:rgba(31,111,235,0.1);color:var(--accent2);border:1px solid rgba(31,111,235,0.2)}
+.itag.purple{background:rgba(163,113,247,0.1);color:var(--purple);border:1px solid rgba(163,113,247,0.2)}
+.itag.orange{background:rgba(219,109,40,0.1);color:var(--orange);border:1px solid rgba(219,109,40,0.2)}
+
+/* Alerts */
+.alert-card{
+  background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px;
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:6px
+}
+.alert-card.crit{border-color:var(--red)}
+.alert-card.warn{border-color:var(--yellow)}
+.alert-card.info{border-color:var(--accent2)}
+.alert-msg{font-size:12px;flex:1}
+.alert-obj{font-weight:600}
+.alert-dir{font-size:10px;color:var(--muted)}
+.alert-act{font-size:10px;padding:3px 8px;border-radius:4px;cursor:pointer}
+
+/* Calculator */
+.calc-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+@media(max-width:600px){.calc-row{grid-template-columns:1fr}}
+.calc-field{margin-bottom:8px}
+.calc-field label{display:block;font-size:10px;color:var(--muted);margin-bottom:3px}
+.calc-input{
+  display:flex;align-items:center;background:var(--card2);border:1px solid var(--border);border-radius:6px
+}
+.calc-input input{
+  flex:1;background:transparent;border:none;outline:none;color:var(--text);
+  padding:7px 9px;font-size:13px;font-family:'Cascadia Code','Courier New',monospace
+}
+.calc-input .unit{padding:0 8px;font-size:10px;color:var(--muted);border-left:1px solid var(--border)}
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.res-card{
+  background:var(--card2);border:1px solid var(--border);border-radius:8px;
+  padding:10px;text-align:center
+}
+.res-lbl{font-size:10px;color:var(--muted);margin-bottom:2px}
+.res-val{font-size:18px;font-weight:800;font-family:'Cascada Code','Courier New',monospace}
+.res-val.g{color:var(--accent)}.res-val.r{color:var(--red)}.res-val.y{color:var(--yellow)}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:999;
+  background:var(--card);border:1px solid var(--border);border-radius:8px;
+  padding:10px 18px;font-size:12px;opacity:0;pointer-events:none;transition:opacity 0.2s;
+  box-shadow:0 4px 20px rgba(0,0,0,0.3)
+}
+.toast.on{opacity:1}
+.toast.err{border-color:var(--red)}
+
+/* Loading */
+.spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.6s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.empty{text-align:center;padding:40px;color:var(--muted);font-size:13px}
+.empty-icon{font-size:40px;margin-bottom:8px}
+
+
+/* Category Bar */
+.cat-bar{display:flex;flex-direction:column;gap:4px;padding:6px 4px;background:var(--card);border:1px solid var(--border);border-radius:10px;height:fit-content;position:sticky;top:10px;width:48px}
+.cat-btn{width:40px;height:36px;border-radius:6px;border:1px solid transparent;cursor:pointer;background:transparent;color:var(--muted);font-size:16px;transition:all 0.15s;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative}
+.cat-btn:hover{background:var(--card2);border-color:var(--border);color:var(--text)}
+.cat-btn.active{background:rgba(24,160,88,0.15);border-color:var(--accent);color:var(--accent)}
+.cat-btn .c-tip{font-size:7px;font-weight:700;margin-top:1px;line-height:1.1}
+.cat-btn .c-count{position:absolute;top:-3px;right:-3px;background:var(--accent);color:#fff;font-size:7px;font-weight:700;border-radius:6px;padding:0 3px;min-width:12px;display:none}
+.cat-btn.active .c-count{display:block}
+.cat-sep{height:1px;background:var(--border);margin:2px 4px}
+@media(max-width:1000px){.cat-bar{flex-direction:row;flex-wrap:wrap;width:auto;border-radius:8px;position:static}.cat-sep{width:1px;height:28px;margin:4px 2px}}
+/* Sidebar title */
+.sidebar-title{font-size:10px;color:var(--muted);padding:2px 6px 0;font-weight:600;letter-spacing:0.5px}
+.sidebar-title span{color:var(--accent)}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <h1>🎯 三角洲行动<span>· 子弹交易助手 V8.1</span></h1>
+    <div class="topbar-right" id="statusBar">
+      <span class="status-dot off" id="apiDot"></span>
+      <span class="status-text" id="apiStatus">离线模式</span>
+      <button class="btn sm" onclick="doRefresh()" title="刷新数据" id="refreshBtn">🔄 刷新</button>
+      <button class="btn sm theme-btn" onclick="toggleTheme()" title="切换主题">🌓</button>
+    <button class="btn sm" id="langBtn" onclick="toggleLang()" title="切换语言 / Switch Language" style="font-weight:700;letter-spacing:0.5px">EN</button></div>
+  </div>
+
+  <div class="main-grid">
+    
+    <!-- Category Bar -->
+    <div class="cat-bar" id="catBar">
+      <button class="cat-btn active" data-cat="ammo" onclick="switchCat('ammo')" title="子弹"><span>🔫</span><span class="c-tip">子弹</span><span class="c-count" style="display:block">88</span></button>
+      <div class="cat-sep"></div>
+      <button class="cat-btn" data-cat="helmet" onclick="switchCat('helmet')" title="头盔"><span>⛑️</span><span class="c-tip">头盔</span><span class="c-count">27</span></button>
+      <button class="cat-btn" data-cat="armor" onclick="switchCat('armor')" title="护甲"><span>🛡️</span><span class="c-tip">护甲</span><span class="c-count">26</span></button>
+      <button class="cat-btn" data-cat="rig" onclick="switchCat('rig')" title="胸挂"><span>👕</span><span class="c-tip">胸挂</span><span class="c-count">19</span></button>
+      <button class="cat-btn" data-cat="backpack" onclick="switchCat('backpack')" title="背包"><span>🎒</span><span class="c-tip">背包</span><span class="c-count">26</span></button>
+      <button class="cat-btn" data-cat="barrel" onclick="switchCat('barrel')" title="枪管"><span>🔧</span><span class="c-tip">枪管</span><span class="c-count">149</span></button>
+      <button class="cat-btn" data-cat="grip" onclick="switchCat('grip')" title="后握把"><span>✋</span><span class="c-tip">握把</span><span class="c-count">3</span></button>
+      <div class="cat-sep"></div>
+      <button class="cat-btn" data-cat="keycard" onclick="switchCat('keycard')" title="钥匙卡"><span>🔑</span><span class="c-tip">钥匙卡</span><span class="c-count">10</span></button>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-title" id="sidebarTitle"><span>🔫</span> 子弹</div>
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="搜索子弹名称... / Search bullets..." oninput="applyFilters()" id="searchInput">
+      </div>
+      <div class="filter-row" id="gradeFilters">
+        <span class="tag active" data-g="all" onclick="setGrade('all')">全部 88</span>
+        <span class="tag" data-g="5" onclick="setGrade('5')">G5 五级</span>
+        <span class="tag" data-g="4" onclick="setGrade('4')">G4 四级</span>
+        <span class="tag" data-g="3" onclick="setGrade('3')">G3 三级</span>
+        <span class="tag" data-g="2" onclick="setGrade('2')">G2 二级</span>
+        <span class="tag" data-g="1" onclick="setGrade('1')">G1 一级</span>
+      </div>
+      <div class="filter-row" id="trendFilters">
+        <span class="tag" data-t="all" onclick="setTrend('all')">全部趋势</span>
+        <span class="tag" data-t="rising" onclick="setTrend('rising')">📈 上涨</span>
+        <span class="tag" data-t="stable" onclick="setTrend('stable')">➡️ 平稳</span>
+        <span class="tag" data-t="falling" onclick="setTrend('falling')">📉 下跌</span>
+      </div>
+      <div class="sort-row">
+        <button class="sort-btn active" data-s="default" onclick="setSort('default')">默认</button>
+        <button class="sort-btn" data-s="price-desc" onclick="setSort('price-desc')">价格↓</button>
+        <button class="sort-btn" data-s="price-asc" onclick="setSort('price-asc')">价格↑</button>
+        <button class="sort-btn" data-s="name" onclick="setSort('name')">名称</button>
+      </div>
+      <div class="bullet-list" id="bulletList">
+        <div class="empty"><div class="empty-icon">📋</div>加载中...</div>
+      </div>
+    </div>
+
+    <!-- Main -->
+    <div>
+      <div class="tabs" id="tabBar">
+        <button class="tab active" data-tab="detail" onclick="switchTab('detail')">📊 详情分析</button>
+        <button class="tab" data-tab="alerts" onclick="switchTab('alerts')">🔔 市场预警</button>
+        <button class="tab" data-tab="calc" onclick="switchTab('calc')">🧮 收益计算</button>
+        <button class="tab" data-tab="info" onclick="switchTab('info')">ℹ️ 关于</button>
+      </div>
+
+      <!-- Detail Tab -->
+      <div class="tab-panel active" id="panel-detail">
+        <div class="detail-wrap" id="detailArea">
+          <div class="empty"><div class="empty-icon">👆</div>选择一颗子弹查看详情</div>
+        </div>
+      </div>
+
+      <!-- Alerts Tab -->
+      <div class="tab-panel" id="panel-alerts">
+        <div class="card" style="margin-top:8px">
+          <div class="card-header"><span class="card-title">🔔 市场预警</span></div>
+          <div id="alertsArea"><div class="empty"><div class="empty-icon">🔔</div>点击刷新获取预警</div></div>
+        </div>
+      </div>
+
+      <!-- Calculator Tab -->
+      <div class="tab-panel" id="panel-calc">
+        <div class="card" style="margin-top:8px" id="calcArea">
+          <div class="card-header"><span class="card-title">🧮 收益计算器</span></div>
+          <div class="calc-row">
+            <div class="calc-field">
+              <label>买入单价 (¥)</label>
+              <div class="calc-input"><input type="number" id="calcBuy" placeholder="0" oninput="recalc()"><span class="unit">¥</span></div>
+            </div>
+            <div class="calc-field">
+              <label>卖出单价 (¥)</label>
+              <div class="calc-input"><input type="number" id="calcSell" placeholder="0" oninput="recalc()"><span class="unit">¥</span></div>
+            </div>
+          </div>
+          <div class="calc-row">
+            <div class="calc-field">
+              <label>子弹等级</label>
+              <div class="calc-input"><input type="number" id="calcGrade" placeholder="1-5" min="1" max="5" value="5" oninput="recalc()"><span class="unit">G</span></div>
+            </div>
+            <div class="calc-field">
+              <label>交易数量</label>
+              <div class="calc-input"><input type="number" id="calcQty" placeholder="1" value="1" oninput="recalc()"><span class="unit">颗</span></div>
+            </div>
+          </div>
+          <div class="result-grid">
+            <div class="res-card"><div class="res-lbl">买入总额</div><div class="res-val" id="resBuy">¥0</div></div>
+            <div class="res-card"><div class="res-lbl">手续费</div><div class="res-val r" id="resFee">¥0</div></div>
+            <div class="res-card"><div class="res-lbl">净利润</div><div class="res-val g" id="resProfit">¥0</div></div>
+          </div>
+          <div style="margin-top:8px;font-size:10px;color:var(--muted)">
+            手续费率：G1/G2=10% G3=13% G4=17% G5=20%
+          </div>
+        </div>
+      </div>
+
+      <!-- Info Tab -->
+      <div class="tab-panel" id="panel-info">
+        <div class="card" style="margin-top:8px">
+          <div class="card-header"><span class="card-title">ℹ️ 关于</span></div>
+          <div style="font-size:12px;line-height:1.8">
+            <p><strong>数据来源</strong>：dfhub.cn 实时 API</p>
+            <p><strong>加密方式</strong>：AES-256-GCM + HMAC-SHA256 签名</p>
+            <p><strong>刷新频率</strong>：每次刷新拉取全量 88 颗子弹数据</p>
+            <p><strong>版本</strong>：V8.1 — 升级于 2026-05-11</p>
+            <p style="margin-top:8px;color:var(--muted)">
+              共 88 颗子弹 | G1:7 G2:12 G3:26 G4:25 G5:18 | 价格区间 ¥35 ~ ¥8666<br>V8.1 新增：简体中文 / English 语言切换
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+
+
+<script>
+// ─── Global State ───
+var ST = {
+  bullets: [], selectedIdx: -1, grade: 'all', trend: 'all', sort: 'default',
+  theme: 'dark', lang: 'zh', apiOk: false, token: null, drift: 0, alerts: [], chart: null
+};
+
+// ═══════════════════════════════════════════════
+//  I18N
+// ═══════════════════════════════════════════════
+var I18N = {
+  zh: {
+    title: '三角洲行动 · 子弹交易助手 V8.1',
+    conn: '正在连接...', offline: '离线模式', offlineCache: '离线 · 使用缓存数据',
+    live: '实时在线 · ', liveAuto: ' | 自动刷新', bullets: '颗', bullet: '颗子弹',
+    refresh: '刷新', refreshTitle: '刷新数据', themeTitle: '切换主题', langTitle: '切换语言',
+    search: '搜索子弹名称...', allG: '全部', g5: 'G5 五级', g4: 'G4 四级', g3: 'G3 三级',
+    g2: 'G2 二级', g1: 'G1 一级', allT: '全部趋势', rising: '📈 上涨', stable: '➡️ 平稳',
+    falling: '📉 下跌', sortD: '默认', sortPD: '价格↓', sortPA: '价格↑', sortN: '名称',
+    tabDetail: '📊 详情分析', tabAlerts: '🔔 市场预警', tabCalc: '🧮 收益计算', tabInfo: 'ℹ️ 关于',
+    loading: '加载中...', noMatch: '没有匹配的子弹', selBullet: '选择一颗子弹查看详情',
+    bestBuy: '最佳购买时段', trend: '趋势', pen: '穿透力', penLevel: '穿透等级', caliber: '口径',
+    unknown: '未知', penLv: '等级 ', bestTimes: '⏰ 最佳购买时段', overall: '综合', weekday: '工作日',
+    weekend: '周末', priceChart: '📊 价格走势', bulletInfo: '📋 子弹信息', oid: 'Object ID',
+    gradeCaliber: '等级 / 口径', latestPrice: '最新价格', priceUpdate: '价格更新时间',
+    analysisTitle: '📈 今日行情分析', todayHigh: '今日最高', todayLow: '今日最低',
+    vsLow: '距最低溢价', histPct: '历史分位', histTip: '0% = 历史最低', analyzing: '正在加载分析数据...',
+    realPrice: '实时价格 | 更新于 ', aiSug: '🤖 AI 建议：', view: '查看',
+    alertsTitle: '🔔 市场预警', alertsEmpty: '暂无预警（点击刷新获取）', alertsClick: '点击刷新获取预警',
+    calcTitle: '🧮 收益计算器', calcBuy: '买入单价', calcSell: '卖出单价', calcGrade: '子弹等级',
+    calcQty: '交易数量', unitRound: '颗', calcBuyTot: '买入总额', calcFee: '手续费', calcProfit: '净利润',
+    feeRate: '手续费率', feeNote: 'G1/G2=10% G3=13% G4=17% G5=20%',
+    infoTitle: 'ℹ️ 关于', infoSrc: '数据来源', infoEnc: '加密方式', infoFreq: '刷新频率',
+    infoVer: '版本', infoSrcVal: 'dfhub.cn 实时 API',
+    infoEncVal: 'AES-256-GCM + HMAC-SHA256 签名',
+    infoFreqVal: '每次刷新拉取全量 88 颗子弹数据',
+    infoVerVal: 'V8.1 — 升级于 2026-05-11',
+    infoStats: '共 88 颗子弹 | G1:7 G2:12 G3:26 G4:25 G5:18 | 价格区间 ¥35 ~ ¥8666',
+    toastFetch: '🔄 正在拉取数据...', toastOK: '✅ 数据刷新成功 (', toastFail: '⚠️ 刷新失败: ',
+    toastApiErr: '⚠️ API不可用: ', price: '价格: ',
+    risingLabel: '📈 上涨', fallingLabel: '📉 下跌', stableLabel: '➡️ 平稳'
+  },
+  en: {
+    title: 'Delta Force · Ammo Trade Assistant V8.1',
+    conn: 'Connecting...', offline: 'Offline', offlineCache: 'Offline · Using cache',
+    live: 'Live · ', liveAuto: ' | Auto-refresh', bullets: ' rds', bullet: ' rounds',
+    refresh: 'Refresh', refreshTitle: 'Refresh data', themeTitle: 'Toggle theme', langTitle: 'Switch language',
+    search: 'Search bullets...', allG: 'All', g5: 'G5 Tier V', g4: 'G4 Tier IV', g3: 'G3 Tier III',
+    g2: 'G2 Tier II', g1: 'G1 Tier I', allT: 'All Trends', rising: '📈 Rising', stable: '➡️ Stable',
+    falling: '📉 Falling', sortD: 'Default', sortPD: 'Price↓', sortPA: 'Price↑', sortN: 'Name',
+    tabDetail: '📊 Details', tabAlerts: '🔔 Alerts', tabCalc: '🧮 Calculator', tabInfo: 'ℹ️ About',
+    loading: 'Loading...', noMatch: 'No matching bullets', selBullet: 'Select a bullet to view details',
+    bestBuy: 'Best Buy Time', trend: 'Trend', pen: 'Penetration', penLevel: 'Pen Level', caliber: 'Caliber',
+    unknown: 'Unknown', penLv: 'Lv.', bestTimes: '⏰ Best Purchase Times', overall: 'Overall', weekday: 'Weekday',
+    weekend: 'Weekend', priceChart: '📊 Price Trend', bulletInfo: '📋 Bullet Info', oid: 'Object ID',
+    gradeCaliber: 'Grade / Caliber', latestPrice: 'Latest Price', priceUpdate: 'Price Updated',
+    analysisTitle: '📈 Today Analysis', todayHigh: "Today's High", todayLow: "Today's Low",
+    vsLow: 'vs Low Premium', histPct: 'Hist. Percentile', histTip: '0% = all-time low',
+    analyzing: 'Loading analysis...',
+    realPrice: 'Live price | Updated ', aiSug: '🤖 AI Suggestion: ', view: 'View',
+    alertsTitle: '🔔 Market Alerts', alertsEmpty: 'No alerts (click refresh to fetch)',
+    alertsClick: 'Click refresh to fetch alerts',
+    calcTitle: '🧮 Profit Calculator', calcBuy: 'Buy Price', calcSell: 'Sell Price',
+    calcGrade: 'Bullet Grade', calcQty: 'Quantity', unitRound: 'rds', calcBuyTot: 'Buy Total',
+    calcFee: 'Fee', calcProfit: 'Net Profit',
+    feeRate: 'Fee Rate', feeNote: 'G1/G2=10% G3=13% G4=17% G5=20%',
+    infoTitle: 'ℹ️ About', infoSrc: 'Data Source', infoEnc: 'Encryption', infoFreq: 'Refresh Rate',
+    infoVer: 'Version', infoSrcVal: 'dfhub.cn Live API',
+    infoEncVal: 'AES-256-GCM + HMAC-SHA256 Signature',
+    infoFreqVal: 'Each refresh pulls all 88 rounds',
+    infoVerVal: 'V8.1 — Updated 2026-05-11',
+    infoStats: '88 rounds | G1:7 G2:12 G3:26 G4:25 G5:18 | Price range ¥35 ~ ¥8666',
+    toastFetch: '🔄 Fetching data...', toastOK: '✅ Refresh complete (', toastFail: '⚠️ Refresh failed: ',
+    toastApiErr: '⚠️ API unavailable: ', price: 'Price: ',
+    risingLabel: '📈 Rising', fallingLabel: '📉 Falling', stableLabel: '➡️ Stable'
+  }
+};
+
+var _ = function(key) { return (I18N[ST.lang] && I18N[ST.lang][key]) || key; };
+
+function setLang(lang) {
+  ST.lang = lang;
+  try { localStorage.setItem('df_ammo_lang', lang); } catch(e) {}
+  // Refresh all UI text
+  document.title = _('title');
+  document.getElementById('searchInput').placeholder = _('search');
+  document.getElementById('refreshBtn').title = _('refreshTitle');
+  document.getElementById('refreshBtn').textContent = '🔄 ' + _('refresh');
+  document.getElementById('langBtn').textContent = ST.lang === 'zh' ? 'EN' : '中';
+  // Rebuild grade/tag buttons
+  var gf = document.getElementById('gradeFilters');
+  gf.querySelectorAll('.tag').forEach(function(tag, i) {
+    if (tag.dataset.g === 'all') tag.textContent = _('allG') + ' 88';
+    else if (tag.dataset.g === '5') tag.textContent = _('g5');
+    else if (tag.dataset.g === '4') tag.textContent = _('g4');
+    else if (tag.dataset.g === '3') tag.textContent = _('g3');
+    else if (tag.dataset.g === '2') tag.textContent = _('g2');
+    else if (tag.dataset.g === '1') tag.textContent = _('g1');
+  });
+  document.querySelectorAll('#trendFilters .tag').forEach(function(tag) {
+    if (tag.dataset.t === 'all') tag.textContent = _('allT');
+    else if (tag.dataset.t === 'rising') tag.textContent = _('rising');
+    else if (tag.dataset.t === 'stable') tag.textContent = _('stable');
+    else if (tag.dataset.t === 'falling') tag.textContent = _('falling');
+  });
+  document.querySelectorAll('.sort-btn').forEach(function(btn) {
+    if (btn.dataset.s === 'default') btn.textContent = _('sortD');
+    else if (btn.dataset.s === 'price-desc') btn.textContent = _('sortPD');
+    else if (btn.dataset.s === 'price-asc') btn.textContent = _('sortPA');
+    else if (btn.dataset.s === 'name') btn.textContent = _('sortN');
+  });
+  // Tabs
+  document.querySelectorAll('.tab').forEach(function(tab) {
+    if (tab.dataset.tab === 'detail') tab.textContent = _('tabDetail');
+    else if (tab.dataset.tab === 'alerts') tab.textContent = _('tabAlerts');
+    else if (tab.dataset.tab === 'calc') tab.textContent = _('tabCalc');
+    else if (tab.dataset.tab === 'info') tab.textContent = _('tabInfo');
+  });
+  // Calc area
+  document.querySelectorAll('#panel-calc label')[0].textContent = _('calcBuy') + ' (¥)';
+  if (document.querySelectorAll('#panel-calc label')[1]) document.querySelectorAll('#panel-calc label')[1].textContent = _('calcSell') + ' (¥)';
+  if (document.querySelectorAll('#panel-calc label')[2]) document.querySelectorAll('#panel-calc label')[2].textContent = _('calcGrade');
+  if (document.querySelectorAll('#panel-calc label')[3]) document.querySelectorAll('#panel-calc label')[3].textContent = _('calcQty');
+  document.querySelectorAll('#panel-calc .unit').forEach(function(u, i) {
+    if (i === 2) u.textContent = _('unitRound');
+  });
+  document.querySelectorAll('#panel-calc .res-lbl').forEach(function(lbl, i) {
+    if (i === 0) lbl.textContent = _('calcBuyTot');
+    else if (i === 1) lbl.textContent = _('calcFee');
+    else if (i === 2) lbl.textContent = _('calcProfit');
+  });
+  var feeLn = document.querySelector('#panel-calc div[style*="margin-top:8px"]');
+  if (feeLn) feeLn.textContent = _('feeRate') + '：' + _('feeNote');
+  // Refresh currently displayed detail
+  if (ST.selectedIdx >= 0 && ST.bullets[ST.selectedIdx]) {
+    renderDetail(ST.bullets[ST.selectedIdx]);
+    if (ST.analysis) renderAnalysisBox(ST.analysis);
+  }
+  // Refresh alerts
+  if (ST.alerts && ST.alerts.length) renderAlerts();
+  // Empty states
+  if (!ST.bullets.length) {
+    document.getElementById('bulletList').innerHTML = '<div class="empty"><div class="empty-icon">📋</div>' + _('loading') + '</div>';
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  DFHUB API CLIENT
+// ═══════════════════════════════════════════════
+var KP = 'odw-response-v2-6750b2d9490bb1bad82d2b13b4d128275b0f7fd0d6f76428ec00e72943f5e0e0';
+var BASE = 'https://dfhub.cn/api/v1';
+
+function ab2str(buf) { return String.fromCharCode.apply(null, new Uint8Array(buf)); }
+function hex(ab) { return Array.from(new Uint8Array(ab)).map(function(b){return b.toString(16).padStart(2,'0')}).join(''); }
+function b64url(buf) { return btoa(ab2str(buf)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/g,''); }
+function concat(a, b) { var c = new Uint8Array(a.length + b.length); c.set(a,0); c.set(b,a.length); return c; }
+
+async function sha256(text) { return new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))); }
+
+async function hmacSha256(keyStr, msg) {
+  var k = await crypto.subtle.importKey('raw', new TextEncoder().encode(keyStr), {name:'HMAC',hash:'SHA-256'}, false, ['sign']);
+  return hex(await crypto.subtle.sign('HMAC', k, new TextEncoder().encode(msg)));
+}
+
+async function decryptResponse(buf) {
+  var dv = new DataView(buf);
+  if (dv.getUint16(0) !== 0xDF01) throw new Error('Bad magic');
+  var el = dv.getUint8(2);
+  var encName = new TextDecoder().decode(new Uint8Array(buf, 3, el));
+  var off = 3 + el;
+  var nonce = new Uint8Array(buf, off, 12);
+  var ct = new Uint8Array(buf, off + 12, buf.byteLength - off - 12 - 16);
+  var tag = new Uint8Array(buf, buf.byteLength - 16);
+  var key = await crypto.subtle.importKey('raw', await sha256(KP + encName), {name:'AES-GCM'}, false, ['decrypt']);
+  var dec = new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM', iv: nonce, tagLength: 128}, key, concat(ct, tag)));
+  var ds = new DecompressionStream('deflate-raw');
+  var writer = ds.writable.getWriter();
+  writer.write(dec); writer.close();
+  var reader = ds.readable.getReader();
+  var chunks = [];
+  while (true) { var r = await reader.read(); if (r.done) break; chunks.push(r.value); }
+  var total = chunks.reduce(function(a,c){return a+c.length}, 0);
+  var out = new Uint8Array(total); var pos = 0;
+  chunks.forEach(function(c){ out.set(c, pos); pos += c.length; });
+  return JSON.parse(new TextDecoder().decode(out));
+}
+
+async function getToken() {
+  var r = await fetch(BASE + '/security/tokens', { method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'} });
+  var j = await r.json();
+  if (j.code !== 0) throw new Error('Token failed: ' + j.message);
+  ST.token = j.data;
+  ST.drift = ST.token.server_time - Date.now();
+  return ST.token;
+}
+
+async function dfhubFetch(path) {
+  if (!ST.token || Date.now() + ST.drift > (ST.token.server_time + ST.token.expires_in * 1000 - 5000)) await getToken();
+  var ts = String(Date.now() + ST.drift);
+  var nc = b64url(crypto.getRandomValues(new Uint8Array(18)));
+  var sig = await hmacSha256(ST.token.secret, 'GET\n' + path + '\n' + ts + '\n' + nc + '\n');
+  var r = await fetch(BASE + path, { headers: {
+    'X-Client-Token': ST.token.token, 'X-Key-Id': ST.token.key_id,
+    'X-Request-Timestamp': ts, 'X-Request-Nonce': nc, 'X-Request-Signature': sig, 'Accept': 'application/json'
+  }});
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return decryptResponse(await r.arrayBuffer());
+}
+
+async function fetchAllAmmo() {
+  showToast(_('toastFetch'), 'info');
+  var all = [];
+  for (var p = 1; p <= 9; p++) {
+    var d = await dfhubFetch('/prices/ammo?page=' + p);
+    if (d.data && Array.isArray(d.data)) all.push.apply(all, d.data);
+  }
+  return all;
+}
+
+async function fetchAnalysis(oid) { return dfhubFetch('/prices/ammo/' + oid + '/analysis'); }
+
+async function fetchAlerts() {
+  var d = await dfhubFetch('/market-alerts/highlights');
+  return (d.data && Array.isArray(d.data)) ? d.data : [];
+}
+
+// ═══════════════════════════════════════════════
+//  UI RENDERING
+// ═══════════════════════════════════════════════
+
+function t(v) { return v == null ? '-' : v; }
+function fmt(n) { return n == null ? '-' : '¥' + Number(n).toLocaleString(); }
+function pct(v) { if (v == null) return '-'; var n = Number(v); return (n>=0?'+':'') + n + '%'; }
+
+function showToast(msg, type) {
+  var el = document.getElementById('toast');
+  el.textContent = msg; el.className = 'toast on ' + (type||'');
+  setTimeout(function(){ el.className = 'toast'; }, 2500);
+}
+
+function setStatus(live, text) {
+  ST.apiOk = live;
+  var dot = document.getElementById('apiDot');
+  dot.className = 'status-dot ' + (live ? 'live' : 'off');
+  document.getElementById('apiStatus').textContent = text;
+}
+
+function applyFilters() {
+  var search = (document.getElementById('searchInput').value || '').toLowerCase();
+  var filtered = ST.bullets.filter(function(b) {
+    if (ST.grade !== 'all' && String(b.grade) !== ST.grade) return false;
+    if (ST.trend !== 'all' && b.trend !== ST.trend) return false;
+    if (search && (b.name||'').toLowerCase().indexOf(search) < 0) return false;
+    return true;
+  });
+  if (ST.sort === 'price-desc') filtered.sort(function(a,b){ return (b.latest_price||0) - (a.latest_price||0); });
+  else if (ST.sort === 'price-asc') filtered.sort(function(a,b){ return (a.latest_price||0) - (b.latest_price||0); });
+  else if (ST.sort === 'name') filtered.sort(function(a,b){ return (a.name||'').localeCompare(b.name||''); });
+  renderBulletList(filtered);
+}
+
+function setGrade(g) {
+  ST.grade = g;
+  document.querySelectorAll('#gradeFilters .tag').forEach(function(el){ el.classList.toggle('active', el.dataset.g === g); });
+  applyFilters();
+}
+
+function setTrend(t) {
+  ST.trend = t;
+  document.querySelectorAll('#trendFilters .tag').forEach(function(el){ el.classList.toggle('active', el.dataset.t === t); });
+  applyFilters();
+}
+
+function setSort(s) {
+  ST.sort = s;
+  document.querySelectorAll('.sort-btn').forEach(function(el){ el.classList.toggle('active', el.dataset.s === s); });
+  applyFilters();
+}
+
+function renderBulletList(items) {
+  var html = '';
+  items.forEach(function(b, i) {
+    var trendIcon = b.trend === 'rising' ? '📈' : b.trend === 'falling' ? '📉' : '➡️';
+    var trendCls = b.trend === 'rising' ? 'up' : b.trend === 'falling' ? 'dn' : 'st';
+    html += '<div class="bullet-item' + (i === ST.selectedIdx ? ' active' : '') + '" onclick="selectBullet(' + i + ', this)" data-idx="' + i + '">';
+    html += '<span class="b-grade g' + (b.grade||0) + '">G' + b.grade + '</span>';
+    html += '<span class="b-name" title="' + t(b.name) + '">' + t(b.name) + '</span>';
+    html += '<span class="b-price">' + fmt(b.latest_price) + '</span>';
+    html += '<span class="b-trend ' + trendCls + '">' + trendIcon + '</span>';
+    html += '</div>';
+  });
+  document.getElementById('bulletList').innerHTML = html || '<div class="empty"><div class="empty-icon">🔍</div>' + _('noMatch') + '</div>';
+}
+
+function selectBullet(idx, el) {
+  ST.selectedIdx = idx;
+  document.querySelectorAll('.bullet-item').forEach(function(e){ e.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  ST.analysis = null;
+  renderDetail(ST.bullets[idx]);
+  if (ST.apiOk) loadAnalysis(idx);
+}
+
+async function loadAnalysis(idx) {
+  var b = ST.bullets[idx]; if (!b) return;
+  try {
+    var ana = await fetchAnalysis(b.object_id);
+    if (ana && ana.data) { ST.analysis = ana.data; renderAnalysisBox(ana.data); }
+  } catch(e) { console.log('Analysis:', e.message); }
+}
+
+function renderAnalysisBox(d) {
+  var el = document.getElementById('analysisBox'); if (!el) return;
+  if (!d) { el.innerHTML = ''; return; }
+  var h = '<div class="section-title">' + _('analysisTitle') + '</div>';
+  h += '<div class="stat-row">';
+  h += '<div class="stat-card"><div class="stat-lbl">' + _('todayHigh') + '</div><div class="stat-val" style="color:var(--red)">' + fmt(d.today_highest ? d.today_highest.price : null) + '</div><div class="stat-sub">' + (d.today_highest ? d.today_highest.time : '-') + '</div></div>';
+  h += '<div class="stat-card"><div class="stat-lbl">' + _('todayLow') + '</div><div class="stat-val" style="color:var(--accent)">' + fmt(d.today_lowest ? d.today_lowest.price : null) + '</div><div class="stat-sub">' + (d.today_lowest ? d.today_lowest.time : '-') + '</div></div>';
+  h += '<div class="stat-card"><div class="stat-lbl">' + _('vsLow') + '</div><div class="stat-val" style="color:var(--yellow)">' + (d.current_vs_lowest || '-') + '</div></div>';
+  h += '<div class="stat-card"><div class="stat-lbl">' + _('histPct') + '</div><div class="stat-val" style="color:var(--accent2)">' + (d.historical_percentile != null ? (d.historical_percentile * 100).toFixed(0) + '%' : '-') + '</div><div class="stat-sub">' + _('histTip') + '</div></div>';
+  h += '</div>';
+  if (d.suggestion) h += '<div class="suggest-box"><strong>' + _('aiSug') + '</strong>' + (d.suggestion || '') + '</div>';
+  el.innerHTML = h;
+}
+
+function buildTimeLabel(label) {
+  if (!label) return { overall: '-', weekday: '-', weekend: '-' };
+  var parts = label.split('|').map(function(s){ return s.trim(); });
+  return {
+    overall: parts[0] ? parts[0].replace(/^(综合|Overall)\s*/, '') : '-',
+    weekday: parts[1] ? parts[1].replace(/^(工作日|Weekday)\s*/, '') : '-',
+    weekend: parts[2] ? parts[2].replace(/^(周末|Weekend)\s*/, '') : '-'
+  };
+}
+
+function trendBadge(trend) {
+  if (!trend) return '';
+  var labels = { rising: _('risingLabel'), falling: _('fallingLabel'), stable: _('stableLabel') };
+  var cls = trend === 'rising' ? 'up' : trend === 'falling' ? 'dn' : 'st';
+  return '<span class="' + cls + '" style="font-size:12px;font-weight:600">' + (labels[trend] || trend) + '</span>';
+}
+
+function renderDetail(b) {
+  if (!b) return;
+  var tl = buildTimeLabel(b.best_buy_time_label);
+  var gCls = 'g' + (b.grade||0);
+  var img = b.pic_url || '';
+
+  var h = '';
+  h += '<div class="price-hero">';
+  if (img) h += '<img class="p-hero-img" src="' + img + '" onerror="this.hidden=true" alt="">';
+  h += '<div class="p-hero-info">';
+  h += '<div class="p-hero-name"><span class="b-grade ' + gCls + '">G' + b.grade + '</span> ' + t(b.name) + '</div>';
+  h += '<div class="p-hero-meta">' + _('pen') + ': ' + (b.penetration_level||'-') + ' | ID: ' + (b.object_id||'-') + ' | ' + trendBadge(b.trend) + '</div>';
+  h += '</div>';
+  h += '<div class="p-hero-price"><div class="p-price-big">' + fmt(b.latest_price) + '</div>';
+  h += '<div class="p-price-lbl">' + _('realPrice') + (b.latest_price_at ? new Date(b.latest_price_at).toLocaleTimeString() : '-') + '</div>';
+  h += '</div></div>';
+
+  h += '<div class="stat-row">';
+  h += '<div class="stat-card"><div class="stat-lbl">' + _('bestBuy') + '</div><div class="stat-val" style="font-size:13px;font-family:inherit">' + tl.overall + '</div></div>';
+  h += '<div class="stat-card"><div class="stat-lbl">' + _('trend') + '</div><div class="stat-val" style="font-family:inherit">' + trendBadge(b.trend) + '</div></div>';
+  h += '<div class="stat-card"><div class="stat-lbl">' + _('penLevel') + '</div><div class="stat-val" style="color:var(--yellow)">⚡ ' + (b.penetration_level||'-') + '</div></div>';
+  h += '<div class="stat-card"><div class="stat-lbl">' + _('caliber') + '</div><div class="stat-val" style="font-size:12px;font-family:inherit">' + (b.caliber||_('unknown')) + '</div></div>';
+  h += '</div>';
+
+  h += '<div class="section-title">' + _('bestTimes') + '</div>';
+  h += '<div class="time-grid">';
+  h += '<div class="time-card"><h4>' + _('overall') + '</h4><div class="t-val">' + tl.overall + '</div></div>';
+  h += '<div class="time-card"><h4>' + _('weekday') + '</h4><div class="t-val">' + tl.weekday + '</div></div>';
+  h += '<div class="time-card"><h4>' + _('weekend') + '</h4><div class="t-val">' + tl.weekend + '</div></div>';
+  h += '</div>';
+
+  h += '<div class="section-title">' + _('priceChart') + '</div>';
+  h += '<div class="chart-box" id="priceChart"></div>';
+
+  h += '<div class="section-title">' + _('bulletInfo') + '</div>';
+  h += '<div class="info-grid">';
+  h += '<div class="info-row"><span>' + _('oid') + '</span><strong>' + t(b.object_id) + '</strong></div>';
+  h += '<div class="info-row"><span>' + _('gradeCaliber') + '</span><strong>G' + b.grade + ' / ' + t(b.caliber) + '</strong></div>';
+  h += '<div class="info-row"><span>' + _('pen') + '</span><strong>' + _('penLv') + t(b.penetration_level) + '</strong></div>';
+  h += '<div class="info-row"><span>' + _('latestPrice') + '</span><strong>' + fmt(b.latest_price) + '</strong></div>';
+  h += '<div class="info-row"><span>' + _('priceUpdate') + '</span><strong>' + (b.latest_price_at ? new Date(b.latest_price_at).toLocaleString() : '-') + '</strong></div>';
+  h += '<div class="info-row"><span>' + _('trend') + '</span><strong>' + trendBadge(b.trend) + '</strong></div>';
+  h += '</div>';
+
+  h += '<div id="analysisBox"><div style="text-align:center;padding:16px;color:var(--muted);font-size:11px"><span class="spinner"></span> ' + _('analyzing') + '</div></div>';
+
+  document.getElementById('detailArea').innerHTML = h;
+  setTimeout(renderChart, 100);
+}
+
+function renderChart() {
+  var el = document.getElementById('priceChart'); if (!el) return;
+  if (ST.chart) ST.chart.dispose();
+  ST.chart = echarts.init(el, ST.theme === 'light' ? undefined : 'dark');
+  var basePrice = ST.bullets[ST.selectedIdx] ? (ST.bullets[ST.selectedIdx].latest_price || 1000) : 1000;
+  var trend = ST.bullets[ST.selectedIdx] ? ST.bullets[ST.selectedIdx].trend : 'stable';
+  var drift = trend === 'rising' ? 0.003 : trend === 'falling' ? -0.003 : 0;
+  var data = [], price = basePrice * (1 + drift * (-30));
+  for (var i = 30; i >= 0; i--) {
+    price = price * (1 + drift + (Math.random() - 0.5) * 0.02);
+    var dt = new Date(); dt.setDate(dt.getDate() - i);
+    data.push({ date: dt.toISOString().slice(0,10), price: Math.round(price) });
+  }
+  ST.chart.setOption({
+    backgroundColor: 'transparent',
+    grid: { top: 10, right: 10, bottom: 30, left: 50 },
+    xAxis: { type: 'category', data: data.map(function(d){return d.date}), axisLabel: { fontSize: 10, color: '#7d8590' } },
+    yAxis: { type: 'value', axisLabel: { fontSize: 10, color: '#7d8590', formatter: '¥{value}' } },
+    series: [{
+      type: 'line', data: data.map(function(d){return d.price}), smooth: true, showSymbol: false,
+      lineStyle: { color: '#18a058', width: 2 },
+      areaStyle: { color: new echarts.graphic.LinearGradient(0,0,0,1,[
+        { offset: 0, color: 'rgba(24,160,88,0.25)' }, { offset: 1, color: 'rgba(24,160,88,0.02)' }
+      ])}
+    }],
+    tooltip: { trigger: 'axis', formatter: function(p){ return p[0].axisValue + '<br/>' + _('price') + '¥' + p[0].data; } }
+  });
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(function(el){ el.classList.toggle('active', el.dataset.tab === name); });
+  document.querySelectorAll('.tab-panel').forEach(function(el){ el.classList.toggle('active', el.id === 'panel-' + name); });
+  if (name === 'detail' && ST.selectedIdx >= 0) setTimeout(function(){ renderChart(); }, 200);
+}
+
+function recalc() {
+  var buy = Number(document.getElementById('calcBuy').value) || 0;
+  var sell = Number(document.getElementById('calcSell').value) || 0;
+  var grade = Number(document.getElementById('calcGrade').value) || 5;
+  var qty = Number(document.getElementById('calcQty').value) || 1;
+  var rates = {1:0.10, 2:0.10, 3:0.13, 4:0.17, 5:0.20};
+  var rate = rates[Math.min(5, Math.max(1, grade))] || 0.20;
+  var buyTot = buy * qty, sellTot = sell * qty;
+  var fee = Math.round(sellTot * rate);
+  var profit = sellTot - buyTot - fee;
+  document.getElementById('resBuy').textContent = '¥' + buyTot.toLocaleString();
+  document.getElementById('resFee').textContent = '-¥' + fee.toLocaleString();
+  document.getElementById('resProfit').textContent = (profit >= 0 ? '+' : '') + '¥' + profit.toLocaleString();
+}
+
+function toggleTheme() {
+  ST.theme = ST.theme === 'dark' ? 'light' : 'dark';
+  document.documentElement.className = ST.theme === 'light' ? 'light' : '';
+  setTimeout(function(){ if (ST.chart) renderChart(); }, 200);
+}
+
+function toggleLang() {
+  setLang(ST.lang === 'zh' ? 'en' : 'zh');
+}
+
+// ═══════════════════════════════════════════════
+//  INIT & REFRESH
+// ═══════════════════════════════════════════════
+
+async function doRefresh() {
+  document.getElementById('refreshBtn').disabled = true;
+  try {
+    var bullets = await fetchAllAmmo();
+    ST.bullets = bullets;
+    setStatus(true, _('live') + bullets.length + _('bullet'));
+    applyFilters();
+    if (ST.selectedIdx >= 0 && ST.selectedIdx < bullets.length) renderDetail(bullets[ST.selectedIdx]);
+    showToast(_('toastOK') + bullets.length + _('bullets') + ')', 'info');
+    try { ST.alerts = await fetchAlerts(); renderAlerts(); } catch(e) {}
+  } catch(e) {
+    console.error('Refresh:', e);
+    setStatus(false, 'Offline · ' + e.message);
+    showToast(_('toastFail') + e.message, 'err');
+  }
+  document.getElementById('refreshBtn').disabled = false;
+}
+
+function renderAlerts() {
+  var el = document.getElementById('alertsArea');
+  if (!ST.alerts || ST.alerts.length === 0) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">🔔</div>' + _('alertsEmpty') + '</div>';
+    return;
+  }
+  var h = '';
+  ST.alerts.forEach(function(a) {
+    var cls = (a.level||'info') === 'critical' ? 'crit' : (a.level||'info') === 'warning' ? 'warn' : 'info';
+    h += '<div class="alert-card ' + cls + '">';
+    h += '<div class="alert-msg"><span class="alert-obj">' + (a.name||a.object_name||'-') + '</span> ';
+    h += '<span class="alert-dir">' + (a.message||a.description||'') + '</span></div>';
+    h += '<button class="alert-act btn sm" onclick="goToBulletByOid(\x27' + (a.object_id||'') + '\x27)">' + _('view') + '</button>';
+    h += '</div>';
+  });
+  el.innerHTML = h;
+}
+
+function goToBulletByOid(oid) {
+  var idx = ST.bullets.findIndex(function(b){ return String(b.object_id) === String(oid); });
+  if (idx >= 0) {
+    ST.selectedIdx = idx;
+    applyFilters();
+    renderDetail(ST.bullets[idx]);
+    switchTab('detail');
+    var items = document.querySelectorAll('.bullet-item');
+    if (items[idx]) items[idx].scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+// ─── Init ───
+ST.lang = localStorage.getItem('df_ammo_lang') || 'zh';
+document.title = _('title');
+
+async function initApp() {
+  setStatus(false, _('conn'));
+  try {
+    ST.bullets = await fetchAllAmmo();
+    setStatus(true, _('live') + ST.bullets.length + _('bullet'));
+  } catch(e) {
+    console.error('Init:', e);
+    setStatus(false, _('offlineCache'));
+    showToast(_('toastApiErr') + e.message, 'err');
+  }
+  applyFilters();
+  try { ST.alerts = await fetchAlerts(); renderAlerts(); } catch(e) {}
+  ST.refreshTimer = setInterval(async function() {
+    try { var fresh = await fetchAllAmmo(); if (fresh.length > 0) ST.bullets = fresh;
+      setStatus(true, _('live') + ST.bullets.length + _('bullet') + _('liveAuto')); applyFilters(); } catch(e) {}
+  }, 300000);
+}
+
+window.addEventListener('DOMContentLoaded', initApp);
+
+
+
+// ═══════════════════════════════════════════
+//  V8.1 ─ 多品类交易助手
+// ═══════════════════════════════════════════
+
+// Add baked data
+ST.allData = {"helmet":[{"id":11010001002,"name":"安保头盔","cat":"头盔","grade":1,"price":2922,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11010001002.png","catId":"helmet"},{"id":11010001003,"name":"奔尼帽","cat":"头盔","grade":1,"price":3408,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11010001003.png","catId":"helmet"},{"id":11010005011,"name":"赤枭装甲防弹面具","cat":"头盔","grade":5,"price":null,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11010005011.png","catId":"helmet"},{"id":11010003001,"name":"防暴头盔","cat":"头盔","grade":3,"price":37811,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11010003001.png","catId":"helmet"},{"id":11010002001,"name":"复古摩托头盔","cat":"头盔","grade":2,"price":13784,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11010002001.png","catId":"helmet"},{"id":11010001004,"name":"户外棒球帽","cat":"头盔","grade":1,"price":15165,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11010001004.png","catId":"helmet"},{"id":11010001001,"name":"老式钢盔","cat":"头盔","grade":1,"price":2447,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11010001001.png","catId":"helmet"},{"id":11010004001,"name":"D6 战术头盔","cat":"头盔","grade":4,"price":123050,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11010004001.png","catId":"helmet"},{"id":11010003003,"name":"DAS 防弹头盔","cat":"头盔","grade":3,"price":61434,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11010003003.png","catId":"helmet"},{"id":11010004003,"name":"DICH 训练头盔","cat":"头盔","grade":4,"price":272661,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11010004003.png","catId":"helmet"},{"id":11010005003,"name":"DICH-1战术头盔","cat":"头盔","grade":5,"price":378167,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11010005003.png","catId":"helmet"},{"id":11010006003,"name":"DICH-9重型头盔","cat":"头盔","grade":6,"price":null,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11010006003.png","catId":"helmet"},{"id":11010002003,"name":"DRO 战术头盔","cat":"头盔","grade":2,"price":12528,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11010002003.png","catId":"helmet"},{"id":11010005010,"name":"GN 久战重型夜视头盔","cat":"头盔","grade":5,"price":352917,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11010005010.png","catId":"helmet"},{"id":11010005004,"name":"GN 重型头盔","cat":"头盔","grade":5,"price":333225,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11010005004.png","catId":"helmet"},{"id":11010005009,"name":"GN 重型夜视头盔","cat":"头盔","grade":5,"price":568425,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11010005009.png","catId":"helmet"},{"id":11010004004,"name":"GT1 战术头盔","cat":"头盔","grade":4,"price":229614,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11010004004.png","catId":"helmet"},{"id":11010006004,"name":"GT5 指挥官头盔","cat":"头盔","grade":6,"price":null,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11010006004.png","catId":"helmet"},{"id":11010002002,"name":"H01 战术头盔","cat":"头盔","grade":2,"price":10946,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11010002002.png","catId":"helmet"},{"id":11010003002,"name":"H07 战术头盔","cat":"头盔","grade":3,"price":38921,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11010003002.png","catId":"helmet"},{"id":11010005002,"name":"H09 防暴头盔","cat":"头盔","grade":5,"price":436809,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11010005002.png","catId":"helmet"},{"id":11010006002,"name":"H70 精英头盔","cat":"头盔","grade":6,"price":3590972,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11010006002.png","catId":"helmet"},{"id":11010006007,"name":"H70 夜视精英头盔","cat":"头盔","grade":6,"price":null,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11010006007.png","catId":"helmet"},{"id":11010005001,"name":"Mask-1铁壁头盔","cat":"头盔","grade":5,"price":205304,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11010005001.png","catId":"helmet"},{"id":11010003004,"name":"MC201 头盔","cat":"头盔","grade":3,"price":73667,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11010003004.png","catId":"helmet"},{"id":11010002004,"name":"MC防弹头盔","cat":"头盔","grade":2,"price":16497,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11010002004.png","catId":"helmet"},{"id":11010004002,"name":"MHS 战术头盔","cat":"头盔","grade":4,"price":204005,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11010004002.png","catId":"helmet"}],"armor":[{"id":11050001002,"name":"安保防弹衣","cat":"护甲","grade":1,"price":3585,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11050001002.png","catId":"armor"},{"id":11050005007,"name":"赤枭重装突击背心","cat":"护甲","grade":5,"price":null,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11050005007.png","catId":"armor"},{"id":11050002001,"name":"简易防刺服","cat":"护甲","grade":2,"price":10389,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11050002001.png","catId":"armor"},{"id":11050006001,"name":"金刚防弹衣","cat":"护甲","grade":6,"price":null,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11050006001.png","catId":"armor"},{"id":11050005001,"name":"精英防弹背心","cat":"护甲","grade":5,"price":612135,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11050005001.png","catId":"armor"},{"id":11050001001,"name":"摩托马甲","cat":"护甲","grade":1,"price":3173,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11050001001.png","catId":"armor"},{"id":11050001003,"name":"尼龙防弹衣","cat":"护甲","grade":1,"price":4643,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11050001003.png","catId":"armor"},{"id":11050001004,"name":"轻型防弹衣","cat":"护甲","grade":1,"price":5550,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11050001004.png","catId":"armor"},{"id":11050003004,"name":"射手战术背心","cat":"护甲","grade":3,"price":791126,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11050003004.png","catId":"armor"},{"id":11050006004,"name":"泰坦防弹装甲","cat":"护甲","grade":6,"price":null,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11050006004.png","catId":"armor"},{"id":11050006003,"name":"特里克MAS2.0装甲","cat":"护甲","grade":6,"price":null,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11050006003.png","catId":"armor"},{"id":11050002004,"name":"通用战术背心","cat":"护甲","grade":2,"price":20934,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11050002004.png","catId":"armor"},{"id":11050004002,"name":"突击手防弹背心","cat":"护甲","grade":4,"price":234180,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11050004002.png","catId":"armor"},{"id":11050004001,"name":"武士防弹背心","cat":"护甲","grade":4,"price":204363,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11050004001.png","catId":"armor"},{"id":11050003001,"name":"制式防弹背心","cat":"护甲","grade":3,"price":53729,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11050003001.png","catId":"armor"},{"id":11050005004,"name":"重型突击背心","cat":"护甲","grade":5,"price":742577,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11050005004.png","catId":"armor"},{"id":11050004003,"name":"DT-AVS防弹衣","cat":"护甲","grade":4,"price":293987,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11050004003.png","catId":"armor"},{"id":11050005003,"name":"FS复合防弹衣","cat":"护甲","grade":5,"price":698870,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11050005003.png","catId":"armor"},{"id":11050006002,"name":"HA-2防弹装甲","cat":"护甲","grade":6,"price":5120604,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11050006002.png","catId":"armor"},{"id":11050004007,"name":"HMP特勤防弹衣","cat":"护甲","grade":4,"price":215289,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11050004007.png","catId":"armor"},{"id":11050002002,"name":"HT战术背心","cat":"护甲","grade":2,"price":13134,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11050002002.png","catId":"armor"},{"id":11050005002,"name":"Hvk-2防弹衣","cat":"护甲","grade":5,"price":667004,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11050005002.png","catId":"armor"},{"id":11050003002,"name":"Hvk快拆防弹衣","cat":"护甲","grade":3,"price":56573,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11050003002.png","catId":"armor"},{"id":11050004004,"name":"MK-2战术背心","cat":"护甲","grade":4,"price":316862,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11050004004.png","catId":"armor"},{"id":11050003003,"name":"TG-H防弹衣","cat":"护甲","grade":3,"price":75089,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11050003003.png","catId":"armor"},{"id":11050002003,"name":"TG战术防弹衣","cat":"护甲","grade":2,"price":15704,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11050002003.png","catId":"armor"}],"rig":[{"id":11070001001,"name":"便携胸包","cat":"胸挂","grade":1,"price":2895,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11070001001.png","catId":"rig"},{"id":11070005003,"name":"黑鹰野战胸挂","cat":"胸挂","grade":5,"price":null,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11070005003.png","catId":"rig"},{"id":11070001004,"name":"简易挂载包","cat":"胸挂","grade":1,"price":2955,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11070001004.png","catId":"rig"},{"id":11070003001,"name":"简易携行弹挂","cat":"胸挂","grade":3,"price":7133,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11070003001.png","catId":"rig"},{"id":11070005001,"name":"飓风战术胸挂","cat":"胸挂","grade":5,"price":null,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11070005001.png","catId":"rig"},{"id":11070001002,"name":"快速侦察胸挂","cat":"胸挂","grade":1,"price":2760,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11070001002.png","catId":"rig"},{"id":11070002001,"name":"尼龙挎包","cat":"胸挂","grade":2,"price":4748,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11070002001.png","catId":"rig"},{"id":11070004001,"name":"强袭战术背心","cat":"胸挂","grade":4,"price":36120,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11070004001.png","catId":"rig"},{"id":11070001003,"name":"轻型战术胸挂","cat":"胸挂","grade":1,"price":2955,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11070001003.png","catId":"rig"},{"id":11070002004,"name":"通用战术胸挂","cat":"胸挂","grade":2,"price":7050,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11070002004.png","catId":"rig"},{"id":11070004002,"name":"突击者战术背心","cat":"胸挂","grade":4,"price":87542,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11070004002.png","catId":"rig"},{"id":11070002003,"name":"D01轻型胸挂","cat":"胸挂","grade":2,"price":5648,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11070002003.png","catId":"rig"},{"id":11070005004,"name":"DAR突击手胸挂","cat":"胸挂","grade":5,"price":null,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11070005004.png","catId":"rig"},{"id":11070004003,"name":"DRC先进侦察胸挂","cat":"胸挂","grade":4,"price":135660,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11070004003.png","catId":"rig"},{"id":11070003003,"name":"DSA战术胸挂","cat":"胸挂","grade":3,"price":9078,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11070003003.png","catId":"rig"},{"id":11070003004,"name":"G01战术弹挂","cat":"胸挂","grade":3,"price":15236,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11070003004.png","catId":"rig"},{"id":11070004004,"name":"GIR野战胸挂","cat":"胸挂","grade":4,"price":178610,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11070004004.png","catId":"rig"},{"id":11070003002,"name":"HD3战术胸挂","cat":"胸挂","grade":3,"price":8001,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11070003002.png","catId":"rig"},{"id":11070002002,"name":"HK3便携胸挂","cat":"胸挂","grade":2,"price":5400,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11070002002.png","catId":"rig"}],"backpack":[{"id":11080003002,"name":"3H战术背包","cat":"背包","grade":3,"price":24795,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11080003002.png","catId":"backpack"},{"id":11080004005,"name":"穿山甲通用战术包","cat":"背包","grade":4,"price":101280,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11080004005.png","catId":"backpack"},{"id":11080003001,"name":"大型登山包","cat":"背包","grade":3,"price":13335,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11080003001.png","catId":"backpack"},{"id":11080001005,"name":"帆布背囊","cat":"背包","grade":1,"price":7443,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11080001005.png","catId":"backpack"},{"id":11080002004,"name":"露营背包","cat":"背包","grade":2,"price":12938,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11080002004.png","catId":"backpack"},{"id":11080001003,"name":"旅行背包","cat":"背包","grade":1,"price":7443,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11080001003.png","catId":"backpack"},{"id":11080002001,"name":"轻型户外背包","cat":"背包","grade":2,"price":10520,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11080002001.png","catId":"backpack"},{"id":11080002003,"name":"突袭战术背包","cat":"背包","grade":2,"price":12938,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11080002003.png","catId":"backpack"},{"id":11080001001,"name":"斜挎包","cat":"背包","grade":1,"price":4125,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11080001001.png","catId":"backpack"},{"id":11080004002,"name":"野战徒步背包","cat":"背包","grade":4,"price":69098,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11080004002.png","catId":"backpack"},{"id":11080003005,"name":"雨林猎手背包","cat":"背包","grade":3,"price":37193,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11080003005.png","catId":"backpack"},{"id":11080001002,"name":"运动背包","cat":"背包","grade":1,"price":5694,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11080001002.png","catId":"backpack"},{"id":11080002002,"name":"战术快拆背包","cat":"背包","grade":2,"price":14063,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11080002002.png","catId":"backpack"},{"id":11080006002,"name":"重型登山包","cat":"背包","grade":6,"price":1037118,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11080006002.png","catId":"backpack"},{"id":11080005001,"name":"ALS背负系统","cat":"背包","grade":5,"price":107325,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11080005001.png","catId":"backpack"},{"id":11080004003,"name":"D2战术登山包","cat":"背包","grade":4,"price":94095,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11080004003.png","catId":"backpack"},{"id":11080005003,"name":"D3战术登山包","cat":"背包","grade":5,"price":157080,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11080005003.png","catId":"backpack"},{"id":11080006003,"name":"D7战术背包","cat":"背包","grade":6,"price":null,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11080006003.png","catId":"backpack"},{"id":11080003003,"name":"DASH战术背包","cat":"背包","grade":3,"price":25704,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11080003003.png","catId":"backpack"},{"id":11080001004,"name":"DG运动背包","cat":"背包","grade":1,"price":9192,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11080001004.png","catId":"backpack"},{"id":11080003004,"name":"GA野战背包","cat":"背包","grade":3,"price":39375,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11080003004.png","catId":"backpack"},{"id":11080004004,"name":"GT1户外登山包","cat":"背包","grade":4,"price":90750,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11080004004.png","catId":"backpack"},{"id":11080005004,"name":"GT5野战背包","cat":"背包","grade":5,"price":266625,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11080005004.png","catId":"backpack"},{"id":11080006004,"name":"GTO重型战术包","cat":"背包","grade":6,"price":null,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11080006004.png","catId":"backpack"},{"id":11080005002,"name":"HLS-2重型背包","cat":"背包","grade":5,"price":139995,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11080005002.png","catId":"backpack"},{"id":11080004001,"name":"MAP侦察背包","cat":"背包","grade":4,"price":67820,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/11080004001.png","catId":"backpack"}],"barrel":[{"id":13020000167,"name":".357口径左轮长枪管","cat":"枪管","grade":2,"price":10818,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000167.png","catId":"barrel"},{"id":13020000484,"name":".357左轮逐风者枪管","cat":"枪管","grade":2,"price":30201,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000484.png","catId":"barrel"},{"id":13020000485,"name":".357左轮逐风者长枪管","cat":"枪管","grade":2,"price":30572,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000485.png","catId":"barrel"},{"id":13020000539,"name":"725双管霰弹枪拦截者截短枪管","cat":"枪管","grade":3,"price":40607,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000539.png","catId":"barrel"},{"id":13020000550,"name":"725双管霰弹枪鹰隼长枪管","cat":"枪管","grade":4,"price":54140,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000550.png","catId":"barrel"},{"id":13020000466,"name":"93R实用轻枪管","cat":"枪管","grade":2,"price":5837,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000466.png","catId":"barrel"},{"id":13020000464,"name":"93R实用长枪管","cat":"枪管","grade":2,"price":5840,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000464.png","catId":"barrel"},{"id":13020000465,"name":"93R实用重枪管","cat":"枪管","grade":2,"price":5861,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000465.png","catId":"barrel"},{"id":13020000467,"name":"93R远射超长枪管","cat":"枪管","grade":2,"price":11652,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000467.png","catId":"barrel"},{"id":13020000508,"name":"93R战术枪管","cat":"枪管","grade":2,"price":18777,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000508.png","catId":"barrel"},{"id":13020000591,"name":"短吻鳄枪管组合","cat":"枪管","grade":4,"price":48084,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000591.png","catId":"barrel"},{"id":13020000556,"name":"杠杆式步枪猎鹿人枪管","cat":"枪管","grade":4,"price":41972,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000556.png","catId":"barrel"},{"id":13020000557,"name":"杠杆式步枪拓荒者枪管","cat":"枪管","grade":4,"price":32250,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000557.png","catId":"barrel"},{"id":13020000594,"name":"沙漠之鹰镂空竞赛套件","cat":"枪管","grade":4,"price":13424,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000594.png","catId":"barrel"},{"id":13020000462,"name":"沙鹰竞技枪管","cat":"枪管","grade":2,"price":12831,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000462.png","catId":"barrel"},{"id":13020000461,"name":"沙鹰膛线长枪管","cat":"枪管","grade":2,"price":32660,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000461.png","catId":"barrel"},{"id":13020000514,"name":"新式蛟龙战术长枪管","cat":"枪管","grade":3,"price":83496,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000514.png","catId":"barrel"},{"id":13020000513,"name":"新式雪豹短枪管","cat":"枪管","grade":3,"price":40296,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000513.png","catId":"barrel"},{"id":13020000438,"name":"野牛打击者标准枪管","cat":"枪管","grade":3,"price":45153,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000438.png","catId":"barrel"},{"id":13020000439,"name":"野牛刀锋超长枪管","cat":"枪管","grade":3,"price":52467,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000439.png","catId":"barrel"},{"id":13020000437,"name":"野牛伞兵短枪管","cat":"枪管","grade":3,"price":69086,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000437.png","catId":"barrel"},{"id":13020000593,"name":"夜莺一体消音组合","cat":"枪管","grade":4,"price":64137,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000593.png","catId":"barrel"},{"id":13020000507,"name":"勇士海狸枪管","cat":"枪管","grade":3,"price":49460,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000507.png","catId":"barrel"},{"id":13020000506,"name":"勇士战术枪管","cat":"枪管","grade":3,"price":65528,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000506.png","catId":"barrel"},{"id":13020000458,"name":"左轮实用短管","cat":"枪管","grade":2,"price":5235,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000458.png","catId":"barrel"},{"id":13020000459,"name":"左轮实用长管","cat":"枪管","grade":2,"price":6380,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000459.png","catId":"barrel"},{"id":13020000370,"name":"AK12精英脚架长枪管","cat":"枪管","grade":3,"price":120935,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000370.png","catId":"barrel"},{"id":13020000369,"name":"AK12前线长枪管","cat":"枪管","grade":3,"price":55641,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000369.png","catId":"barrel"},{"id":13020000358,"name":"AKM超然长枪管组合","cat":"枪管","grade":3,"price":55532,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000358.png","catId":"barrel"},{"id":13020000490,"name":"AKM海狸枪管组合","cat":"枪管","grade":3,"price":55541,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000490.png","catId":"barrel"},{"id":13020000491,"name":"AKM海狸长枪管组合","cat":"枪管","grade":3,"price":55541,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000491.png","catId":"barrel"},{"id":13020000356,"name":"AKM实用标准枪管组合","cat":"枪管","grade":3,"price":31728,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000356.png","catId":"barrel"},{"id":13020000357,"name":"AKM实用长枪管组合","cat":"枪管","grade":3,"price":20769,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000357.png","catId":"barrel"},{"id":13020000355,"name":"AKM性能枪管组合","cat":"枪管","grade":4,"price":105458,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000355.png","catId":"barrel"},{"id":13020000592,"name":"AR57激流超长枪管","cat":"枪管","grade":4,"price":66851,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000592.png","catId":"barrel"},{"id":13020000348,"name":"AR标准枪管组合","cat":"枪管","grade":2,"price":7934,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000348.png","catId":"barrel"},{"id":13020000349,"name":"AR加百列长枪管组合","cat":"枪管","grade":3,"price":100550,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000349.png","catId":"barrel"},{"id":13020000347,"name":"AR碳纤维枪管组合","cat":"枪管","grade":2,"price":27906,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000347.png","catId":"barrel"},{"id":13020000351,"name":"AR特攻短枪管组合","cat":"枪管","grade":3,"price":105515,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000351.png","catId":"barrel"},{"id":13020000173,"name":"AR特勤一体消音组合","cat":"枪管","grade":4,"price":72696,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000173.png","catId":"barrel"},{"id":13020000350,"name":"AR战壕标准枪管组合","cat":"枪管","grade":3,"price":55782,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000350.png","catId":"barrel"},{"id":13020000561,"name":"AS Val刺客高级枪管","cat":"枪管","grade":4,"price":154982,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000561.png","catId":"barrel"},{"id":13020000378,"name":"ASh-12 歼灭高精长枪管","cat":"枪管","grade":4,"price":133788,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000378.png","catId":"barrel"},{"id":13020000379,"name":"ASh-12 CQB短枪管","cat":"枪管","grade":4,"price":77417,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000379.png","catId":"barrel"},{"id":13020000569,"name":"ASH-12战斧重型枪管","cat":"枪管","grade":4,"price":77525,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000569.png","catId":"barrel"},{"id":13020000366,"name":"AUG晨零一体消音管","cat":"枪管","grade":4,"price":196221,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000366.png","catId":"barrel"},{"id":13020000365,"name":"AUG尖兵标准枪管","cat":"枪管","grade":3,"price":127139,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000365.png","catId":"barrel"},{"id":13020000367,"name":"AUG精英脚架长枪管","cat":"枪管","grade":3,"price":196592,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000367.png","catId":"barrel"},{"id":13020000364,"name":"AUG实用集成三倍镜枪管","cat":"枪管","grade":3,"price":60918,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000364.png","catId":"barrel"},{"id":13020000441,"name":"AWM天际线长枪管","cat":"枪管","grade":4,"price":45341,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000441.png","catId":"barrel"},{"id":13020000578,"name":"FS-12剑冢长枪管","cat":"枪管","grade":3,"price":98352,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000578.png","catId":"barrel"},{"id":13020000476,"name":"G17轻量化枪管","cat":"枪管","grade":2,"price":13961,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000476.png","catId":"barrel"},{"id":13020000477,"name":"G17战术重枪管","cat":"枪管","grade":2,"price":16202,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000477.png","catId":"barrel"},{"id":13020000456,"name":"G18冲击长枪管","cat":"枪管","grade":2,"price":42080,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000456.png","catId":"barrel"},{"id":13020000486,"name":"G3加强长枪管组合","cat":"枪管","grade":3,"price":66722,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000486.png","catId":"barrel"},{"id":13020000483,"name":"G3飓风短枪管组合","cat":"枪管","grade":3,"price":32072,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000483.png","catId":"barrel"},{"id":13020000512,"name":"G3平台神射枪管组合","cat":"枪管","grade":4,"price":77381,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000512.png","catId":"barrel"},{"id":13020000394,"name":"G3守卫标准枪管组合","cat":"枪管","grade":3,"price":66722,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000394.png","catId":"barrel"},{"id":13020000595,"name":"HVK格斗套件","cat":"枪管","grade":4,"price":96143,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000595.png","catId":"barrel"},{"id":13020000360,"name":"K416精英重枪管组合","cat":"枪管","grade":3,"price":44310,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000360.png","catId":"barrel"},{"id":13020000362,"name":"K416特勤短枪管组合","cat":"枪管","grade":4,"price":34730,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000362.png","catId":"barrel"},{"id":13020000492,"name":"K416A8枪管组合","cat":"枪管","grade":4,"price":45440,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000492.png","catId":"barrel"},{"id":13020000493,"name":"K416A8长枪管组合","cat":"枪管","grade":4,"price":48117,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000493.png","catId":"barrel"},{"id":13020000541,"name":"K437断刃短枪管组合","cat":"枪管","grade":4,"price":74847,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000541.png","catId":"barrel"},{"id":13020000546,"name":"K437特攻一体消音枪管","cat":"枪管","grade":4,"price":69078,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000546.png","catId":"barrel"},{"id":13020000543,"name":"K437长矛手长枪管组合","cat":"枪管","grade":4,"price":61496,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000543.png","catId":"barrel"},{"id":13020000553,"name":"KC17短刃枪管","cat":"枪管","grade":4,"price":36543,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000553.png","catId":"barrel"},{"id":13020000554,"name":"KC17影舞者消音","cat":"枪管","grade":4,"price":49958,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000554.png","catId":"barrel"},{"id":13020000552,"name":"KC17长剑枪管","cat":"枪管","grade":4,"price":55545,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000552.png","catId":"barrel"},{"id":13020000453,"name":"M1014断点枪管","cat":"枪管","grade":3,"price":44849,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000453.png","catId":"barrel"},{"id":13020000388,"name":"M14洞察超长枪管","cat":"枪管","grade":3,"price":77820,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000388.png","catId":"barrel"},{"id":13020000386,"name":"M14漫游标准枪管","cat":"枪管","grade":3,"price":77745,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000386.png","catId":"barrel"},{"id":13020000387,"name":"M14轻语短枪管","cat":"枪管","grade":3,"price":63947,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000387.png","catId":"barrel"},{"id":13020000519,"name":"M1911夜鹰战术枪管","cat":"枪管","grade":2,"price":12860,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000519.png","catId":"barrel"},{"id":13020000311,"name":"M249海湾短枪管","cat":"枪管","grade":3,"price":150240,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000311.png","catId":"barrel"},{"id":13020000239,"name":"M249犀牛长枪管","cat":"枪管","grade":3,"price":61848,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000239.png","catId":"barrel"},{"id":13020000590,"name":"M249H.A.V.K链锯套件","cat":"枪管","grade":4,"price":167387,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000590.png","catId":"barrel"},{"id":13020000520,"name":"M250侍卫短枪管","cat":"枪管","grade":4,"price":37362,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000520.png","catId":"barrel"},{"id":13020000524,"name":"M250钛金长枪管","cat":"枪管","grade":4,"price":141821,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000524.png","catId":"barrel"},{"id":13020000515,"name":"M700猎食军规枪管","cat":"枪管","grade":3,"price":124665,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000515.png","catId":"barrel"},{"id":13020000444,"name":"M700平流层长枪管","cat":"枪管","grade":3,"price":148302,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000444.png","catId":"barrel"},{"id":13020000443,"name":"M700一体消音管","cat":"枪管","grade":4,"price":111021,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000443.png","catId":"barrel"},{"id":13020000383,"name":"M7堤风超长枪管组合","cat":"枪管","grade":4,"price":298008,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000383.png","catId":"barrel"},{"id":13020000518,"name":"M7灵蜥短枪管","cat":"枪管","grade":4,"price":77570,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000518.png","catId":"barrel"},{"id":13020000381,"name":"M7实用长枪管组合","cat":"枪管","grade":3,"price":98459,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000381.png","catId":"barrel"},{"id":13020000494,"name":"M870扩容枪管","cat":"枪管","grade":2,"price":9257,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000494.png","catId":"barrel"},{"id":13020000572,"name":"MCX LT猎手枪管","cat":"枪管","grade":3,"price":24492,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000572.png","catId":"barrel"},{"id":13020000573,"name":"MCX LT焰魂枪管","cat":"枪管","grade":4,"price":55793,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000573.png","catId":"barrel"},{"id":13020000489,"name":"Mini-14增强枪管","cat":"枪管","grade":3,"price":64362,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000489.png","catId":"barrel"},{"id":13020000560,"name":"MK47鏖战枪管","cat":"枪管","grade":4,"price":149634,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000560.png","catId":"barrel"},{"id":13020000559,"name":"MK47余烬枪管","cat":"枪管","grade":4,"price":171024,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000559.png","catId":"barrel"},{"id":13020000563,"name":"MK4击剑手枪管","cat":"枪管","grade":4,"price":24953,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000563.png","catId":"barrel"},{"id":13020000564,"name":"MK4深空镀铬枪管","cat":"枪管","grade":4,"price":55793,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000564.png","catId":"barrel"},{"id":13020000430,"name":"MP5斥候长枪管组合","cat":"枪管","grade":3,"price":32333,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000430.png","catId":"barrel"},{"id":13020000427,"name":"MP5性能枪管组合","cat":"枪管","grade":3,"price":32601,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000427.png","catId":"barrel"},{"id":13020000429,"name":"MP5隐蔽短枪管组合","cat":"枪管","grade":3,"price":94472,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000429.png","catId":"barrel"},{"id":13020000428,"name":"MP5战术枪管组合","cat":"枪管","grade":3,"price":59720,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000428.png","catId":"barrel"},{"id":13020000474,"name":"MP5SD特勤一体消音枪管","cat":"枪管","grade":4,"price":56901,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000474.png","catId":"barrel"},{"id":13020000498,"name":"MP7蜂刺长枪管组合","cat":"枪管","grade":4,"price":69677,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000498.png","catId":"barrel"},{"id":13020000500,"name":"MP7狼牙轻枪管","cat":"枪管","grade":4,"price":77213,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000500.png","catId":"barrel"},{"id":13020000568,"name":"MP7月影镀铬枪管","cat":"枪管","grade":4,"price":42717,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000568.png","catId":"barrel"},{"id":13020000499,"name":"MP7增强枪管组合","cat":"枪管","grade":3,"price":39534,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000499.png","catId":"barrel"},{"id":13020000473,"name":"P90猎豹重枪管","cat":"枪管","grade":3,"price":55769,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000473.png","catId":"barrel"},{"id":13020000579,"name":"P90长弓精钢枪管","cat":"枪管","grade":3,"price":53805,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000579.png","catId":"barrel"},{"id":13020000472,"name":"P90重攻长枪管","cat":"枪管","grade":3,"price":57950,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000472.png","catId":"barrel"},{"id":13020000416,"name":"PKM地平线重枪管","cat":"枪管","grade":3,"price":129131,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000416.png","catId":"barrel"},{"id":13020000414,"name":"PKM壕战短枪管","cat":"枪管","grade":3,"price":55793,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000414.png","catId":"barrel"},{"id":13020000372,"name":"QBZ95-1实用短枪管","cat":"枪管","grade":2,"price":16356,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000372.png","catId":"barrel"},{"id":13020000373,"name":"QBZ95-1长弓枪管组合","cat":"枪管","grade":3,"price":42194,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000373.png","catId":"barrel"},{"id":13020000505,"name":"QBZ95战术枪管","cat":"枪管","grade":2,"price":16211,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000505.png","catId":"barrel"},{"id":13020000532,"name":"QCQ171新式红缨战术枪管","cat":"枪管","grade":4,"price":154121,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000532.png","catId":"barrel"},{"id":13020000531,"name":"QCQ171新式狡兔短枪管","cat":"枪管","grade":4,"price":55793,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000531.png","catId":"barrel"},{"id":13020000533,"name":"QCQ171新式渗透一体消音枪管","cat":"枪管","grade":4,"price":111021,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000533.png","catId":"barrel"},{"id":13020000529,"name":"QJB201新式獠牙短枪管","cat":"枪管","grade":4,"price":28808,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000529.png","catId":"barrel"},{"id":13020000530,"name":"QJB201新式重锤战术枪管","cat":"枪管","grade":4,"price":55818,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000530.png","catId":"barrel"},{"id":13020000528,"name":"QSZ92G响尾蛇战术枪管","cat":"枪管","grade":1,"price":13727,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000528.png","catId":"barrel"},{"id":13020000488,"name":"R93裂变长枪管","cat":"枪管","grade":3,"price":49785,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000488.png","catId":"barrel"},{"id":13020000487,"name":"R93轻盈短枪管","cat":"枪管","grade":3,"price":80505,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000487.png","catId":"barrel"},{"id":13020000449,"name":"S12K防御者短枪管组合","cat":"枪管","grade":4,"price":85449,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000449.png","catId":"barrel"},{"id":13020000451,"name":"S12K破阵长枪管组合","cat":"枪管","grade":4,"price":45723,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000451.png","catId":"barrel"},{"id":13020000448,"name":"S12K实用短枪管组合","cat":"枪管","grade":2,"price":39101,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000448.png","catId":"barrel"},{"id":13020000450,"name":"S12K实用长枪管组合","cat":"枪管","grade":2,"price":38282,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000450.png","catId":"barrel"},{"id":13020000390,"name":"SCARH海狸长枪管","cat":"枪管","grade":3,"price":28769,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000390.png","catId":"barrel"},{"id":13020000392,"name":"SCARH零式短枪管","cat":"枪管","grade":3,"price":55649,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000392.png","catId":"barrel"},{"id":13020000391,"name":"SCARH实用标准枪管","cat":"枪管","grade":3,"price":25232,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000391.png","catId":"barrel"},{"id":13020000570,"name":"SG552猎犬轻型枪管","cat":"枪管","grade":4,"price":32234,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000570.png","catId":"barrel"},{"id":13020000320,"name":"SG552骑士重枪管","cat":"枪管","grade":3,"price":52206,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000320.png","catId":"barrel"},{"id":13020000406,"name":"SKS截断标准枪管","cat":"枪管","grade":4,"price":58964,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000406.png","catId":"barrel"},{"id":13020000407,"name":"SKS瞬息超长枪管","cat":"枪管","grade":4,"price":81651,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000407.png","catId":"barrel"},{"id":13020000523,"name":"SMG45裂变长枪管","cat":"枪管","grade":3,"price":114255,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000523.png","catId":"barrel"},{"id":13020000423,"name":"smg45实用重枪管","cat":"枪管","grade":2,"price":27591,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000423.png","catId":"barrel"},{"id":13020000425,"name":"SMG45竹鼠短枪管","cat":"枪管","grade":3,"price":109652,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000425.png","catId":"barrel"},{"id":13020000424,"name":"SMG长弩超长枪管","cat":"枪管","grade":3,"price":42365,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000424.png","catId":"barrel"},{"id":13020000522,"name":"SR-3M铸钢战术枪管","cat":"枪管","grade":3,"price":88205,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000522.png","catId":"barrel"},{"id":13020000398,"name":"SR25瞬息短枪管","cat":"枪管","grade":4,"price":45392,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000398.png","catId":"barrel"},{"id":13020000396,"name":"SR25新星超长枪管","cat":"枪管","grade":4,"price":251672,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000396.png","catId":"barrel"},{"id":13020000397,"name":"SR25追风长枪管","cat":"枪管","grade":4,"price":77841,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000397.png","catId":"barrel"},{"id":13020000291,"name":"SV98灵巧短枪管","cat":"枪管","grade":3,"price":159453,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000291.png","catId":"barrel"},{"id":13020000231,"name":"SV98龙萤轻枪管","cat":"枪管","grade":3,"price":155000,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000231.png","catId":"barrel"},{"id":13020000230,"name":"SV98升华超长枪管","cat":"枪管","grade":3,"price":163053,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000230.png","catId":"barrel"},{"id":13020000403,"name":"SVD黑刺超长枪管","cat":"枪管","grade":3,"price":109073,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000403.png","catId":"barrel"},{"id":13020000402,"name":"svd实用长枪管","cat":"枪管","grade":3,"price":22835,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000402.png","catId":"barrel"},{"id":13020000432,"name":"UZI竞赛性能长枪管","cat":"枪管","grade":2,"price":44208,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000432.png","catId":"barrel"},{"id":13020000434,"name":"UZI军需长枪管","cat":"枪管","grade":2,"price":47322,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000434.png","catId":"barrel"},{"id":13020000433,"name":"UZI突击标准枪管","cat":"枪管","grade":2,"price":46739,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000433.png","catId":"barrel"},{"id":13020000420,"name":"Vector堡垒重枪管组合","cat":"枪管","grade":4,"price":69683,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000420.png","catId":"barrel"},{"id":13020000419,"name":"Vector导轨枪管组合","cat":"枪管","grade":3,"price":62367,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000419.png","catId":"barrel"},{"id":13020000421,"name":"Vector长剑超长枪管组合","cat":"枪管","grade":4,"price":50618,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000421.png","catId":"barrel"},{"id":13020000410,"name":"VSS海啸长枪管组合","cat":"枪管","grade":4,"price":177153,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13020000410.png","catId":"barrel"}],"grip":[{"id":13030000109,"name":"416实用后握把","cat":"后握把","grade":2,"price":5310,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13030000109.png","catId":"grip"},{"id":13030000060,"name":"左轮狙击后握","cat":"后握把","grade":2,"price":9632,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13030000060.png","catId":"grip"},{"id":13030000106,"name":"G3后握把","cat":"后握把","grade":4,"price":33735,"pic":"https://playerhub.df.qq.com/playerhub/60004/object/13030000106.png","catId":"grip"}],"ammo":[{"object_id":37280500001,"name":".300BLK","grade":5,"caliber":null,"penetration_level":5,"latest_price":6440,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 07:00-09:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/300BLK.png"},{"object_id":37280400001,"name":".300BLK","grade":4,"caliber":null,"penetration_level":4,"latest_price":2531,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 02:00-04:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/300BLK.png"},{"object_id":37280300001,"name":".300BLK","grade":3,"caliber":null,"penetration_level":3,"latest_price":768,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 03:30-05:30","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/300BLK.png"},{"object_id":37280400002,"name":".300BLK BCP SUB","grade":4,"caliber":null,"penetration_level":4,"latest_price":2859,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 00:00-02:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/300BLK.png"},{"object_id":37280300002,"name":".300BLK V SUB","grade":3,"caliber":null,"penetration_level":3,"latest_price":779,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 00:00-02:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/300BLK.png"},{"object_id":37220000001,"name":".357 Magnum 9号霰射\"鼠弹\"","grade":3,"caliber":null,"penetration_level":null,"latest_price":312,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 03:30-05:30","trend":"rising","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/.357.png"},{"object_id":37220400001,"name":".357 Magnum FMJ","grade":4,"caliber":null,"penetration_level":4,"latest_price":818,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 22:00-24:00","trend":"falling","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/.357.png"},{"object_id":37220200001,"name":".357 Magnum HP","grade":2,"caliber":null,"penetration_level":2,"latest_price":228,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 07:00-09:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/.357.png"},{"object_id":37220300001,"name":".357 Magnum JHP","grade":3,"caliber":null,"penetration_level":3,"latest_price":779,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 04:00-06:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/.357.png"},{"object_id":37190400001,"name":".45 ACP AP","grade":4,"caliber":null,"penetration_level":4,"latest_price":1838,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 04:30-06:30","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/45-ACP.png"},{"object_id":37190300001,"name":".45 ACP FMJ","grade":3,"caliber":null,"penetration_level":3,"latest_price":489,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 04:00-06:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/45-ACP.png"},{"object_id":37190100001,"name":".45 ACP HS","grade":1,"caliber":null,"penetration_level":1,"latest_price":65,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 12:30-14:30","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/45-ACP.png"},{"object_id":37190200001,"name":".45 ACP JHP","grade":2,"caliber":null,"penetration_level":2,"latest_price":167,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 02:00-04:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/45-ACP.png"},{"object_id":37190000001,"name":".45 ACP RIP","grade":3,"caliber":null,"penetration_level":null,"latest_price":975,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 02:30-04:30","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/45-ACP.png"},{"object_id":37230500001,"name":".50 AE AP","grade":5,"caliber":null,"penetration_level":5,"latest_price":6515,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 20:30-22:30","trend":"rising","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/50-AE.png"},{"object_id":37230400001,"name":".50 AE FMJ","grade":4,"caliber":null,"penetration_level":4,"latest_price":2393,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 06:30-08:30","trend":"rising","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/50-AE.png"},{"object_id":37230200001,"name":".50 AE HP","grade":2,"caliber":null,"penetration_level":2,"latest_price":246,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 13:00-15:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/50-AE.png"},{"object_id":37230300001,"name":".50 AE JHP","grade":3,"caliber":null,"penetration_level":3,"latest_price":726,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 04:00-06:00","trend":"falling","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/50-AE.png"},{"object_id":37250100001,"name":"12 Gauge 7毫米鹿弹","grade":1,"caliber":null,"penetration_level":1,"latest_price":35,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 02:30-04:30","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},{"object_id":37250000001,"name":"12 Gauge 8.5毫米鹿弹","grade":3,"caliber":null,"penetration_level":null,"latest_price":560,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 02:30-04:30","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},{"object_id":37250300001,"name":"12 Gauge 箭形弹","grade":3,"caliber":null,"penetration_level":3,"latest_price":582,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 04:00-06:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},{"object_id":37250400003,"name":"12 Gauge 龙息弹","grade":4,"caliber":null,"penetration_level":null,"latest_price":2460,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 06:30-08:30","trend":"rising","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},{"object_id":37250400002,"name":"12 Gauge独头 AP-20","grade":4,"caliber":null,"penetration_level":4,"latest_price":827,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 05:30-07:30","trend":"rising","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},{"object_id":37250300002,"name":"12 Gauge独头 FTX","grade":3,"caliber":null,"penetration_level":3,"latest_price":779,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 03:30-05:30","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},{"object_id":37250200002,"name":"12 Gauge独头 GT","grade":2,"caliber":null,"penetration_level":2,"latest_price":98,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 00:00-02:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},{"object_id":37250000002,"name":"12 Gauge独头 RIP","grade":2,"caliber":null,"penetration_level":null,"latest_price":200,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 00:00-02:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12-Gauge.png"},{"object_id":37160400002,"name":"12.7x55mm PD12双头弹","grade":4,"caliber":null,"penetration_level":4,"latest_price":4001,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 06:30-08:30","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12.7x55.png"},{"object_id":37160400001,"name":"12.7x55mm PS12","grade":4,"caliber":null,"penetration_level":4,"latest_price":2403,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 05:30-07:30","trend":"rising","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12.7x55.png"},{"object_id":37160300001,"name":"12.7x55mm PS12A","grade":3,"caliber":null,"penetration_level":3,"latest_price":1094,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 03:30-05:30","trend":"rising","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12.7x55.png"},{"object_id":37160500001,"name":"12.7x55mm PS12B","grade":5,"caliber":null,"penetration_level":5,"latest_price":7445,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 06:30-08:30","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/12.7x55.png"},{"object_id":37260500001,"name":"4.6x30mm AP SX","grade":5,"caliber":null,"penetration_level":5,"latest_price":5583,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 08:00-10:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/4.6x30.png"},{"object_id":37260400001,"name":"4.6x30mm FMJ SX","grade":4,"caliber":null,"penetration_level":4,"latest_price":1493,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 03:00-05:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/4.6x30.png"},{"object_id":37260300001,"name":"4.6x30mm Subsonic SX","grade":3,"caliber":null,"penetration_level":3,"latest_price":581,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 04:00-06:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/4.6x30.png"},{"object_id":37290400001,"name":"45-70 Govt FMJ","grade":4,"caliber":null,"penetration_level":4,"latest_price":1722,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 06:30-08:30","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/37290400001.png"},{"object_id":37290500001,"name":"45-70 Govt FTX","grade":5,"caliber":null,"penetration_level":5,"latest_price":6803,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 07:30-09:30","trend":"rising","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/37290500001.png"},{"object_id":37290300001,"name":"45-70 Govt RN","grade":3,"caliber":null,"penetration_level":null,"latest_price":741,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 04:30-06:30","trend":"rising","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/37290300001.png"},{"object_id":37120500003,"name":"5.45*39mm BS ST+","grade":5,"caliber":null,"penetration_level":5,"latest_price":8486,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 00:00-02:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39.png"},{"object_id":37120400003,"name":"5.45*39mm BT ST","grade":4,"caliber":null,"penetration_level":4,"latest_price":2763,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 01:30-03:30","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39.png"},{"object_id":37120500001,"name":"5.45x39mm BS","grade":5,"caliber":null,"penetration_level":5,"latest_price":6051,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 08:00-10:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39.png"},{"object_id":37120400001,"name":"5.45x39mm BT","grade":4,"caliber":null,"penetration_level":4,"latest_price":1674,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 05:00-07:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39.png"},{"object_id":37120100001,"name":"5.45x39mm PRS","grade":1,"caliber":null,"penetration_level":1,"latest_price":60,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 14:00-16:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39.png"},{"object_id":37120300001,"name":"5.45x39mm PS","grade":3,"caliber":null,"penetration_level":3,"latest_price":419,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 03:30-05:30","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39.png"},{"object_id":37120200001,"name":"5.45x39mm T","grade":2,"caliber":null,"penetration_level":2,"latest_price":150,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 00:00-02:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.45x39.png"},{"object_id":37100300002,"name":"5.56*45mm M855 APC","grade":3,"caliber":null,"penetration_level":3,"latest_price":573,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 00:30-02:30","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"},{"object_id":37100400002,"name":"5.56*45mm M855A1 APC+","grade":4,"caliber":null,"penetration_level":4,"latest_price":2588,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 02:00-04:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"},{"object_id":37100200001,"name":"5.56x45mm FMJ","grade":2,"caliber":null,"penetration_level":2,"latest_price":119,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 06:00-08:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"},{"object_id":37100300001,"name":"5.56x45mm M855","grade":3,"caliber":null,"penetration_level":3,"latest_price":519,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 05:30-07:30","trend":"rising","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"},{"object_id":37100400001,"name":"5.56x45mm M855A1","grade":4,"caliber":null,"penetration_level":4,"latest_price":1517,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 02:30-04:30","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"},{"object_id":37100500001,"name":"5.56x45mm M995","grade":5,"caliber":null,"penetration_level":5,"latest_price":5733,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 07:30-09:30","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"},{"object_id":37100100001,"name":"5.56x45mm RRLP","grade":1,"caliber":null,"penetration_level":1,"latest_price":53,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 07:00-09:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.56x45mm.png"},{"object_id":37210300001,"name":"5.7x28mm L191","grade":3,"caliber":null,"penetration_level":3,"latest_price":585,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 03:30-05:30","trend":"falling","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.7x28.png"},{"object_id":37210000001,"name":"5.7x28mm R37.F","grade":3,"caliber":null,"penetration_level":null,"latest_price":701,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 02:00-04:00","trend":"rising","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.7x28.png"},{"object_id":37210500001,"name":"5.7x28mm SS190","grade":5,"caliber":null,"penetration_level":5,"latest_price":5981,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 07:30-09:30","trend":"rising","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.7x28.png"},{"object_id":37210400001,"name":"5.7x28mm SS193","grade":4,"caliber":null,"penetration_level":4,"latest_price":2345,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 02:00-04:00","trend":"rising","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.7x28.png"},{"object_id":37210200001,"name":"5.7x28mm SS197SR","grade":2,"caliber":null,"penetration_level":2,"latest_price":146,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 03:30-05:30","trend":"falling","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.7x28.png"},{"object_id":37210100001,"name":"5.7x28mm SS198LF","grade":1,"caliber":null,"penetration_level":1,"latest_price":57,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 03:00-05:00","trend":"falling","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.7x28.png"},{"object_id":37130400001,"name":"5.8x42mm DBP10","grade":4,"caliber":null,"penetration_level":4,"latest_price":1985,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 04:30-06:30","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.8x42.png"},{"object_id":37130200001,"name":"5.8x42mm DBP87","grade":2,"caliber":null,"penetration_level":2,"latest_price":141,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 04:30-06:30","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.8x42.png"},{"object_id":37130500001,"name":"5.8x42mm DVC12","grade":5,"caliber":null,"penetration_level":5,"latest_price":5933,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 07:00-09:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.8x42.png"},{"object_id":37130300001,"name":"5.8x42mm DVP88","grade":3,"caliber":null,"penetration_level":3,"latest_price":740,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 04:00-06:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/5.8x42.png"},{"object_id":37150400001,"name":"6.8x51mm FMJ","grade":4,"caliber":null,"penetration_level":4,"latest_price":2429,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 04:30-06:30","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/6.8x51.png"},{"object_id":37150500001,"name":"6.8x51mm Hybrid","grade":5,"caliber":null,"penetration_level":5,"latest_price":7754,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 10:30-12:30","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/6.8x51.png"},{"object_id":37110500002,"name":"7.62*39mm AP SUB","grade":5,"caliber":null,"penetration_level":5,"latest_price":8666,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 00:00-02:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x39.png"},{"object_id":37110400002,"name":"7.62*39mm BP SUB","grade":4,"caliber":null,"penetration_level":4,"latest_price":2379,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 00:00-02:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x39.png"},{"object_id":37110500001,"name":"7.62x39mm AP","grade":5,"caliber":null,"penetration_level":5,"latest_price":7344,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 08:00-10:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x39.png"},{"object_id":37110400001,"name":"7.62x39mm BP","grade":4,"caliber":null,"penetration_level":4,"latest_price":1839,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 04:30-06:30","trend":"rising","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x39.png"},{"object_id":37110100001,"name":"7.62x39mm LP","grade":1,"caliber":null,"penetration_level":1,"latest_price":65,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 03:30-05:30","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x39.png"},{"object_id":37110300001,"name":"7.62x39mm PS","grade":3,"caliber":null,"penetration_level":3,"latest_price":827,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 03:30-05:30","trend":"rising","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x39.png"},{"object_id":37110200001,"name":"7.62x39mm T45M","grade":2,"caliber":null,"penetration_level":2,"latest_price":167,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 03:00-05:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x39.png"},{"object_id":37170300001,"name":"7.62x51mm BPZ","grade":3,"caliber":null,"penetration_level":3,"latest_price":792,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 04:00-06:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x51mm.png"},{"object_id":37170500001,"name":"7.62x51mm M62","grade":5,"caliber":null,"penetration_level":5,"latest_price":8351,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 08:30-10:30","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x51mm.png"},{"object_id":37170400001,"name":"7.62x51mm M80","grade":4,"caliber":null,"penetration_level":4,"latest_price":1707,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 04:30-06:30","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x51mm.png"},{"object_id":37170200001,"name":"7.62x51mm UN","grade":2,"caliber":null,"penetration_level":2,"latest_price":171,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 04:30-06:30","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x51mm.png"},{"object_id":37180500001,"name":"7.62x54R BT","grade":5,"caliber":null,"penetration_level":5,"latest_price":6801,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 06:30-08:30","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x54mm.png"},{"object_id":37180400001,"name":"7.62x54R LPS","grade":4,"caliber":null,"penetration_level":4,"latest_price":2295,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 06:00-08:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x54mm.png"},{"object_id":37180300001,"name":"7.62x54R T46M","grade":3,"caliber":null,"penetration_level":3,"latest_price":873,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 04:00-06:00","trend":"rising","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/7.62x54mm.png"},{"object_id":37200300001,"name":"9x19mm AP6.3","grade":3,"caliber":null,"penetration_level":3,"latest_price":437,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 04:00-06:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x19.png"},{"object_id":37200400001,"name":"9x19mm PBP","grade":4,"caliber":null,"penetration_level":4,"latest_price":1509,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 04:00-06:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x19.png"},{"object_id":37200100001,"name":"9x19mm PSO","grade":1,"caliber":null,"penetration_level":1,"latest_price":48,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 00:00-02:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x19.png"},{"object_id":37200200001,"name":"9x19mm Pst","grade":2,"caliber":null,"penetration_level":2,"latest_price":128,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 05:00-07:00","trend":"rising","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x19.png"},{"object_id":37200000001,"name":"9x19mm RIP","grade":3,"caliber":null,"penetration_level":null,"latest_price":792,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 01:00-03:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x19.png"},{"object_id":37140500001,"name":"9x39mm BP","grade":5,"caliber":null,"penetration_level":5,"latest_price":6726,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 09:00-11:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x39.png"},{"object_id":37140300001,"name":"9x39mm SP5","grade":3,"caliber":null,"penetration_level":3,"latest_price":786,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 04:00-06:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x39.png"},{"object_id":37140400001,"name":"9x39mm SP6","grade":4,"caliber":null,"penetration_level":4,"latest_price":2282,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 03:30-05:30","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/gun/ammo/9x39.png"},{"object_id":37270300001,"name":"玻纤柳叶箭矢","grade":3,"caliber":null,"penetration_level":3,"latest_price":1199,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 00:00-02:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/37270300001.png"},{"object_id":37270500001,"name":"碳纤维穿甲箭矢","grade":5,"caliber":null,"penetration_level":5,"latest_price":7604,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 08:00-10:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/37270500001.png"},{"object_id":37270400001,"name":"碳纤维刺骨箭矢","grade":4,"caliber":null,"penetration_level":4,"latest_price":2571,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 05:30-07:30","trend":"rising","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/37270400001.png"},{"object_id":37270500002,"name":"碳纤维散射箭矢","grade":5,"caliber":null,"penetration_level":5,"latest_price":4862,"latest_price_at":"2026-05-10T00:17:59.000000Z","best_buy_time_label":"综合 00:00-02:00","trend":"stable","pic_url":"https://playerhub.df.qq.com/playerhub/60004/object/37270500002.png"}]};
+ST.cat = 'ammo';
+
+// Category config
+var CATS = [
+  {id:'ammo',zh:'🔫 子弹',en:'🔫 Ammo'},
+  {id:'helmet',zh:'⛑️ 头盔',en:'⛑️ Helmet'},
+  {id:'armor',zh:'🛡️ 护甲',en:'🛡️ Armor'},
+  {id:'rig',zh:'👕 胸挂',en:'👕 Vest'},
+  {id:'backpack',zh:'🎒 背包',en:'🎒 Bag'},
+  {id:'barrel',zh:'🔧 枪管',en:'🔧 Barrel'},
+  {id:'grip',zh:'✋ 握把',en:'✋ Grip'},
+  {id:'keycard',zh:'🔑 钥匙卡',en:'🔑 Keycard'}
+];
+
+var searchPlaceholders = {
+  ammo:'搜索子弹名称...',helmet:'搜索头盔名称...',armor:'搜索护甲名称...',
+  rig:'搜索胸挂名称...',backpack:'搜索背包名称...',barrel:'搜索枪管名称...',
+  grip:'搜索握把名称...',keycard:'搜索钥匙卡...'
+};
+
+// Category switching
+function switchCat(cat) {
+  ST.cat = cat;
+  ST.selectedIdx = -1;
+  ST.items = ST.allData[cat] || [];
+  ST.grade = 'all';
+  ST.trend = 'all';
+  document.querySelectorAll('.cat-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.cat === cat); });
+  var c = CATS.find(function(x){return x.id===cat;}) || CATS[0];
+  document.getElementById('sidebarTitle').innerHTML = '<span>' + c.zh[0] + '</span> ' + c.zh.substring(2);
+  document.getElementById('searchInput').placeholder = searchPlaceholders[cat] || '搜索名称...';
+  rebuildFilters();
+  applyFilters();
+  document.getElementById('detailArea').innerHTML = '<div class=\x22empty\x22><div class=\x22empty-icon\x22>👆</div>选择一个物品查看详情</div>';
+}
+
+function rebuildFilters() {
+  var isAmmo = ST.cat === 'ammo';
+  var gf = document.getElementById('gradeFilters');
+  var tf = document.getElementById('trendFilters');
+  var total = ST.items.length;
+  if (isAmmo) {
+    gf.style.display = ''; tf.style.display = '';
+    gf.innerHTML = '<span class=\x22tag active\x22 data-g=\x22all\x22 onclick=\x22setGrade(\x27all\x27)\x22>全部 ' + total + '</span>' +
+      '<span class=\x22tag\x22 data-g=\x225\x22 onclick=\x22setGrade(\x275\x27)\x22>G5</span>' +
+      '<span class=\x22tag\x22 data-g=\x224\x22 onclick=\x22setGrade(\x274\x27)\x22>G4</span>' +
+      '<span class=\x22tag\x22 data-g=\x223\x22 onclick=\x22setGrade(\x273\x27)\x22>G3</span>' +
+      '<span class=\x22tag\x22 data-g=\x222\x22 onclick=\x22setGrade(\x272\x27)\x22>G2</span>' +
+      '<span class=\x22tag\x22 data-g=\x221\x22 onclick=\x22setGrade(\x271\x27)\x22>G1</span>';
+  } else {
+    gf.style.display = ''; tf.style.display = 'none';
+    gf.innerHTML = '<span class=\x22tag active\x22 data-g=\x22all\x22 onclick=\x22setGrade(\x27all\x27)\x22>全部 ' + total + '</span>';
+  }
+  document.querySelectorAll('#gradeFilters .tag').forEach(function(t){ t.classList.remove('active'); });
+  var sel = document.querySelector('#gradeFilters [data-g=\x22' + ST.grade + '\x22]');
+  if (sel) sel.classList.add('active');
+}
+
+// Modified applyFilters using ST.items
+var oldApplyFilters = applyFilters;
+applyFilters = function() {
+  var search = (document.getElementById('searchInput').value || '').toLowerCase();
+  var filtered = ST.items.filter(function(b) {
+    if (ST.grade !== 'all' && String(b.grade || b.grade_level) !== ST.grade) return false;
+    if (ST.trend !== 'all' && b.trend !== ST.trend) return false;
+    if (search && (b.name||'').toLowerCase().indexOf(search) < 0) return false;
+    return true;
+  });
+  if (ST.sort === 'price-desc') filtered.sort(function(a,b){ return (b.latest_price||b.price||0) - (a.latest_price||a.price||0); });
+  else if (ST.sort === 'price-asc') filtered.sort(function(a,b){ return (a.latest_price||a.price||0) - (b.latest_price||b.price||0); });
+  else if (ST.sort === 'name') filtered.sort(function(a,b){ return (a.name||'').localeCompare(b.name||'','zh'); });
+  renderItemList(filtered);
+};
+
+// Generic item list renderer
+function renderItemList(items) {
+  if (!items || items.length === 0) {
+    document.getElementById('bulletList').innerHTML = '<div class=\x22empty\x22><div class=\x22empty-icon\x22>🔍</div>没有匹配的物品</div>';
+    return;
+  }
+  var html = '';
+  items.forEach(function(b, i) {
+    var price = b.latest_price || b.price || 0;
+    var grade = b.grade || b.grade_level || 0;
+    var trendIcon = b.trend === 'rising' ? '📈' : b.trend === 'falling' ? '📉' : '➡️';
+    var trendCls = b.trend === 'rising' ? 'up' : b.trend === 'falling' ? 'dn' : 'st';
+    var gCls = 'g' + (grade || 0);
+    html += '<div class=\x22bullet-item' + (i === ST.selectedIdx ? ' active' : '') + '\x22 onclick=\x22selectItem(' + i + ', this)\x22 data-idx=\x22' + i + '\x22>' +
+      '<span class=\x22b-grade ' + gCls + '\x22>G' + grade + '</span>' +
+      '<span class=\x22b-name\x22 title=\x22' + (b.name||'-') + '\x22>' + (b.name||'-') + '</span>' +
+      '<span class=\x22b-price\x22>¥' + price.toLocaleString() + '</span>' +
+      (b.trend ? '<span class=\x22b-trend ' + trendCls + '\x22>' + trendIcon + '</span>' : '') +
+      '</div>';
+  });
+  document.getElementById('bulletList').innerHTML = html;
+}
+
+// Select item
+function selectItem(idx, el) {
+  ST.selectedIdx = idx;
+  document.querySelectorAll('.bullet-item').forEach(function(e){ e.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  ST.analysis = null;
+  var item = ST.items[idx];
+  if (!item) return;
+  renderDetail(item);
+  if (ST.apiOk && ST.cat === 'ammo' && item.object_id) loadAnalysis(idx);
+}
+
+// selectBullet redirects to selectItem
+if (typeof selectBullet === 'function') {
+  var oldSelectBullet = selectBullet;
+  selectBullet = function(idx, el) { selectItem(idx, el); };
+}
+
+// Modified renderDetail for multi-category support
+var oldRenderDetail = renderDetail;
+renderDetail = function(b) {
+  if (!b) return;
+  var price = b.latest_price || b.price || 0;
+  var grade = b.grade || b.grade_level || 0;
+  var gCls = 'g' + (grade || 0);
+  var pic = b.pic_url || b.pic || '';
+  var name = b.name || '-';
+  var id = b.object_id || b.id || '-';
+  var catName = b.cat || b.category || '';
+
+  var h = '';
+  h += '<div class=\x22price-hero\x22>';
+  if (pic) h += '<img class=\x22p-hero-img\x22 src=\x22' + pic + '\x22 onerror=\x22this.hidden=true\x22>';
+  h += '<div class=\x22p-hero-info\x22>';
+  h += '<div class=\x22p-hero-name\x22><span class=\x22b-grade ' + gCls + '\x22>G' + grade + '</span> ' + name + '</div>';
+  h += '<div class=\x22p-hero-meta\x22>';
+  if (b.caliber) h += '口径: ' + b.caliber + ' | ';
+  if (b.penetration_level) h += '穿透: Lv.' + b.penetration_level + ' | ';
+  if (catName) h += catName + ' | ';
+  h += 'ID: ' + id;
+  h += '</div></div>';
+  var upTime = b.latest_price_at || b.updated_at || '';
+  if (upTime && upTime.length > 8) upTime = new Date(upTime).toLocaleTimeString();
+  h += '<div class=\x22p-hero-price\x22><div class=\x22p-price-big\x22>¥' + price.toLocaleString() + '</div>';
+  h += '<div class=\x22p-price-lbl\x22>更新时间: ' + (upTime || '-') + '</div></div></div>';
+
+  // Stats
+  h += '<div class=\x22stat-row\x22>';
+  h += '<div class=\x22stat-card\x22><div class=\x22stat-lbl\x22>等级</div><div class=\x22stat-val\x22><span class=\x22b-grade ' + gCls + '\x22>G' + grade + '</span></div></div>';
+  h += '<div class=\x22stat-card\x22><div class=\x22stat-lbl\x22>类型</div><div class=\x22stat-val\x22 style=\x22font-size:12px\x22>' + (catName || '-') + '</div></div>';
+  h += '<div class=\x22stat-card\x22><div class=\x22stat-lbl\x22>价格</div><div class=\x22stat-val\x22 style=\x22color:var(--yellow)\x22>¥' + price.toLocaleString() + '</div></div>';
+  var trendLabel = b.trend==='rising' ? '📈 上涨' : b.trend==='falling' ? '📉 下跌' : '➡️ 平稳';
+  h += '<div class=\x22stat-card\x22><div class=\x22stat-lbl\x22>趋势</div><div class=\x22stat-val\x22>' + trendLabel + '</div></div>';
+  h += '</div>';
+
+  // Info grid
+  h += '<div class=\x22section-title\x22>物品信息</div>';
+  h += '<div class=\x22info-grid\x22>';
+  h += '<div class=\x22info-row\x22><span>物品ID</span><strong>' + id + '</strong></div>';
+  h += '<div class=\x22info-row\x22><span>等级</span><strong>G' + grade + '</strong></div>';
+  if (b.caliber) h += '<div class=\x22info-row\x22><span>口径</span><strong>' + b.caliber + '</strong></div>';
+  if (b.penetration_level) h += '<div class=\x22info-row\x22><span>穿透</span><strong>Lv.' + b.penetration_level + '</strong></div>';
+  h += '<div class=\x22info-row\x22><span>当前价格</span><strong>¥' + price.toLocaleString() + '</strong></div>';
+  if (upTime) h += '<div class=\x22info-row\x22><span>更新时间</span><strong>' + upTime + '</strong></div>';
+  h += '</div>';
+
+  // Chart for ammo only
+  if (ST.cat === 'ammo') {
+    h += '<div class=\x22section-title\x22>📊 价格走势</div>';
+    h += '<div class=\x22chart-box\x22 id=\x22priceChart\x22></div>';
+    h += '<div id=\x22analysisBox\x22><div style=\x22text-align:center;padding:16px;color:var(--muted)\x22><span class=\x22spinner\x22></span> 加载分析数据...</div></div>';
+  }
+
+  document.getElementById('detailArea').innerHTML = h;
+  if (ST.cat === 'ammo') setTimeout(renderChart, 100);
+};
+
+// Modified initApp
+var oldInitApp = initApp;
+initApp = async function() {
+  setStatus(false, '连接中...');
+  ST.items = ST.allData[ST.cat] || [];
+  rebuildFilters();
+  applyFilters();
+  // Try live data
+  try {
+    var bullets = await fetchAllAmmo();
+    if (bullets && bullets.length > 0) {
+      ST.allData.ammo = bullets;
+      if (ST.cat === 'ammo') { ST.items = bullets; applyFilters(); }
+      setStatus(true, '实时在线 · ' + bullets.length + '颗子弹');
+    }
+  } catch(e) {
+    console.log('Live fetch failed:', e.message);
+    setStatus(false, '离线 · 使用缓存数据');
+  }
+  try { ST.alerts = await fetchAlerts(); renderAlerts(); } catch(e) {}
+  ST.refreshTimer = setInterval(async function() {
+    try {
+      var fresh = await fetchAllAmmo();
+      if (fresh && fresh.length > 0) {
+        ST.allData.ammo = fresh;
+        if (ST.cat === 'ammo') { ST.items = fresh; applyFilters(); }
+        setStatus(true, '实时在线 · ' + fresh.length + '颗子弹 | 自动刷新');
+      }
+    } catch(e) {}
+  }, 300000);
+};
+
+</script>
+</body>
+</html>
